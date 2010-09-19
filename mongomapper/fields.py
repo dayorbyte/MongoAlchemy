@@ -85,6 +85,9 @@ class UnicodeField(PrimitiveField):
             return False
         return True
 
+class StringField(UnicodeField):
+    pass
+
 class BoolField(PrimitiveField):
     def __init__(self, **kwargs):
         super(BoolField, self).__init__(constructor=bool, **kwargs)
@@ -207,90 +210,4 @@ class DictField(Field):
         for k, v in value.iteritems():
             ret[self.key_type.unwrap(k)] = self.value_type.unwrap(v)
         return ret
-
-class MongoObject(object):
-    object_mapping = {}
-
-    _id = ObjectIdField(required=False)
-
-    @staticmethod
-    def register_type(cls, name = None):
-        if name == None:
-            name = cls.__name__
-        MongoObject.object_mapping[name] = cls
-
-    @classmethod
-    def get_id(cls, db, oid):
-        if not hasattr(cls, 'collection'):
-            raise Exception('get_id requires the python class to '
-                            'have a "collection" attribute')
-        id = ObjectId(str(oid))
-        obj = db[cls.collection].find_one({'_id' : id})
-        if obj == None:
-            return None
-        return MongoObject.unwrap(obj)
-
-    def __init__(self, **kwargs):
-        cls = self.__class__
-        for name in kwargs:
-            if (not hasattr(cls, name) or
-                not isinstance(getattr(cls, name), Field)):
-                raise Exception('Unknown keyword argument: %s' % name)
-            setattr(self, name, kwargs[name])
-
-        for name in dir(cls):
-            field = getattr(cls, name)
-            if isinstance(field, ComputedField):
-                setattr(self, name, field.fun(self))
-
-    def wrap(self):
-        '''Wrap a MongoObject into a format which can be inserted into
-            a mongo database'''
-        res = {}
-        cls = self.__class__
-        for name in dir(cls):
-            field = getattr(cls, name)
-            value = getattr(self, name)
-            if isinstance(field, Field):
-                if isinstance(value, Field):
-                    if field.required:
-                        raise MissingValueException(name)
-                    continue
-                if isinstance(field, ComputedField):
-                    value = self
-                res[name] = field.wrap(value)
-        res['_type'] = cls.__name__
-        return res
-
-    @classmethod
-    def unwrap(cls, obj):
-        '''Unwrap an object returned from the mongo database.'''
-        cls = MongoObject.object_mapping.get(obj['_type'], cls)
-        del obj['_type']
-
-        params = {}
-        for k, v in obj.iteritems():
-            field = getattr(cls, k)
-            if isinstance(field, ComputedField):
-                continue
-            params[str(k)] = field.unwrap(v)
-
-        i = cls(**params)
-        return i
-
-if __name__ == '__main__':
-    # random testing
-    class MO(MongoObject):
-        i = IntField()
-
-        def fun2(obj):
-            return obj.i + 1
-        ii = ComputedField(fun=fun2, computed_type=IntField())
-
-
-    m = MO(i=1)
-
-    # m.calc_ii()
-    MongoObject.register_type(MO)
-    print MongoObject.unwrap(m.wrap()).wrap()
 
