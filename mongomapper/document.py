@@ -25,7 +25,7 @@
 import pymongo
 
 from mongomapper.util import classproperty
-from mongomapper.query import Query
+from mongomapper.query import Query, QueryFieldSet
 from mongomapper.fields import ObjectIdField, Field, ComputedField
 
 class Document(object):
@@ -56,6 +56,22 @@ class Document(object):
             field = getattr(cls, name)
             if isinstance(field, ComputedField):
                 setattr(self, name, field.fun(self))
+    
+    @classproperty
+    def f(cls):
+        fields = {}
+        for name in dir(cls):
+            if name == 'f':
+                continue
+            field = getattr(cls, name)
+            if not isinstance(field, Field):
+                continue
+            fields[name] = field
+        return QueryFieldSet(cls, **fields)
+    
+    @classmethod
+    def class_name(cls):
+        return cls.__name__
     
     @classmethod
     def get_collection_name(cls):
@@ -119,7 +135,8 @@ class Index(object):
     def __init__(self):
         last = None
         self.components = []
-        self.__unique = False
+        self.unique = False
+        self.drop_dups = False
     
     def ascending(self, name):
         self.components.append((name, Index.ASCENDING))
@@ -129,11 +146,12 @@ class Index(object):
         self.components.append((name, Index.DESCENDING))
         return self
     
-    def unique(self):
-        self.__unique = True
+    def unique_index(self, drop_dups=False):
+        self.unique = True
+        self.drop_dups = drop_dups
         return self
     
     def ensure(self, collection):
-        collection.ensure_index(self.components, unique=self.__unique)
+        collection.ensure_index(self.components, unique=self.unique, drop_dups=self.drop_dups)
         return self
         

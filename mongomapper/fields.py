@@ -34,13 +34,13 @@ class MissingValueException(Exception):
 class Field(object):
     def __init__(self, required=True):
         self.required = required
-
+    
     def wrap(self, value):
         raise NotImplemented()
-
+    
     def unwrap(self, value):
         raise NotImplemented()
-
+    
     def is_valid(self, value):
         return True
 
