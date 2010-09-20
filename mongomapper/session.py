@@ -33,6 +33,10 @@ class Session(object):
     def clear(self):
         self.queue = []
     
+    def clear_collection(self, cls):
+        return self.db[cls.get_collection_name()].remove()
+
+    
     def flush(self, safe=True):
         for index, item in enumerate(self.queue):
             item.commit(self.db)
