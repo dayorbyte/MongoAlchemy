@@ -20,8 +20,14 @@ class Session(object):
         db = conn[database]
         return Session(db)
     
-    def end_session(self):
+    def end(self):
         conn.end_request()
+    
+    def insert(self, item):
+        ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
+            insertion until the _id field is actually accessed'''
+        self.queue.append(item)
+        self.flush()
     
     def execute(self, item):
         self.queue.append(item)

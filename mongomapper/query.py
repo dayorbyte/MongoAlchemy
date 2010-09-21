@@ -1,3 +1,4 @@
+from functools import wraps
 
 class Query(object):
     def __init__(self, type, db):
@@ -32,22 +33,61 @@ class Query(object):
 class UpdateExpression(object):
     def __init__(self, query):
         self.query = query
-        self.update = {}
+        self.update_data = {}
     
     def set(self, qfield, value):
+        ''' $set - set a particular value'''
+        return self.atomic_op('$set', qfield, value)
+    
+    def unset(self, qfield, value):
+        ''' $unset - delete a particular value (since 1.3.0) 
+            TODO: check version is >1.3.0'''
+        return self.atomic_op('$set', qfield, value)
+        
+    def inc(self, qfield, value):
+        ''' $inc - increment a particular field by a value '''
+        return self.atomic_op('$set', qfield, value)
+        
+    def append(self, qfield, value):
+        ''' $push - append a value to an array'''
+        return self.atomic_op('$push', qfield, value)
+        
+    def extend(self, qfield, *value):
+        ''' $pushAll - append several values to an array '''
+        return self.atomic_op('$pushAll', qfield, value)
+        
+    def remove(self, qfield, value):
+        ''' $pull - remove a value(s) from an existing array'''
+        return self.atomic_op('$pull', qfield, value)
+        
+    def remove_all(self, qfield, *value):
+        ''' $pullAll - remove several value(s) from an existing array'''
+        return self.atomic_op('$pullAll', qfield, value)
+    
+    def add_to_set(self, qfield, *value):
+        ''' $pullAll - remove several value(s) from an existing array'''
+        return self.atomic_op('$addToSet', qfield, value)
+    
+    def pop(self, qfield, value):
+        ''' $addToSet - Adds value to the array only if its not in the array already.
+            TODO: v1.1 only'''
+        return self.atomic_op('$pop', qfield, value)
+    
+    @validate_value
+    def atomic_op(self, op, qfield, value):
         if not qfield.type.is_valid(value):
             raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.type.class_name(), qfield.name, value))
-        if '$set' not in self.update:
-            self.update['$set'] = {}
-        self.update['$set'].update({qfield.name : value})
+        if op not in self.update_data:
+            self.update_data[op] = {}
+        self.update_data[op][qfield.name] = value
         return self
     
     def execute(self):
-        assert len(self.update) > 0
+        assert len(self.update_data) > 0
         collection = self.query.db[self.query.type.get_collection_name()]
         for index in self.query.type.get_indexes():
             index.ensure(collection)
-        collection.update(self.query.query, self.update)
+        collection.update(self.query.query, self.update_data)
 
 
 class QueryFieldSet(object):

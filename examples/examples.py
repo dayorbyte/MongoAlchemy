@@ -20,7 +20,7 @@ def main():
     
     u = User(name='jeff', email='jeff@qcircles.net')
     
-    s.execute(u)
+    s.insert(u)
     
     def print_all():
         for u in s.query(User).filter(User.f.name > 'ivan', User.f.name < 'katie' ):
