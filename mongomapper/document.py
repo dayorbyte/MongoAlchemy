@@ -28,8 +28,26 @@ from mongomapper.util import classproperty
 from mongomapper.query import Query, QueryFieldSet
 from mongomapper.fields import ObjectIdField, Field, ComputedField
 
+class DocumentMeta(type):
+    def __new__(meta, classname, bases, class_dict):
+        
+        new_class = type.__new__(meta, classname, bases, class_dict)
+        
+        for name, value in class_dict.iteritems():
+            if not isinstance(value, Field):
+                continue
+            value.set_name(name)
+            value.set_parent(new_class)
+        return new_class
+
+class MissingValueException(Exception):
+    pass
+
+
 class Document(object):
     object_mapping = {}
+    
+    __metaclass__ = DocumentMeta
     
     _id = ObjectIdField(required=False)
     
@@ -51,7 +69,7 @@ class Document(object):
                 not isinstance(getattr(cls, name), Field)):
                 raise Exception('Unknown keyword argument: %s' % name)
             setattr(self, name, kwargs[name])
-    
+        
         for name in dir(cls):
             field = getattr(cls, name)
             if isinstance(field, ComputedField):
@@ -59,6 +77,10 @@ class Document(object):
     
     @classproperty
     def f(cls):
+        return QueryFieldSet(cls, cls.get_fields())
+    
+    @classmethod
+    def get_fields(cls):
         fields = {}
         for name in dir(cls):
             if name == 'f':
@@ -67,7 +89,7 @@ class Document(object):
             if not isinstance(field, Field):
                 continue
             fields[name] = field
-        return QueryFieldSet(cls, **fields)
+        return fields
     
     @classmethod
     def class_name(cls):
@@ -124,6 +146,22 @@ class Document(object):
         
         i = cls(**params)
         return i
+    
+
+class DocumentField(Field):
+    
+    def __init__(self, document_class, **kwargs):
+        super(DocumentField, self).__init__(**kwargs)
+        self.type = document_class
+    
+    def wrap(self, value):
+        return self.type.wrap(value)
+    
+    def unwrap(self, value):
+        return self.type.unwrap(value)
+    
+    def is_valid(self, value):
+        return value.__class__ == self.__class__
 
 class BadIndexException(Exception):
     pass

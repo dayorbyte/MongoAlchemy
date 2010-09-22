@@ -1,10 +1,16 @@
-
+from pprint import pprint
 from mongomapper.session import Session
-from mongomapper.document import Document, Index
+from mongomapper.document import Document, Index, DocumentField
 from mongomapper.fields import *
 
 def main():
     s = Session.connect('mongomapper')
+    
+    class Address(Document):
+        street_address = StringField()
+        city = StringField()
+        state_province = StringField()
+        country = StringField()
     
     class User(Document):
         
@@ -12,14 +18,16 @@ def main():
         
         name = StringField()
         email = StringField()
+        
+        address = DocumentField(Address)
+        
         def __str__(self):
             return '%s (%s)' % (self.name, self.email)
     
     s.clear_collection(User)
     
-    
-    u = User(name='jeff', email='jeff@qcircles.net')
-    
+    a = Address(street_address='123 4th ave', city='NY', state_province='NY', country='USA')
+    u = User(name='jeff', email='jeff@qcircles.net', address=a)
     s.insert(u)
     
     def print_all():

@@ -65,7 +65,8 @@ class UpdateExpression(object):
         return self.atomic_op('$pullAll', qfield, value)
     
     def add_to_set(self, qfield, *value):
-        ''' $pullAll - remove several value(s) from an existing array'''
+        ''' $pullAll - remove several value(s) from an existing array
+            TODO: check version > 1.3.3 '''
         return self.atomic_op('$addToSet', qfield, value)
     
     def pop(self, qfield, value):
@@ -73,7 +74,6 @@ class UpdateExpression(object):
             TODO: v1.1 only'''
         return self.atomic_op('$pop', qfield, value)
     
-    @validate_value
     def atomic_op(self, op, qfield, value):
         if not qfield.type.is_valid(value):
             raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.type.class_name(), qfield.name, value))
@@ -91,19 +91,34 @@ class UpdateExpression(object):
 
 
 class QueryFieldSet(object):
-    def __init__(self, type, **kwargs):
+    def __init__(self, type, fields, parent=None):
         self.type = type
-        self.fields = kwargs
+        self.fields = fields
+        self.parent = parent
     def __getattr__(self, name):
         if name not in self.fields:
             raise Exception('%s is not a field in %s' % (name, self.type.class_name()))
-        return QueryField(name, self.fields[name])
+        return QueryField(name, self.fields[name], parent=self.parent)
 
 class QueryField(object):
-    def __init__(self, name, type):
+    def __init__(self, name, type, parent=None):
         self.name = name
         self.type = type
-
+        self.parent = parent
+    
+    @property
+    def f(self):
+        fields = self.type.type.get_fields()
+        return QueryFieldSet(self.type, fields, parent=self)
+    
+    def absolute_name(self):
+        res = []
+        current = self
+        while current:
+            res.append(current.name)
+            current = current.parent
+        return '.'.join(res)
+    
     def __eq__(self, value):
         if not self.type.is_valid(value):
             raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), name, value))

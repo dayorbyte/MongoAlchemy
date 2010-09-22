@@ -28,18 +28,21 @@ from pymongo.objectid import ObjectId
 class BadValueException(Exception):
     pass
 
-class MissingValueException(Exception):
-    pass
-
 class Field(object):
     def __init__(self, required=True):
         self.required = required
     
+    def set_name(self, name):
+        self.name = name
+    
+    def set_parent(self, parent):
+        self.parent = parent
+    
     def wrap(self, value):
-        raise NotImplemented()
+        raise NotImplemented
     
     def unwrap(self, value):
-        raise NotImplemented()
+        raise NotImplemented
     
     def is_valid(self, value):
         return True
