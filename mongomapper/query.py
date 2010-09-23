@@ -75,11 +75,11 @@ class UpdateExpression(object):
         return self.atomic_op('$pop', qfield, value)
     
     def atomic_op(self, op, qfield, value):
-        if not qfield.type.is_valid(value):
-            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.type.class_name(), qfield.name, value))
+        if not qfield.get_type().is_valid(value):
+            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().class_name(), qfield.get_name(), value))
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.name] = value
+        self.update_data[op][qfield.get_name()] = value
         return self
     
     def execute(self):
@@ -102,42 +102,62 @@ class QueryFieldSet(object):
 
 class QueryField(object):
     def __init__(self, name, type, parent=None):
-        self.name = name
-        self.type = type
-        self.parent = parent
+        self.__name = name
+        self.__type = type
+        self.__parent = parent
+    
+    def get_parent(self):
+        return self.__parent
+    
+    def get_name(self):
+        return self.__name
+    
+    def get_type(self):
+        return self.__type
+    
+    def __getattr__(self, name):
+        # if name.startswith('__'):
+        #     return object.__getattribute__(self, name)
+        fields = self.__type.type.get_fields()
+        if name not in fields:
+            raise Exception('%s is not a field in %s' % (name, self.__type.class_name()))
+        return QueryField(name, fields[name], parent=self)
     
     @property
     def f(self):
-        fields = self.type.type.get_fields()
-        return QueryFieldSet(self.type, fields, parent=self)
+        fields = self.__type.type.get_fields()
+        return QueryFieldSet(self.__type, fields, parent=self)
     
-    def absolute_name(self):
+    def __absolute_name(self):
         res = []
         current = self
         while current:
-            res.append(current.name)
-            current = current.parent
+            res.append(current.__name)
+            current = current.__parent
         return '.'.join(reversed(res))
     
+    def __str__(self):
+        return self.__absolute_name()
+    
     def __eq__(self, value):
-        if not self.type.is_valid(value):
+        if not self.__type.is_valid(value):
             raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), name, value))
-        return QueryExpression({ self.absolute_name() : value })
+        return QueryExpression({ self.__absolute_name() : value })
     def __lt__(self, value):
-        return self.comparator('$lt', value)
+        return self.__comparator('$lt', value)
     def __le__(self, value):
-        return self.comparator('$lte', value)
+        return self.__comparator('$lte', value)
     def __ne__(self, value):
-        return self.comparator('$ne', value)
+        return self.__comparator('$ne', value)
     def __gt__(self, value):
-        return self.comparator('$gt', value)
+        return self.__comparator('$gt', value)
     def __ge__(self, value):
-        return self.comparator('$gte', value)
-    def comparator(self, op, value):
-        if not self.type.is_valid(value):
-            raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), self.absolute_name(), value))
+        return self.__comparator('$gte', value)
+    def __comparator(self, op, value):
+        if not self.__type.is_valid(value):
+            raise Exception('Invalid "value" for query against %s.%s: %s' % (self.__type.class_name(), self.__absolute_name(), value))
         return QueryExpression({
-            self.absolute_name() : {
+            self.__absolute_name() : {
                 op : value
             }
         })
