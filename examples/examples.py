@@ -31,8 +31,10 @@ def main():
     s.insert(u)
     
     def print_all():
-        for u in s.query(User).filter(User.f.name > 'ivan', User.f.name < 'katie' ):
+        for u in s.query(User).filter(User.f.address.f.country == 'USA' ):
             print u
+    
+    query = User.f.address.f.country == 'USA'
     
     print_all()
     

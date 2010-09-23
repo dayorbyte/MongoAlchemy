@@ -117,27 +117,27 @@ class QueryField(object):
         while current:
             res.append(current.name)
             current = current.parent
-        return '.'.join(res)
+        return '.'.join(reversed(res))
     
     def __eq__(self, value):
         if not self.type.is_valid(value):
             raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), name, value))
-        return QueryExpression({ self.name : value })
+        return QueryExpression({ self.absolute_name() : value })
     def __lt__(self, value):
-        return self.comparator(self.type, '$lt', self.name, value)
+        return self.comparator('$lt', value)
     def __le__(self, value):
-        return self.comparator(self.type, '$lte', self.name, value)
+        return self.comparator('$lte', value)
     def __ne__(self, value):
-        return self.comparator(self.type, '$ne', self.name, value)
+        return self.comparator('$ne', value)
     def __gt__(self, value):
-        return self.comparator(self.type, '$gt', self.name, value)
+        return self.comparator('$gt', value)
     def __ge__(self, value):
-        return self.comparator(self.type, '$gte', self.name, value)
-    def comparator(self, type, op, name, value):
-        if not type.is_valid(value):
-            raise Exception('Invalid "value" for query against %s.%s: %s' % (type.class_name(), name, value))
+        return self.comparator('$gte', value)
+    def comparator(self, op, value):
+        if not self.type.is_valid(value):
+            raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), self.absolute_name(), value))
         return QueryExpression({
-            name : {
+            self.absolute_name() : {
                 op : value
             }
         })
