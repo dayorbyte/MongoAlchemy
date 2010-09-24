@@ -32,6 +32,11 @@ class Field(object):
     def __init__(self, required=True):
         self.required = required
     
+    def is_valid_child(self, value):
+        '''Only Used for container-like fields.  Can't have a child for 
+            anything else'''
+        return False
+    
     def set_name(self, name):
         self.name = name
     
@@ -44,8 +49,14 @@ class Field(object):
     def unwrap(self, value):
         raise NotImplemented
     
+    def validate(self, value):
+        if not self.is_valid(value):
+            name = self.__class__.__name__
+            raise BadValueException('Bad value for field of type "%s": %s' %
+                                    (name, repr(value)))
+
     def is_valid(self, value):
-        return True
+        raise NotImplemented
 
 class PrimitiveField(Field):
     '''Primitive fields are fields where a single constructor can be used
@@ -55,45 +66,30 @@ class PrimitiveField(Field):
         self.constructor = constructor
 
     def wrap(self, value):
-        if not self.is_valid(value):
-            name = self.__class__.__name__
-            raise BadValueException('Bad value for field of type "%s": %s' %
-                                    (name, repr(value)))
+        self.validate(value)
         return self.constructor(value)
     unwrap = wrap
 
-class StrField(PrimitiveField):
+class StringField(PrimitiveField):
     def __init__(self, max_length=None, min_length=None, **kwargs):
         self.max = max_length
         self.min = min_length
-        super(UnicodeField, self).__init__(constructor=str, **kwargs)
+        super(StringField, self).__init__(constructor=unicode, **kwargs)
 
     def is_valid(self, value):
-        if self.max and len(value) > self.max:
+        if not isinstance(value, basestring):
             return False
-        if self.min and len(value) < self.min:
+        if self.max != None and len(value) > self.max:
             return False
-        return True
-
-class UnicodeField(PrimitiveField):
-    def __init__(self, max_length=None, min_length=None, **kwargs):
-        self.max = max_length
-        self.min = min_length
-        super(UnicodeField, self).__init__(constructor=unicode, **kwargs)
-
-    def is_valid(self, value):
-        if self.max and len(value) > self.max:
-            return False
-        if self.min and len(value) < self.min:
+        if self.min != None and len(value) < self.min:
             return False
         return True
-
-class StringField(UnicodeField):
-    pass
 
 class BoolField(PrimitiveField):
     def __init__(self, **kwargs):
         super(BoolField, self).__init__(constructor=bool, **kwargs)
+    def is_valid(self, value):
+        return isinstance(value, bool)
 
 class NumberField(PrimitiveField):
     def __init__(self, constructor, min_value=None, max_value=None, **kwargs):
@@ -101,28 +97,44 @@ class NumberField(PrimitiveField):
         self.min = min_value
         self.max = max_value
 
-    def is_valid(self, value):
-        if self.min and value < self.min:
+    def is_valid(self, value, type):
+        if not isinstance(value, type): 
             return False
-        if self.max and value > self.max:
+        if self.min != None and value < self.min:
+            return False
+        if self.max != None and value > self.max:
             return False
         return True
 
 class IntField(NumberField):
     def __init__(self, **kwargs):
         super(IntField, self).__init__(constructor=int, **kwargs)
+    def is_valid(self, value):
+        return NumberField.is_valid(self, value, int)
 
 class FloatField(NumberField):
     def __init__(self, **kwargs):
         super(FloatField, self).__init__(constructor=float, **kwargs)
+    def is_valid(self, value):
+        return NumberField.is_valid(self, value, float)
 
-class DatetimeField(Field):
-    def __init__(self, **kwargs):
-        super(DatetimeField, self).__init__(**kwargs)
-
-    def wrap(self, value):
+class DateTimeField(Field):
+    def __init__(self, min_value=None, max_value=None, **kwargs):
+        super(DateTimeField, self).__init__(**kwargs)
+        self.min = min_value
+        self.max = max_value
+    
+    def is_valid(self, value):
         if not isinstance(value, datetime):
-            raise BadValueException()
+            return False
+        if self.min != None and value < self.min:
+            return False
+        if self.max != None and value > self.max:
+            return False
+        return True
+    
+    def wrap(self, value):
+        self.validate(value)
         return value
     unwrap = wrap
 
@@ -132,20 +144,40 @@ class ListField(Field):
         self.item_type = item_type
         if not isinstance(item_type, Field):
             raise Exception("List item_type is not a field!")
-
+    
+    def is_valid_child(self, value):
+        return self.item_type.is_valid(value)
+    
+    def is_valid(self, value):
+        if not isinstance(value, list): 
+            return False
+        if self.min != None and len(value) < self.min: 
+            return False
+        if self.max != None and len(value) > self.max: 
+            return False
+        return True
+    
     def wrap(self, value):
-        return [self.item_type.wrap(v) for v in value]
+        self.validate(value)
+        return value
+    unwrap = wrap
+    
 
-    def unwrap(self, value):
-        return [self.item_type.unwrap(v) for v in value]
-
-class SetField(Field):
-    def __init__(self, item_type, **kwargs):
+class SetField(PrimitiveField):
+    def __init__(self, item_type, min_capacity=None, max_capacity=None, **kwargs):
         Field.__init__(self, **kwargs)
+        self.min = min_capacity
+        self.max = max_capacity
         self.item_type = item_type
         if not isinstance(item_type, Field):
             raise Exception("SetField item_type is not a field!")
-
+    
+    def is_valid(self, value):
+        if not isinstance(value, set): return False
+        if self.min != None and len(value) < self.min: return False
+        if self.max != None and len(value) > self.max: return False
+        return True
+    
     def wrap(self, value):
         return [self.item_type.wrap(v) for v in value]
 
@@ -177,7 +209,10 @@ class ComputedField(Field):
         self.computed_type = computed_type
 
     def wrap(self, obj):
-        return self.computed_type.wrap(self.fun(obj))
+        value = self.fun(obj)
+        if not self.computed_type.is_valid(value):
+            raise Exception('Computed Function return a bad value')
+        return self.computed_type.wrap(value)
 
     def unwrap(self, obj):
         return self.fun(obj)

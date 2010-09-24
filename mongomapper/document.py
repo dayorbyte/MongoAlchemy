@@ -51,17 +51,6 @@ class Document(object):
     
     _id = ObjectIdField(required=False)
     
-    @classmethod
-    def get_id(cls, db, oid):
-        if not hasattr(cls, 'collection'):
-            raise Exception('get_id requires the python class to '
-                            'have a "collection" attribute')
-        id = ObjectId(str(oid))
-        obj = db[cls.collection].find_one({'_id' : id})
-        if obj == None:
-            return None
-        return MongoObject.unwrap(obj)
-    
     def __init__(self, **kwargs):
         cls = self.__class__
         for name in kwargs:
@@ -111,7 +100,10 @@ class Document(object):
         return ret
     
     def commit(self, db):
-        id = db[self.get_collection_name()].save(self.wrap())
+        collection = db[self.get_collection_name()]
+        for index in self.get_indexes():
+            index.ensure(collection)
+        id = collection.save(self.wrap())
         self._id = id
     
     
@@ -173,8 +165,8 @@ class Index(object):
     def __init__(self):
         last = None
         self.components = []
-        self.unique = False
-        self.drop_dups = False
+        self.__unique = False
+        self.__drop_dups = False
     
     def ascending(self, name):
         self.components.append((name, Index.ASCENDING))
@@ -184,12 +176,13 @@ class Index(object):
         self.components.append((name, Index.DESCENDING))
         return self
     
-    def unique_index(self, drop_dups=False):
-        self.unique = True
-        self.drop_dups = drop_dups
+    def unique(self, drop_dups=False):
+        self.__unique = True
+        self.__drop_dups = drop_dups
         return self
     
     def ensure(self, collection):
-        collection.ensure_index(self.components, unique=self.unique, drop_dups=self.drop_dups)
+        collection.ensure_index(self.components, unique=self.__unique, 
+            drop_dups=self.__drop_dups)
         return self
         

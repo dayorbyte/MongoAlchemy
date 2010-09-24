@@ -21,7 +21,7 @@ class Session(object):
         return Session(db)
     
     def end(self):
-        conn.end_request()
+        self.db.connection.end_request()
     
     def insert(self, item):
         ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
@@ -36,11 +36,15 @@ class Session(object):
     def query(self, type):
         return Query(type, self.db)
     
+    def get_indexes(self, cls):
+        return self.db[cls.get_collection_name()].index_information()
+    
     def clear(self):
         self.queue = []
     
-    def clear_collection(self, cls):
-        return self.db[cls.get_collection_name()].remove()
+    def clear_collection(self, *cls):
+        for c in cls:
+            return self.db[c.get_collection_name()].remove()
 
     
     def flush(self, safe=True):

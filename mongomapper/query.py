@@ -25,10 +25,37 @@ class Query(object):
                 continue
             if not isinstance(self.query[k], dict) or not isinstance(v, dict):
                 raise Exception('Multiple assignments to a field must all be dicts.')
-                self.query[k].update(**v)
+            self.query[k].update(**v)
+    
+    def sort(self):
+        raise NotImplemented
     
     def set(self, qfield, value):
         return UpdateExpression(self).set(qfield, value)
+    
+    def unset(self, qfield):
+        return UpdateExpression(self).unset(qfield)
+    
+    def inc(self, qfield, value):
+        return UpdateExpression(self).inc(qfield, value)
+    
+    def append(self, qfield, value):
+        return UpdateExpression(self).append(qfield, value)
+    
+    def extend(self, qfield, *value):
+        return UpdateExpression(self).extend(qfield, *value)
+    
+    def remove(self, qfield, value):
+        return UpdateExpression(self).remove(qfield, value)
+    
+    def remove_all(self, qfield, *value):
+        return UpdateExpression(self).remove_all(qfield, *value)
+        
+    def add_to_set(self, qfield, value):
+        return UpdateExpression(self).add_to_set(qfield, value)
+        
+    def pop(self, qfield, value):
+        return UpdateExpression(self).pop(qfield, value)
 
 class UpdateExpression(object):
     def __init__(self, query):
@@ -39,44 +66,61 @@ class UpdateExpression(object):
         ''' $set - set a particular value'''
         return self.atomic_op('$set', qfield, value)
     
-    def unset(self, qfield, value):
+    def unset(self, qfield):
         ''' $unset - delete a particular value (since 1.3.0) 
             TODO: check version is >1.3.0'''
-        return self.atomic_op('$set', qfield, value)
+        return self.atomic_op('$unset', qfield, True)
         
     def inc(self, qfield, value):
         ''' $inc - increment a particular field by a value '''
-        return self.atomic_op('$set', qfield, value)
+        return self.atomic_op('$inc', qfield, value)
         
     def append(self, qfield, value):
         ''' $push - append a value to an array'''
-        return self.atomic_op('$push', qfield, value)
+        return self.atomic_list_op('$push', qfield, value)
         
     def extend(self, qfield, *value):
         ''' $pushAll - append several values to an array '''
-        return self.atomic_op('$pushAll', qfield, value)
+        return self.atomic_list_op_multivalue('$pushAll', qfield, *value)
         
     def remove(self, qfield, value):
         ''' $pull - remove a value(s) from an existing array'''
-        return self.atomic_op('$pull', qfield, value)
+        return self.atomic_list_op('$pull', qfield, value)
         
     def remove_all(self, qfield, *value):
         ''' $pullAll - remove several value(s) from an existing array'''
-        return self.atomic_op('$pullAll', qfield, value)
+        return self.atomic_list_op_multivalue('$pullAll', qfield, *value)
     
-    def add_to_set(self, qfield, *value):
+    def add_to_set(self, qfield, value):
         ''' $pullAll - remove several value(s) from an existing array
             TODO: check version > 1.3.3 '''
-        return self.atomic_op('$addToSet', qfield, value)
+        return self.atomic_list_op('$addToSet', qfield, value)
     
     def pop(self, qfield, value):
         ''' $addToSet - Adds value to the array only if its not in the array already.
             TODO: v1.1 only'''
-        return self.atomic_op('$pop', qfield, value)
+        return self.atomic_list_op('$pop', qfield, value)
+    
+    def atomic_list_op_multivalue(self, op, qfield, *value):
+        for v in value:
+            if not qfield.get_type().is_valid_child(v):
+                raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
+        if op not in self.update_data:
+            self.update_data[op] = {}
+        self.update_data[op][qfield.get_name()] = value
+        return self
+    
+    def atomic_list_op(self, op, qfield, value):
+        if not qfield.get_type().is_valid_child(value):
+            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
+        if op not in self.update_data:
+            self.update_data[op] = {}
+        self.update_data[op][qfield.get_name()] = value
+        return self
     
     def atomic_op(self, op, qfield, value):
         if not qfield.get_type().is_valid(value):
-            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().class_name(), qfield.get_name(), value))
+            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = value
@@ -153,6 +197,20 @@ class QueryField(object):
         return self.__comparator('$gt', value)
     def __ge__(self, value):
         return self.__comparator('$gte', value)
+    
+    def in_(self, value):
+        # TODO: make sure that this field represents a list
+        return self.__comparator('$in', value)
+    
+    def not_(self, expression):
+        raise NotImplemented
+    
+    def or_(self, expression):
+        raise NotImplemented
+    
+    def regex(self, value):
+        raise NotImplemented
+    
     def __comparator(self, op, value):
         if not self.__type.is_valid(value):
             raise Exception('Invalid "value" for query against %s.%s: %s' % (self.__type.class_name(), self.__absolute_name(), value))
