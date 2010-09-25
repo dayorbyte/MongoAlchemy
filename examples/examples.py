@@ -14,7 +14,7 @@ def main():
     
     class User(Document):
         
-        name_index = Index().ascending('name').unique_index()
+        name_index = Index().ascending('name').unique()
         
         name = StringField()
         email = StringField()
@@ -29,7 +29,7 @@ def main():
     a = Address(street_address='123 4th ave', city='NY', state_province='NY', country='USA')
     u = User(name='jeff', email='jeff@qcircles.net', address=a)
     s.insert(u)
-    
+    print u._id
     def print_all():
         for u in s.query(User).filter(User.f.address.country == 'USA' ):
             print u

@@ -1,26 +1,30 @@
 from nose.tools import *
 from pprint import pprint
-from mongomapper.session import Session
-from mongomapper.document import Document, Index, DocumentField
 from mongomapper.fields import *
 from test.util import known_failure
 from datetime import datetime
 
+# Field Tests
 
-def get_session():
-    return Session.connect('unit-testing')
-
-@raises(Exception)
+@raises(NotImplementedError)
 def test_unimplemented_wrap():
-    class BadField(Field):
-        pass
-    b = BadField().wrap({})
+    Field().wrap({})
 
-@raises(Exception)
+@raises(NotImplementedError)
 def test_unimplemented_unwrap():
-    class BadField(Field):
-        pass
-    b = BadField().unwrap({})
+    Field().unwrap({})
+
+@raises(NotImplementedError)
+def test_unimplemented_is_valid_wrap():
+    Field().is_valid_wrap({})
+
+@raises(NotImplementedError)
+def test_unimplemented_is_valid_wrap():
+    Field().is_valid_wrap({})
+
+@raises(BadValueException)
+def test_validate_unwrap_fail():
+    StringField().unwrap(4)
 
 # String Tests
 @raises(BadValueException)
@@ -90,28 +94,27 @@ def datetime_value_test():
     assert s.wrap(datetime(2009, 7, 9)) == datetime(2009, 7, 9)
     assert s.unwrap(datetime(2009, 7, 9)) == datetime(2009, 7, 9)
 
+# Anything Field
+def test_anything():
+    a = AnythingField()
+    foo = {'23423423' : [23423432], 'fvfvf' : { 'a' : [] }}
+    assert a.is_valid_wrap(foo)
+    assert a.unwrap(a.wrap(foo)) == foo
 
+#ObjectID Field
+@raises(BadValueException)
+def objectid_wrong_type_test():
+    from pymongo.objectid import ObjectId
+    ObjectIdField().wrap(1)
 
-# Computed Field
-def computed_field_test():
-    def adder(obj):
-        return obj.a + obj.b
-    
-    class TestDoc2(Document):
-        a = IntField()
-        b = IntField()
-        a_plus_b = ComputedField(adder, IntField())
+@raises(BadValueException)
+def objectid_wrong_type_unwrap_test():
+    from pymongo.objectid import ObjectId
+    ObjectIdField().unwrap(1)
 
-    s = get_session()
-    s.clear_collection(TestDoc2)
-    
-    obj = TestDoc2(a=1, b=2)
-    assert obj.a_plus_b == 3
-    
-    s.insert(obj)
-    
-    for td in s.query(TestDoc2):
-        break
-    
-    assert td.a_plus_b == obj.a_plus_b
+def objectid_value_test():
+    from pymongo.objectid import ObjectId
+    o = ObjectIdField()
+    oid = ObjectId('4c9e2587eae7dd6064000000')
+    assert o.unwrap(o.wrap(oid)) == oid
 

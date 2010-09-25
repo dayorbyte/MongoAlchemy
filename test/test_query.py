@@ -3,6 +3,7 @@ from pprint import pprint
 from mongomapper.session import Session, FailedOperation
 from mongomapper.document import Document, Index, DocumentField
 from mongomapper.fields import *
+from mongomapper.query import BadQueryException, Query
 from test.util import known_failure
 
 class T(Document):
@@ -57,24 +58,92 @@ def repeated_field_update_test():
     s.clear_collection(T)
     s.query(T).filter(T.f.i==3).set(T.f.i, 4).set(T.f.i, 5)
 
-@known_failure
+# @known_failure
 def test_comparators():
     # once filters have more sanity checking, this test will need to be broken up
     s = get_session()
-    s.clear_collection(T)
-    query_obj = s.query(T).filter(T.f.i == 1, 
-        T.f.i < 2, 
+    query_obj = s.query(T).filter(T.f.i < 2, 
         T.f.i > 3,
         T.f.i != 4,
         T.f.i <= 5,
         T.f.i >= 6).query
     
-    assert query_obj == None
+    assert query_obj == {'i': {'$ne': 4, '$gte': 6, '$lte': 5, '$gt': 3, '$lt': 2}}
+    
+    s.query(T).filter(T.f.i == 1).query == { 'i' : 1}
+
+@raises(BadQueryException)
+def invalid_combination_test():
+    s = get_session()
+    s.query(T).filter(T.f.i < 2, T.f.i == 4)
+
+def test_sort():
+    from pymongo import ASCENDING, DESCENDING
+    s = get_session()
+    sorted_query = s.query(T).ascending(T.f.i).descending(T.f.j)
+    assert sorted_query.sort == [('i', ASCENDING),('j', DESCENDING)], sorted_query.sort
+    for obj in sorted_query:
+        pass
+
+@raises(BadQueryException)
+def test_sort_by_same_key():
+    s = get_session()
+    sorted_query = s.query(T).ascending(T.f.i).descending(T.f.i)
 
 def test_name_generation():
     s = get_session()
     s.clear_collection(T)
     assert str(T.f.i) == 'i'
+
+#
+# QueryFieldSet Tests
+#
+@raises(BadQueryException)
+def test_bad_query_field_name():
+    T.f.q
+
+#
+# QueryField Tests
+#
+
+def qf_parent_test():
+    assert str(T2.f.t.i.get_parent()) == 't'
+
+@raises(BadQueryException)
+def qf_bad_subfield_test():
+    assert str(T2.f.t.q) == 't.q'
+
+#
+#  Comparator Tests
+#
+@raises(BadQueryException)
+def qf_bad_value_equals_test():
+    T2.f.t.i == '3'
+
+@raises(BadQueryException)
+def qf_bad_value_compare_test():
+    T2.f.t.i < '3'
+
+def qf_dot_f_test():
+    assert str(T2.f.t.f.i) == 't.i'
+
+def test_not():
+    q = Query(T, None)
+    
+    assert q.not_(T.f.i == 3).query == { '$not' : {'i' : 3} }
+
+def test_or():
+    q = Query(T, None)
+    
+    want = { '$or' : [{'i' : 3}, {'i' : 4}, {'i' : 5}] }
+    assert q.filter((T.f.i == 3) | (T.f.i == 4) | (T.f.i == 5)).query == want
+    
+    assert Query(T, None).or_(T.f.i == 3, T.f.i == 4, T.f.i == 5).query == want
+
+def test_in():
+    q = Query(T, None)
+    assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : (1,2,3)}}, q.in_(T.f.i, 1, 2, 3).query
+    assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : (1,2,3)}}
 
 
 #
@@ -143,3 +212,13 @@ def pop_test():
     }
 
 
+
+
+#
+#   QueryResult tests
+#
+
+def qr_test_misc():
+    s = get_session()
+    cursor = iter(s.query(T))
+    cursor.__iter__()

@@ -26,7 +26,7 @@ import pymongo
 
 from mongomapper.util import classproperty
 from mongomapper.query import Query, QueryFieldSet
-from mongomapper.fields import ObjectIdField, Field, ComputedField
+from mongomapper.fields import ObjectIdField, Field, ComputedField, BadValueException
 
 class DocumentMeta(type):
     def __new__(meta, classname, bases, class_dict):
@@ -106,7 +106,6 @@ class Document(object):
         id = collection.save(self.wrap())
         self._id = id
     
-    
     def wrap(self):
         '''Wrap a MongoObject into a format which can be inserted into
             a mongo database'''
@@ -145,15 +144,45 @@ class DocumentField(Field):
     def __init__(self, document_class, **kwargs):
         super(DocumentField, self).__init__(**kwargs)
         self.type = document_class
+
+    def validate_wrap(self, value):
+        if not self.is_valid_wrap(value):
+            name = self.__class__.__name__
+            raise BadValueException('Bad value for field of type "%s(%s)": %s' %
+                                    (name, self.type.class_name(), repr(value)))
+    def validate_unwrap(self, value):
+        if not self.is_valid_unwrap(value):
+            name = self.__class__.__name__
+            raise BadValueException('Bad value for field of type "%s(%s)": %s' %
+                                    (name, self.type.class_name(), repr(value)))
+
     
     def wrap(self, value):
+        self.validate_wrap(value)
         return self.type.wrap(value)
     
     def unwrap(self, value):
+        self.validate_unwrap(value)
         return self.type.unwrap(value)
     
-    def is_valid(self, value):
-        return value.__class__ == self.__class__
+    def is_valid_wrap(self, value):
+        if not value.__class__ == self.type:
+            return False
+        # this is super-wasteful
+        print 1
+        try:
+            self.type.wrap(value)
+        except:
+            return False
+        return True
+    
+    def is_valid_unwrap(self, value):
+        # this is super-wasteful
+        try:
+            self.type.unwrap(value)
+        except:
+            return False
+        return True
 
 class BadIndexException(Exception):
     pass

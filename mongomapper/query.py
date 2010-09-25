@@ -1,16 +1,24 @@
 from functools import wraps
+from mongomapper.fields import BadValueException
+from pymongo import ASCENDING, DESCENDING
+
+class BadQueryException(Exception):
+    pass
 
 class Query(object):
     def __init__(self, type, db):
         self.db = db
         self.type = type
         self.query = {}
+        self.sort = []
     
     def __iter__(self):
         collection = self.db[self.type.get_collection_name()]
         for index in self.type.get_indexes():
             index.ensure(collection)
         cursor = collection.find(self.query)
+        if len(self.sort) > 0:
+            cursor.sort(self.sort)
         return QueryResult(cursor, self.type)
     
     def filter(self, *query_expressions):
@@ -24,11 +32,39 @@ class Query(object):
                 self.query[k] = v
                 continue
             if not isinstance(self.query[k], dict) or not isinstance(v, dict):
-                raise Exception('Multiple assignments to a field must all be dicts.')
+                raise BadQueryException('Multiple assignments to a field must all be dicts.')
             self.query[k].update(**v)
     
-    def sort(self):
-        raise NotImplemented
+    def ascending(self, qfield):
+        return self.__sort(qfield, ASCENDING)
+    
+    def descending(self, qfield):
+        return self.__sort(qfield, DESCENDING)
+    
+    def __sort(self, qfield, direction):
+        name = str(qfield)
+        for n, _ in self.sort:
+            if n == name:
+                raise BadQueryException('Already sorting by %s' % name)
+        self.sort.append((name, direction))
+        return self
+    
+    def not_(self, *query_expressions):
+        for qe in query_expressions:
+            self.filter(qe.not_())
+        return self
+    
+    def or_(self, first_qe, *qes):
+        res = first_qe
+        for qe in qes:
+            res = (res | qe)
+        self.filter(res)
+        return self
+    
+    def in_(self, qfield, *values):
+        # TODO: make sure that this field represents a list
+        self.filter(QueryExpression({ str(qfield) : { '$in' : values}}))
+        return self
     
     def set(self, qfield, value):
         return UpdateExpression(self).set(qfield, value)
@@ -102,28 +138,24 @@ class UpdateExpression(object):
         return self.atomic_list_op('$pop', qfield, value)
     
     def atomic_list_op_multivalue(self, op, qfield, *value):
+        wrapped = []
         for v in value:
-            if not qfield.get_type().is_valid_child(v):
-                raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
+            wrapped.append(qfield.get_type().item_type.wrap(v))
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = value
         return self
     
     def atomic_list_op(self, op, qfield, value):
-        if not qfield.get_type().is_valid_child(value):
-            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = value
+        self.update_data[op][qfield.get_name()] = qfield.get_type().child_type().wrap(value)
         return self
     
     def atomic_op(self, op, qfield, value):
-        if not qfield.get_type().is_valid(value):
-            raise Exception('Invalid "value" for update against %s.%s: %s' % (qfield.get_type().parent().class_name(), qfield.get_name(), value))
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = value
+        self.update_data[op][qfield.get_name()] = qfield.get_type().wrap(value)
         return self
     
     def execute(self):
@@ -139,9 +171,10 @@ class QueryFieldSet(object):
         self.type = type
         self.fields = fields
         self.parent = parent
+    
     def __getattr__(self, name):
         if name not in self.fields:
-            raise Exception('%s is not a field in %s' % (name, self.type.class_name()))
+            raise BadQueryException('%s is not a field in %s' % (name, self.type.class_name()))
         return QueryField(name, self.fields[name], parent=self.parent)
 
 class QueryField(object):
@@ -160,11 +193,9 @@ class QueryField(object):
         return self.__type
     
     def __getattr__(self, name):
-        # if name.startswith('__'):
-        #     return object.__getattribute__(self, name)
         fields = self.__type.type.get_fields()
         if name not in fields:
-            raise Exception('%s is not a field in %s' % (name, self.__type.class_name()))
+            raise BadQueryException('%s is not a field in %s' % (name, str(self)))
         return QueryField(name, fields[name], parent=self)
     
     @property
@@ -180,12 +211,17 @@ class QueryField(object):
             current = current.__parent
         return '.'.join(reversed(res))
     
+    def in_(self, *values):
+        return QueryExpression({
+            str(self) : { '$in' : values }
+        })
+    
     def __str__(self):
         return self.__absolute_name()
     
     def __eq__(self, value):
-        if not self.__type.is_valid(value):
-            raise Exception('Invalid "value" for query against %s.%s: %s' % (self.type.class_name(), name, value))
+        if not self.__type.is_valid_wrap(value):
+            raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
         return QueryExpression({ self.__absolute_name() : value })
     def __lt__(self, value):
         return self.__comparator('$lt', value)
@@ -198,31 +234,36 @@ class QueryField(object):
     def __ge__(self, value):
         return self.__comparator('$gte', value)
     
-    def in_(self, value):
-        # TODO: make sure that this field represents a list
-        return self.__comparator('$in', value)
-    
-    def not_(self, expression):
-        raise NotImplemented
-    
-    def or_(self, expression):
-        raise NotImplemented
-    
-    def regex(self, value):
-        raise NotImplemented
-    
     def __comparator(self, op, value):
-        if not self.__type.is_valid(value):
-            raise Exception('Invalid "value" for query against %s.%s: %s' % (self.__type.class_name(), self.__absolute_name(), value))
-        return QueryExpression({
-            self.__absolute_name() : {
-                op : value
-            }
-        })
+        try:
+            return QueryExpression({
+                self.__absolute_name() : {
+                    op : self.__type.wrap(value)
+                }
+            })
+        except BadValueException:
+            raise BadQueryException('Invalid "value" for %s comparison against %s: %s' % (self, op, value))
 
 class QueryExpression(object):
     def __init__(self, obj):
         self.obj = obj
+    def not_(self):
+        return QueryExpression({
+                '$not' : self.obj
+            })
+    
+    def __or__(self, expression):
+        return self.or_(expression)
+    
+    def or_(self, expression):
+        if '$or' in self.obj:
+            self.obj['$or'].append(expression.obj)
+            return self
+        self.obj = {
+            '$or' : [self.obj, expression.obj]
+        }
+        return self
+
     
 class QueryResult(object):
     def __init__(self, cursor, type):
@@ -234,5 +275,5 @@ class QueryResult(object):
     
     def __iter__(self):
         return self
-    
-    
+
+
