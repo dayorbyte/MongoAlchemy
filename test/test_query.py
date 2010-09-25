@@ -221,4 +221,4 @@ def pop_test():
 def qr_test_misc():
     s = get_session()
     cursor = iter(s.query(T))
-    cursor.__iter__()
+    assert cursor.__iter__() == cursor
