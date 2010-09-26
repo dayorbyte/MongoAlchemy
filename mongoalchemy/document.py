@@ -24,9 +24,9 @@
 
 import pymongo
 
-from mongomapper.util import classproperty
-from mongomapper.query import Query, QueryFieldSet
-from mongomapper.fields import ObjectIdField, Field, ComputedField, BadValueException
+from mongoalchemy.util import classproperty
+from mongoalchemy.query import Query, QueryFieldSet
+from mongoalchemy.fields import ObjectIdField, Field, ComputedField, BadValueException
 
 class DocumentMeta(type):
     def __new__(meta, classname, bases, class_dict):

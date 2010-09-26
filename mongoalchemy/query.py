@@ -1,5 +1,5 @@
 from functools import wraps
-from mongomapper.fields import BadValueException
+from mongoalchemy.fields import BadValueException
 from pymongo import ASCENDING, DESCENDING
 
 class BadQueryException(Exception):

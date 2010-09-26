@@ -1,5 +1,5 @@
 from pymongo.connection import Connection
-from mongomapper.query import Query
+from mongoalchemy.query import Query
 
 class FailedOperation(Exception):
     def __init__(self, item, exception):

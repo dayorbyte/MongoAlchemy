@@ -1,8 +1,8 @@
 from nose.tools import *
 from pprint import pprint
-from mongomapper.session import Session, FailedOperation
-from mongomapper.document import Document, Index, DocumentField
-from mongomapper.fields import *
+from mongoalchemy.session import Session, FailedOperation
+from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.fields import *
 from test.util import known_failure
 
 class T(Document):

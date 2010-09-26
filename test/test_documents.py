@@ -1,8 +1,8 @@
 from nose.tools import *
 from pprint import pprint
-from mongomapper.session import Session
-from mongomapper.document import Document, Index, DocumentField, MissingValueException
-from mongomapper.fields import *
+from mongoalchemy.session import Session
+from mongoalchemy.document import Document, Index, DocumentField, MissingValueException
+from mongoalchemy.fields import *
 from test.util import known_failure
 
 # Document Types used in some tests

@@ -1,10 +1,10 @@
 from pprint import pprint
-from mongomapper.session import Session
-from mongomapper.document import Document, Index, DocumentField
-from mongomapper.fields import *
+from mongoalchemy.session import Session
+from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.fields import *
 
 def main():
-    s = Session.connect('mongomapper')
+    s = Session.connect('mongoalchemy')
     
     class Address(Document):
         street_address = StringField()

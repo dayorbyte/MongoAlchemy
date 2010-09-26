@@ -1,8 +1,8 @@
 from nose.tools import *
-from mongomapper.fields import *
+from mongoalchemy.fields import *
 from test.util import known_failure
-from mongomapper.session import Session
-from mongomapper.document import Document, Index, DocumentField
+from mongoalchemy.session import Session
+from mongoalchemy.document import Document, Index, DocumentField
 
 def get_session():
     return Session.connect('unit-testing')

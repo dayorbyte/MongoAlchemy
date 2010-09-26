@@ -1,5 +1,5 @@
 from nose.tools import *
-from mongomapper.fields import *
+from mongoalchemy.fields import *
 from test.util import known_failure
 
 # DictField
