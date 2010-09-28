@@ -25,24 +25,37 @@
 import pymongo
 
 from mongoalchemy.util import classproperty
-from mongoalchemy.query import Query, QueryFieldSet
-from mongoalchemy.fields import ObjectIdField, Field, ComputedField, BadValueException
+from mongoalchemy.query import QueryFieldSet
+from mongoalchemy.fields import ObjectIdField, Field, BadValueException
 
 class DocumentMeta(type):
-    def __new__(meta, classname, bases, class_dict):
-        
-        new_class = type.__new__(meta, classname, bases, class_dict)
+    def __new__(mcs, classname, bases, class_dict):
+        new_class = type.__new__(mcs, classname, bases, class_dict)
         
         for name, value in class_dict.iteritems():
             if not isinstance(value, Field):
                 continue
             value.set_name(name)
             value.set_parent(new_class)
+
         return new_class
 
-class MissingValueException(Exception):
+class DocumentException(Exception):
+    ''' Base for all document-related exceptions'''
     pass
 
+class MissingValueException(DocumentException):
+    ''' Raised when a required field isn't set '''
+    pass
+
+class ExtraValueException(DocumentException):
+    ''' Raised when a value is passed in with no corresponding field '''
+    pass
+
+class FieldNotRetrieved(DocumentException):
+    '''If a partial document is loaded from the database and a field which 
+        wasn't retrieved is accessed this exception is raised'''
+    pass
 
 class Document(object):
     object_mapping = {}
@@ -53,16 +66,41 @@ class Document(object):
     
     def __init__(self, **kwargs):
         cls = self.__class__
-        for name in kwargs:
-            if (not hasattr(cls, name) or
-                not isinstance(getattr(cls, name), Field)):
-                raise Exception('Unknown keyword argument: %s' % name)
-            setattr(self, name, kwargs[name])
         
-        for name in dir(cls):
-            field = getattr(cls, name)
-            if isinstance(field, ComputedField):
-                setattr(self, name, field.fun(self))
+        fields = self.get_fields()
+        for name, field in fields.iteritems():
+            if name in kwargs:
+                setattr(self, name, kwargs[name])
+                continue
+            
+            if field.auto:
+                continue
+            
+            if field.required:
+                raise MissingValueException(name)
+            
+            if hasattr(field, 'default'):
+                setattr(self, name, field.default)
+        
+        for k in kwargs:
+            if k not in fields:
+                raise ExtraValueException(k)
+    
+    def __setattr__(self, name, value):
+        cls = self.__class__
+        if (not hasattr(cls, name) or
+            not isinstance(getattr(cls, name), Field)):
+                raise AttributeError('%s object has no attribute %s' % (self.class_name(), name))
+        field = getattr(cls, name)
+        
+        field.validate_wrap(value)
+        object.__setattr__(self, name, value)
+    
+    def __getattribute__(self, name):
+        value = object.__getattribute__(self, name)
+        if isinstance(value, Field):
+            raise AttributeError(name)
+        return value
     
     @classproperty
     def f(cls):
@@ -113,14 +151,11 @@ class Document(object):
         cls = self.__class__
         for name in dir(cls):
             field = getattr(cls, name)
-            value = getattr(self, name)
+            try:
+                value = getattr(self, name)
+            except AttributeError:
+                continue
             if isinstance(field, Field):
-                if isinstance(value, Field):
-                    if field.required:
-                        raise MissingValueException(name)
-                    continue
-                if isinstance(field, ComputedField):
-                    value = self
                 res[name] = field.wrap(value)
         return res
     
@@ -131,8 +166,6 @@ class Document(object):
         params = {}
         for k, v in obj.iteritems():
             field = getattr(cls, k)
-            if isinstance(field, ComputedField):
-                continue
             params[str(k)] = field.unwrap(v)
         
         i = cls(**params)
@@ -166,15 +199,9 @@ class DocumentField(Field):
         return self.type.unwrap(value)
     
     def is_valid_wrap(self, value):
-        if not value.__class__ == self.type:
-            return False
-        # this is super-wasteful
-        print 1
-        try:
-            self.type.wrap(value)
-        except:
-            return False
-        return True
+        # we've validated everything we set on the object, so this should 
+        # always return True if it's the right kind of object
+        return value.__class__ == self.type
     
     def is_valid_unwrap(self, value):
         # this is super-wasteful
@@ -192,7 +219,6 @@ class Index(object):
     DESCENDING = pymongo.DESCENDING
     
     def __init__(self):
-        last = None
         self.components = []
         self.__unique = False
         self.__drop_dups = False

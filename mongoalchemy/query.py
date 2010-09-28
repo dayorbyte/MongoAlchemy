@@ -271,6 +271,7 @@ class QueryResult(object):
         self.type = type
     
     def next(self):
+        print 'next'
         return self.type.unwrap(self.cursor.next())
     
     def __iter__(self):

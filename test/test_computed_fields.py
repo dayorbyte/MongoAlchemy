@@ -9,19 +9,21 @@ def get_session():
 
 # Computed Field
 def computed_field_db_test():
-    def adder(obj):
-        return obj.a + obj.b
     
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        a_plus_b = ComputedField(adder, IntField())
+        @ComputedField(IntField(), deps=[a,b])
+        def a_plus_b(obj):
+            print obj['a'], obj['b']
+            return obj['a'] + obj['b']
+
 
     s = get_session()
     s.clear_collection(TestDoc2)
     
     obj = TestDoc2(a=1, b=2)
-    assert obj.a_plus_b == 3
+    assert obj.a_plus_b == 3, 'Got: %s' % obj.a_plus_b
     
     s.insert(obj)
     
@@ -30,25 +32,45 @@ def computed_field_db_test():
     
     assert td.a_plus_b == obj.a_plus_b
 
+def test_no_deps_computed_field():
+    class TestDoc2(Document):
+        @ComputedField(IntField())
+        def c(obj):
+            return 1322
+    TestDoc2().c == 1322
+
 def computed_field_value_test():
-    def adder(obj):
-        return 1
-    
-    c = ComputedField(adder, IntField())
-    assert c.wrap(c.unwrap(None)) == 1
+    class TestDoc2(Document):
+        a = IntField()
+        b = IntField()
+        @ComputedField(IntField(), deps=[a,b])
+        def c(obj):
+            return 6
+    TestDoc2.c.unwrap(6)
 
 @raises(BadValueException)
 def computed_field_unwrap_test():
-    def adder(obj):
-        return 'some-bad-value'
     
-    c = ComputedField(adder, IntField())
-    c.unwrap(None)
+    
+    class TestDoc2(Document):
+        a = IntField()
+        b = IntField()
+        @ComputedField(IntField(), deps=[a,b])
+        def c(obj):
+            return 'some-bad-value'
+    TestDoc2.c.unwrap('bad-value')
 
 @raises(BadValueException)
 def computed_field_wrap_test():
-    def adder(obj):
-        return 'some-bad-value'
     
-    c = ComputedField(adder, IntField())
-    c.wrap(None)
+    class TestDoc2(Document):
+        a = IntField()
+        b = IntField()
+        @ComputedField(IntField(), deps=[a,b])
+        def c(obj):
+            return 'some-bad-value'
+
+    obj = TestDoc2(a=1, b=2)
+    TestDoc2.wrap(obj)
+
+

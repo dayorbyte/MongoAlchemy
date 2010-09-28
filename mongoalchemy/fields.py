@@ -31,9 +31,17 @@ class BadValueException(Exception):
 class BadFieldSpecification(Exception):
     pass
 
+class UNSET(object): 
+    pass
+
+
 class Field(object):
-    def __init__(self, required=True):
+    auto = False
+    
+    def __init__(self, required=True, default=UNSET):
         self.required = required
+        if default != UNSET:
+            self.default = default
     
     def set_name(self, name):
         self.name = name
@@ -144,10 +152,13 @@ class DateTimeField(Field):
     def wrap(self, value):
         self.validate_wrap(value)
         return value
-    unwrap = wrap
+    
+    def unwrap(self, value):
+        return self.wrap(value)
 
 class SequenceField(Field):
-    def __init__(self, item_type, min_capacity=None, max_capacity=None, **kwargs):
+    def __init__(self, item_type, min_capacity=None, max_capacity=None, 
+            **kwargs):
         super(SequenceField, self).__init__(**kwargs)
         self.item_type = item_type
         self.min = min_capacity
@@ -334,7 +345,9 @@ class KVField(DictField):
         self.validate_wrap(value)
         ret = []
         for k, v in value.iteritems():
-            ret.append( { 'k' : self.key_type.wrap(k), 'v' : self.value_type.wrap(v) })
+            k = self.key_type.wrap(k)
+            v = self.value_type.wrap(v)
+            ret.append( { 'k' : k, 'v' : v })
         return ret
     
     def unwrap(self, value):
@@ -348,30 +361,73 @@ class KVField(DictField):
 
 class ComputedField(Field):
     '''A computed field is generated based on an object's other values.  It
-        takes two parameters:
-
+        takes three parameters:
+        
         fun - the function to compute the value of the computed field
         computed_type - the type to use when wrapping the computed field
-
-        the unwrap function takes the whole object instead of a field, and
-        should only be called if all of the normal fields are initialized.
-        There is NO GUARANTEE that ComputedFields will be evaluated in a
-        particular order, so they should not rely on other computed fields.
-    '''
-    def __init__(self, fun, computed_type, **kwargs):
-        super(ComputedField, self).__init__(**kwargs)
-        self.fun = fun
-        self.computed_type = computed_type
-    
-    def wrap(self, obj):
-        value = self.fun(obj)
-        if not self.computed_type.is_valid_wrap(value):
-            raise BadValueException('Computed Function return a bad value')
-        return self.computed_type.wrap(value)
-
-    def unwrap(self, obj):
-        value = self.fun(obj)
-        if not self.computed_type.is_valid_wrap(value):
-            raise BadValueException('Computed Function return a bad value from the DB')
-        return value
+        deps - the names of fields on the current object which should be 
+            passed in to compute the value
         
+        the unwrap function takes a dictionary of K/V pairs of the 
+        dependencies.  Since dependencies are declared in the class 
+        definition all of the dependencies for a computed field should be
+        in the class definition before the computed field itself.
+    '''
+    auto = True
+    def __init__(self, computed_type, deps=None, **kwargs):
+        super(ComputedField, self).__init__(**kwargs)
+        self.computed_type = computed_type
+        if deps == None:
+            deps = set()
+        self.deps = set(deps)
+    
+    def is_valid_wrap(self, value):
+        return self.computed_type.is_valid_wrap(value)
+    
+    def is_valid_unwrap(self, value):
+        return self.computed_type.is_valid_unwrap(value)
+    
+    def wrap(self, value):
+        self.validate_wrap(value)
+        return self.computed_type.wrap(value)
+    
+    def unwrap(self, value):
+        self.validate_unwrap(value)
+        return self.computed_type.unwrap(value)
+    
+    def __call__(self, fun):
+        return ComputedFieldValue(self, fun)
+        
+
+class ComputedFieldValue(property, ComputedField):
+    class UNSET(object): pass
+    
+    def __init__(self, field, fun):
+        self.__computed_value = self.UNSET
+        self.field = field
+        self.fun = fun
+    
+    def compute_value(self, doc):
+        args = {}
+        for dep in self.field.deps:
+            args[dep.name] = getattr(doc, dep.name)
+        value = self.fun(args)
+        if not self.field.computed_type.is_valid_wrap(value):
+            raise BadValueException('Computed Function return a bad value')
+        return value
+    
+    def __set__(self, instance, value):
+        if self.field.is_valid_wrap(value):
+            self.__computed_value = value
+            return
+        # TODO: this line should be impossible to reach, but I'd like an 
+        # exception just in case, but then I can't have full coverage!
+        # raise BadValueException('Tried to set a computed field to an illegal value: %s' % value)
+    
+    def __get__(self, instance, owner):
+        if instance == None:
+            return self.field
+        # TODO: dirty cache indictor + check a field option for never caching
+        if self.__computed_value == self.UNSET:
+            self.__computed_value = self.compute_value(instance)
+        return self.__computed_value

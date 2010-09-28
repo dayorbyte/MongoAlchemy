@@ -55,6 +55,26 @@ def test_required_fields():
         i = IntField()
     Doc().wrap()
 
+@raises(AttributeError)
+def test_missing_fields():
+    class Doc(Document):
+        i = IntField(required=False)
+    print Doc().i
+    Doc().i
+
+@raises(AttributeError)
+def test_non_existant_field():
+    class Doc(Document):
+        i = IntField(required=False)
+    Doc().j = 5
+    
+
+
+def test_default_value():
+    class Doc(Document):
+        i = IntField(required=False, default=1)
+    assert Doc().i == 1
+
 @raises(Exception)
 def bad_field_test():
     s = get_session()
