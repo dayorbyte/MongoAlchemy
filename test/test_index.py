@@ -1,5 +1,4 @@
 from nose.tools import *
-from pprint import pprint
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField
 from mongoalchemy.fields import *

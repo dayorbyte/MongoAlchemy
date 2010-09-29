@@ -1,7 +1,6 @@
 from nose.tools import *
-from pprint import pprint
 from mongoalchemy.session import Session, FailedOperation
-from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.query import BadQueryException, Query
 from test.util import known_failure
@@ -34,6 +33,46 @@ def test_update():
     for o in s.query(T):
         assert o.i == 4
 
+def test_field_filter():
+    s = get_session()
+    s.clear_collection(T, T2)
+    
+    # Simple Object
+    obj = T(i=3)
+    s.insert(obj)
+    for t in s.query(T).fields(T.f.i):
+        break
+    assert t.i == 3
+    # Nested Object
+    obj2 = T2(t=obj)
+    s.insert(obj2)
+    for t2 in s.query(T2).fields(T2.f.t.i):
+        break
+    assert t2.t.i == 3
+    
+    
+
+@raises(FieldNotRetrieved)
+def test_field_filter_non_retrieved_field():
+    s = get_session()
+    s.clear_collection(T)
+    obj = T(i=3, j=2)
+    s.insert(obj)
+    for t in s.query(T).fields(T.f.i):
+        break
+    assert t.j == 2
+
+@raises(FieldNotRetrieved)
+def test_field_filter_non_retrieved_subdocument_field():
+    s = get_session()
+    s.clear_collection(T, T2)
+    obj = T(i=3, j=2)
+    obj2 = T2(t=obj)
+    s.insert(obj2)
+    for t2 in s.query(T2).fields(T2.f.t.i):
+        break
+    assert t2.t.j == 2
+
 @raises(Exception)
 def repeated_field_query_test():
     s = get_session()
@@ -58,7 +97,6 @@ def repeated_field_update_test():
     s.clear_collection(T)
     s.query(T).filter(T.f.i==3).set(T.f.i, 4).set(T.f.i, 5)
 
-# @known_failure
 def test_comparators():
     # once filters have more sanity checking, this test will need to be broken up
     s = get_session()
@@ -144,6 +182,7 @@ def test_in():
     q = Query(T, None)
     assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : (1,2,3)}}, q.in_(T.f.i, 1, 2, 3).query
     assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : (1,2,3)}}
+
 
 
 #

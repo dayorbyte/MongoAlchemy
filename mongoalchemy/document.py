@@ -62,11 +62,18 @@ class Document(object):
     
     _id = ObjectIdField(required=False)
     
-    def __init__(self, **kwargs):
-        cls = self.__class__
+    def __init__(self, retrieved_fields=None, **kwargs):
+        self.partial = retrieved_fields != None
+        self.retrieved_fields = self.normalize(retrieved_fields)
         
+        cls = self.__class__
+                
         fields = self.get_fields()
         for name, field in fields.iteritems():
+            
+            if self.partial and name not in self.retrieved_fields:
+                continue
+            
             if name in kwargs:
                 setattr(self, name, kwargs[name])
                 continue
@@ -86,16 +93,26 @@ class Document(object):
     
     def __setattr__(self, name, value):
         cls = self.__class__
-        if (not hasattr(cls, name) or
-            not isinstance(getattr(cls, name), Field)):
-                raise AttributeError('%s object has no attribute %s' % (self.class_name(), name))
-        field = getattr(cls, name)
-        
-        field.validate_wrap(value)
+        try:
+            cls_value = getattr(cls, name)
+            if isinstance(cls_value, Field):
+                cls_value.validate_wrap(value)
+        except AttributeError:
+            pass
         object.__setattr__(self, name, value)
     
     def __getattribute__(self, name):
+        if name[:2] == '__':
+            return object.__getattribute__(self, name)
         value = object.__getattribute__(self, name)
+        cls_value = object.__getattribute__(self, name)
+        
+        if isinstance(cls_value, Field):
+            partial = object.__getattribute__(self, 'partial')
+            retrieved = object.__getattribute__(self, 'retrieved_fields')
+            if partial and name not in retrieved:
+                raise FieldNotRetrieved(name)
+        
         if isinstance(value, Field):
             raise AttributeError(name)
         return value
@@ -135,6 +152,20 @@ class Document(object):
                 ret.append(field)
         return ret
     
+    @classmethod
+    def normalize(cls, fields):
+        if not fields:
+            return fields
+        ret = {}
+        for f in fields:
+            strf = str(f)
+            if '.' in strf:
+                first, _, second = strf.partition('.')
+                ret.setdefault(first, []).append(second)
+            else:
+                ret[strf] = None
+        return ret
+    
     def commit(self, db):
         collection = db[self.get_collection_name()]
         for index in self.get_indexes():
@@ -158,17 +189,21 @@ class Document(object):
         return res
     
     @classmethod
-    def unwrap(cls, obj):
+    def unwrap(cls, obj, fields=None):
         '''Unwrap an object returned from the mongo database.'''
-        
-        params = {}
+        params = {}        
         for k, v in obj.iteritems():
             field = getattr(cls, k)
-            params[str(k)] = field.unwrap(v)
+            if fields != None and isinstance(field, DocumentField):
+                normalized_fields = cls.normalize(fields)
+                unwrapped = field.unwrap(v, fields=normalized_fields.get(k))
+            else:
+                unwrapped = field.unwrap(v)
+            params[str(k)] = unwrapped
         
-        i = cls(**params)
-        return i
-    
+        if fields != None:
+            params['retrieved_fields'] = fields
+        return cls(**params)
 
 class DocumentField(Field):
     
@@ -181,8 +216,8 @@ class DocumentField(Field):
             name = self.__class__.__name__
             raise BadValueException('Bad value for field of type "%s(%s)": %s' %
                                     (name, self.type.class_name(), repr(value)))
-    def validate_unwrap(self, value):
-        if not self.is_valid_unwrap(value):
+    def validate_unwrap(self, value, fields=None):
+        if not self.is_valid_unwrap(value, fields=fields):
             name = self.__class__.__name__
             raise BadValueException('Bad value for field of type "%s(%s)": %s' %
                                     (name, self.type.class_name(), repr(value)))
@@ -192,19 +227,19 @@ class DocumentField(Field):
         self.validate_wrap(value)
         return self.type.wrap(value)
     
-    def unwrap(self, value):
-        self.validate_unwrap(value)
-        return self.type.unwrap(value)
+    def unwrap(self, value, fields=None):
+        self.validate_unwrap(value, fields=fields)
+        return self.type.unwrap(value, fields=fields)
     
     def is_valid_wrap(self, value):
         # we've validated everything we set on the object, so this should 
         # always return True if it's the right kind of object
         return value.__class__ == self.type
     
-    def is_valid_unwrap(self, value):
+    def is_valid_unwrap(self, value, fields=None):
         # this is super-wasteful
         try:
-            self.type.unwrap(value)
+            self.type.unwrap(value, fields=fields)
         except:
             return False
         return True

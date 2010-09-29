@@ -1,5 +1,4 @@
 from nose.tools import *
-from pprint import pprint
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, MissingValueException
 from mongoalchemy.fields import *
@@ -59,10 +58,8 @@ def test_required_fields():
 def test_missing_fields():
     class Doc(Document):
         i = IntField(required=False)
-    print Doc().i
     Doc().i
 
-@raises(AttributeError)
 def test_non_existant_field():
     class Doc(Document):
         i = IntField(required=False)

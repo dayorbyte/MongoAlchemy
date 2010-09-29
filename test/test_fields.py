@@ -1,5 +1,4 @@
 from nose.tools import *
-from pprint import pprint
 from mongoalchemy.fields import *
 from test.util import known_failure
 from datetime import datetime

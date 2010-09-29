@@ -1,5 +1,4 @@
 from nose.tools import *
-from pprint import pprint
 from mongoalchemy.session import Session, FailedOperation
 from mongoalchemy.document import Document, Index, DocumentField
 from mongoalchemy.fields import *
@@ -24,5 +23,4 @@ def test_failed_op():
         raise Exception()
     except Exception, e:
         fo = FailedOperation(t, e)
-        print fo
         raise fo

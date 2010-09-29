@@ -33,19 +33,33 @@ class Query(object):
         self.type = type
         self.query = {}
         self.sort = []
+        self.__fields = None
     
     def __iter__(self):
         collection = self.db[self.type.get_collection_name()]
         for index in self.type.get_indexes():
             index.ensure(collection)
-        cursor = collection.find(self.query)
+        
+        kwargs = dict()
+        if self.__fields:
+            kwargs['fields'] = [str(f) for f in self.__fields]
+        
+        cursor = collection.find(self.query, **kwargs)
+        
         if len(self.sort) > 0:
             cursor.sort(self.sort)
-        return QueryResult(cursor, self.type)
+        return QueryResult(cursor, self.type, fields=self.__fields)
     
     def filter(self, *query_expressions):
         for qe in query_expressions:
             self.apply(qe)
+        return self
+    
+    def fields(self, *fields):
+        if self.__fields == None:
+            self.__fields = set()
+        for f in fields:
+            self.__fields.add(f)
         return self
     
     def apply(self, qe):
@@ -288,13 +302,13 @@ class QueryExpression(object):
 
     
 class QueryResult(object):
-    def __init__(self, cursor, type):
+    def __init__(self, cursor, type, fields=None):
         self.cursor = cursor
         self.type = type
+        self.fields = fields
     
     def next(self):
-        print 'next'
-        return self.type.unwrap(self.cursor.next())
+        return self.type.unwrap(self.cursor.next(), fields=self.fields)
     
     def __iter__(self):
         return self

@@ -15,7 +15,6 @@ def computed_field_db_test():
         b = IntField()
         @ComputedField(IntField(), deps=[a,b])
         def a_plus_b(obj):
-            print obj['a'], obj['b']
             return obj['a'] + obj['b']
 
 
