@@ -14,7 +14,7 @@ setup(
     author_email='jeff@qcircles.net',
     url='http://github.com/jeffjenkins/MongoAlchemy/',
     packages=['mongoalchemy'],
-    install_requires=['pymongo'],
+    requires=['pymongo'],
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
