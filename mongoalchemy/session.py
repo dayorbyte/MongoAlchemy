@@ -43,6 +43,7 @@ class Session(object):
         return Session(db)
     
     def end(self):
+        self.flush()
         self.db.connection.end_request()
     
     def insert(self, item):
@@ -67,8 +68,14 @@ class Session(object):
     def clear_collection(self, *cls):
         for c in cls:
             return self.db[c.get_collection_name()].remove()
-
     
     def flush(self, safe=True):
         for index, item in enumerate(self.queue):
             item.commit(self.db)
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end()
+        return False

@@ -16,11 +16,12 @@ def test_session():
 
 @raises(FailedOperation)
 def test_failed_op():
-    s = Session.connect('unit-testing')
-    s.clear_collection(T)
-    t = T(i=5)
-    try:
-        raise Exception()
-    except Exception, e:
-        fo = FailedOperation(t, e)
-        raise fo
+    with Session.connect('unit-testing') as s:
+        s.clear_collection(T)
+        t = T(i=5)
+        try:
+            raise Exception()
+        except Exception, e:
+            fo = FailedOperation(t, e)
+            str(fo) # for coverage
+            raise fo
