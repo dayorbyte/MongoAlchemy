@@ -23,8 +23,12 @@
 from functools import wraps
 from mongoalchemy.fields import BadValueException
 from pymongo import ASCENDING, DESCENDING
+from copy import copy, deepcopy
 
 class BadQueryException(Exception):
+    pass
+
+class BadResultException(Exception):
     pass
 
 class Query(object):
@@ -33,33 +37,104 @@ class Query(object):
         self.type = type
         self.query = {}
         self.sort = []
-        self.__fields = None
+        self._fields = None
+        self.hints = []
+        self._limit = None
+        self._skip = None
     
     def __iter__(self):
+        return self.__get_query_result()
+    
+    def __get_query_result(self):
         collection = self.db[self.type.get_collection_name()]
         for index in self.type.get_indexes():
             index.ensure(collection)
         
         kwargs = dict()
-        if self.__fields:
-            kwargs['fields'] = [str(f) for f in self.__fields]
+        if self._fields:
+            kwargs['fields'] = [str(f) for f in self._fields]
         
         cursor = collection.find(self.query, **kwargs)
         
-        if len(self.sort) > 0:
+        if self.sort:
             cursor.sort(self.sort)
-        return QueryResult(cursor, self.type, fields=self.__fields)
+        if self.hints:
+            cursor.hint(self.hints)
+        if self._limit != None:
+            cursor.limit(self._limit)
+        if self._skip != None:
+            cursor.skip(self._skip)
+        return QueryResult(cursor, self.type, fields=self._fields)
+    
+    def limit(self, limit):
+        self._limit = limit
+        return self
+    
+    def skip(self, skip):
+        self._skip = skip
+        return self
+    
+    def clone(self):
+        qclone = Query(self.type, self.db)
+        qclone.query = deepcopy(self.query)
+        qclone.sort = deepcopy(self.sort)
+        qclone._fields = deepcopy(self._fields)
+        qclone._hints = deepcopy(self.hints)
+        qclone._limit = deepcopy(self._limit)
+        qclone._skip = deepcopy(self._skip)
+        return qclone
+    
+    def one(self):
+        try:
+            [the_one] = self
+        except ValueError:
+            raise BadResultException('Too many results for .one()')
+        return the_one
+    
+    def first(self):
+        for doc in self:
+            return doc
+        return None
+    
+    def __getitem__(self, index):
+        return self.__get_query_result().__getitem__(index)
+    
+    def hint_asc(self, qfield):
+        return self.__hint(qfield, ASCENDING)
+    
+    def hint_desc(self, qfield):
+        return self.__hint(qfield, DESCENDING)
+    
+    def __hint(self, qfield, direction):
+        name = str(qfield)
+        for n, _ in self.hints:
+            if n == name:
+                raise BadQueryException('Already gave hint for %s' % name)
+        self.hints.append((name, direction))
+        return self
+    
+    def explain(self):
+        return self.__get_query_result().cursor.explain()
+    
+    def all(self):
+        return self
+    
+    def distinct(self, key):
+        return self.__get_query_result().cursor.distinct(str(key))
     
     def filter(self, *query_expressions):
         for qe in query_expressions:
             self.apply(qe)
         return self
     
+    def count(self, with_limit_and_skip=False):
+        return self.__get_query_result().cursor.count(with_limit_and_skip=with_limit_and_skip)
+    
     def fields(self, *fields):
-        if self.__fields == None:
-            self.__fields = set()
+        if self._fields == None:
+            self._fields = set()
         for f in fields:
-            self.__fields.add(f)
+            self._fields.add(f)
         return self
     
     def apply(self, qe):
@@ -201,7 +276,6 @@ class UpdateExpression(object):
             index.ensure(collection)
         collection.update(self.query.query, self.update_data)
 
-
 class QueryFieldSet(object):
     def __init__(self, type, fields, parent=None):
         self.type = type
@@ -309,6 +383,15 @@ class QueryResult(object):
     
     def next(self):
         return self.type.unwrap(self.cursor.next(), fields=self.fields)
+    
+    def __getitem__(self, index):
+        return self.type.unwrap(self.cursor.__getitem__(index))
+    
+    def rewind(self):
+        return self.cursor.rewind()
+    
+    def clone(self):
+        return QueryResult(self.cursor.clone(), self.type, fields=self.fields)
     
     def __iter__(self):
         return self

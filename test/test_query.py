@@ -2,7 +2,7 @@ from nose.tools import *
 from mongoalchemy.session import Session, FailedOperation
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
-from mongoalchemy.query import BadQueryException, Query
+from mongoalchemy.query import BadQueryException, Query, BadResultException
 from test.util import known_failure
 
 class T(Document):
@@ -49,8 +49,116 @@ def test_field_filter():
     for t2 in s.query(T2).fields(T2.f.t.i):
         break
     assert t2.t.i == 3
-    
-    
+
+def test_limit():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    s.insert(T(i=5))
+    for count, item in enumerate(s.query(T).limit(2)):
+        pass
+    assert count == 1
+
+def test_skip():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    s.insert(T(i=5))
+    for count, item in enumerate(s.query(T).skip(2)):
+        pass
+    assert count == 0
+
+def test_hint():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    for item in s.query(T).hint_asc(T.f.i):
+        pass
+
+@raises(BadQueryException)
+def test_hint_validation():
+    s = get_session()
+    s.query(T).hint_asc(T.f.i).hint_desc(T.f.i)
+
+@raises(BadResultException) # too many values to unpack
+def test_one_fail():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    s.query(T).one()
+
+def test_one():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    assert s.query(T).one().i == 3
+
+def test_first():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    assert s.query(T).descending(T.f.i).first().i == 4
+    assert s.query(T).ascending(T.f.i).first().i == 3
+
+def test_first_empty():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    assert s.query(T).filter(T.f.i > 5).first() == None
+
+def test_all():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    for count, item in enumerate(s.query(T).all()):
+        pass
+    assert count == 1
+
+def test_distinct():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3, j=4))
+    s.insert(T(i=3, j=5))
+    s.insert(T(i=3, j=6))
+    for count, item in enumerate(s.query(T).distinct(T.f.i)):
+        pass
+    assert count == 0, count
+
+def test_count():
+    s = get_session()
+    s.clear_collection(T)
+    assert s.query(T).count() == 0
+    s.insert(T(i=3, j=4))
+    s.insert(T(i=3, j=5))
+    s.insert(T(i=3, j=6))
+    assert s.query(T).count() == 3
+
+def test_explain():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    assert 'allPlans' in s.query(T).filter(T.f.i > 5).explain()
+
+
+def test_clone():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    q = s.query(T)
+    q2 = q.clone()
+    q.skip(2)
+    for count, item in enumerate(q2):
+        pass
+    assert count == 1
 
 @raises(FieldNotRetrieved)
 def test_field_filter_non_retrieved_field():
@@ -261,3 +369,43 @@ def qr_test_misc():
     s = get_session()
     cursor = iter(s.query(T))
     assert cursor.__iter__() == cursor
+
+def qr_test_getitem():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    assert s.query(T).descending(T.f.i)[0].i == 4
+
+def qr_test_rewind():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    it = iter(s.query(T))
+    it.next()
+    it.next()
+    it.rewind()
+    it.next()
+    it.next()
+    try:
+        it.next()
+    except StopIteration:
+        pass
+    
+def qr_test_clone():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    s.insert(T(i=4))
+    it = iter(s.query(T))
+    it.next()
+    it.next()
+    it2 = it.clone()
+    it2.next()
+    it2.next()
+    try:
+        it2.next()
+    except StopIteration:
+        pass
+    
