@@ -39,9 +39,15 @@ class Field(object):
     
     def __init__(self, required=True, default=UNSET, db_field=None):
         self.required = required
-        self.db_field = db_field
+        self.__db_field = db_field
         if default != UNSET:
             self.default = default
+    
+    @property
+    def db_field(self):
+        if self.__db_field != None:
+            return self.__db_field
+        return self.name
     
     def set_name(self, name):
         self.name = name
@@ -171,7 +177,7 @@ class TupleField(Field):
     def is_valid_wrap(self, value):
         if not hasattr(value, '__len__') or len(value) != len(self.types):
             return False
-        print value
+        
         for field, value in itertools.izip(self.types, list(value)):
             if not field.is_valid_wrap(value):
                 return False
@@ -480,6 +486,7 @@ class ComputedField(Field):
     def __call__(self, fun):
         return ComputedFieldValue(self, fun)
 
+
 class ComputedFieldValue(property, ComputedField):
     class UNSET(object): pass
     
@@ -496,6 +503,14 @@ class ComputedFieldValue(property, ComputedField):
         if not self.field.computed_type.is_valid_wrap(value):
             raise BadValueException('Computed Function return a bad value')
         return value
+    
+    def set_name(self, name):
+        self.name = name
+        self.field.name = name
+    
+    def set_parent(self, parent):
+        self.parent = parent
+        self.field.parent = parent
     
     def __set__(self, instance, value):
         if self.field.is_valid_wrap(value):

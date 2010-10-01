@@ -185,14 +185,22 @@ class Document(object):
             except AttributeError:
                 continue
             if isinstance(field, Field):
-                res[name] = field.wrap(value)
+                res[field.db_field] = field.wrap(value)
         return res
     
     @classmethod
     def unwrap(cls, obj, fields=None):
         '''Unwrap an object returned from the mongo database.'''
-        params = {}        
+        
+        # Get reverse name mapping
+        name_reverse = {}
+        for name, field in cls.get_fields().iteritems():
+            name_reverse[field.db_field] = name
+        
+        # Unwrap
+        params = {}
         for k, v in obj.iteritems():
+            k = name_reverse.get(k, k)
             field = getattr(cls, k)
             if fields != None and isinstance(field, DocumentField):
                 normalized_fields = cls.normalize(fields)

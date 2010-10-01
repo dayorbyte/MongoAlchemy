@@ -106,6 +106,15 @@ def docfield_test():
     assert sd.int1 == sup.int1
     assert sd.sub.int1 == doc.int1
 
+def test_doc_field_with_alternate_name():
+    class Doc(Document):
+        i = IntField(db_field='ii')
+        def __eq__(self, other):
+            return self.i == other.i
+    d = Doc(i=3)
+    wrapped = d.wrap()
+    assert wrapped == {'ii' : 3}
+    assert d == Doc.unwrap({'ii' : 3})
 
 def test_doc_field():
     

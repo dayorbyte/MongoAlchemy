@@ -17,18 +17,14 @@ def computed_field_db_test():
         def a_plus_b(obj):
             return obj['a'] + obj['b']
 
-
     s = get_session()
     s.clear_collection(TestDoc2)
-    
     obj = TestDoc2(a=1, b=2)
     assert obj.a_plus_b == 3, 'Got: %s' % obj.a_plus_b
     
     s.insert(obj)
-    
     for td in s.query(TestDoc2):
         break
-    
     assert td.a_plus_b == obj.a_plus_b
 
 def test_no_deps_computed_field():

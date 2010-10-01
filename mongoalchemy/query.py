@@ -297,9 +297,7 @@ class QueryField(object):
         return self.__parent
     
     def get_name(self):
-        if self.__type.db_field:
-            return self.__type.db_field
-        return self.__name
+        return self.__type.db_field
     
     def get_type(self):
         return self.__type
