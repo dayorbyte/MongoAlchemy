@@ -171,4 +171,4 @@ def enum_value_test():
     s = EnumField(ListField(IntField()), [1,2], [3,4])
     assert s.wrap([1,2]) == [1,2]
     assert s.unwrap([3,4]) == [3,4]
-    # assert 'bar') == 'bar'
+

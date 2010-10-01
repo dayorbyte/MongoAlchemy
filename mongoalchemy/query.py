@@ -297,6 +297,8 @@ class QueryField(object):
         return self.__parent
     
     def get_name(self):
+        if self.__type.db_field:
+            return self.__type.db_field
         return self.__name
     
     def get_type(self):
@@ -317,7 +319,7 @@ class QueryField(object):
         res = []
         current = self
         while current:
-            res.append(current.__name)
+            res.append(current.get_name())
             current = current.__parent
         return '.'.join(reversed(res))
     

@@ -37,8 +37,9 @@ class UNSET(object):
 class Field(object):
     auto = False
     
-    def __init__(self, required=True, default=UNSET):
+    def __init__(self, required=True, default=UNSET, db_field=None):
         self.required = required
+        self.db_field = db_field
         if default != UNSET:
             self.default = default
     

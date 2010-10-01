@@ -9,6 +9,7 @@ class T(Document):
     i = IntField()
     j = IntField(required=False)
     l = ListField(IntField(), required=False)
+    a = IntField(required=False, db_field='aa')
     index = Index().ascending('i')
 
 class T2(Document):
@@ -259,6 +260,9 @@ def qf_parent_test():
 def qf_bad_subfield_test():
     assert str(T2.f.t.q) == 't.q'
 
+def qf_db_name_test():
+    assert str(T.f.a) == 'aa', str(T.f.a)
+    
 #
 #  Comparator Tests
 #
