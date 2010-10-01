@@ -117,3 +117,58 @@ def objectid_value_test():
     oid = ObjectId('4c9e2587eae7dd6064000000')
     assert o.unwrap(o.wrap(oid)) == oid
 
+
+# TupleField
+@raises(BadValueException)
+def tuple_wrong_type_test_wrap():
+    TupleField(IntField()).wrap(4)
+
+@raises(BadValueException)
+def tuple_wrong_type_test_unwrap():
+    TupleField(IntField()).unwrap(4)
+
+@raises(BadValueException)
+def first_type_wrong_test():
+    TupleField(IntField(), IntField(), IntField()).wrap(('1', 2, 3))
+
+@raises(BadValueException)
+def third_type_wrong_test():
+    TupleField(IntField(), IntField(), IntField()).wrap((1, 2, '3'))
+
+@raises(BadValueException)
+def first_type_wrong_test_unwrap():
+    TupleField(IntField(), IntField(), IntField()).unwrap(['1', 2, 3])
+
+@raises(BadValueException)
+def third_type_wrong_test_unwrap():
+    TupleField(IntField(), IntField(), IntField()).unwrap([1, 2, '3'])
+
+def tuple_value_test():
+    s = TupleField(IntField(), StringField(), ListField(IntField()))
+    before = (1, '2', [3,3,3])
+    after = [1, '2', [3,3,3]]
+    assert s.wrap(before) == after, s.wrap(before)
+    assert s.unwrap(after) == before, s.unwrap(after)
+
+# EnumField
+@raises(BadValueException)
+def enum_wrong_type_test_wrap():
+    EnumField(StringField(), '1', '2', '3', '4').wrap(4)
+
+@raises(BadValueException)
+def enum_wrong_type_test_unwrap():
+    EnumField(StringField(), '1', '2', '3', '4').unwrap(4)
+
+@raises(BadValueException)
+def enum_wrong_value_test_wrap():
+    EnumField(IntField(), 1, 3).wrap(2)
+
+@raises(BadValueException)
+def enum_wrong_value_test_unwrap():
+    EnumField(IntField(), 1, 3).unwrap(2)
+
+def enum_value_test():
+    s = EnumField(ListField(IntField()), [1,2], [3,4])
+    assert s.wrap([1,2]) == [1,2]
+    assert s.unwrap([3,4]) == [3,4]
+    # assert 'bar') == 'bar'

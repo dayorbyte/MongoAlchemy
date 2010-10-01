@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import itertools
 from datetime import datetime
 from pymongo.objectid import ObjectId
 
@@ -55,15 +56,17 @@ class Field(object):
     
     def validate_wrap(self, value):
         if not self.is_valid_wrap(value):
-            name = self.__class__.__name__
-            raise BadValueException('Bad value for field of type "%s": %s' %
-                                    (name, repr(value)))
+            self.fail_validation(value)
+    
     def validate_unwrap(self, value):
         if not self.is_valid_unwrap(value):
-            name = self.__class__.__name__
-            raise BadValueException('Bad value for field of type "%s": %s' %
-                                    (name, repr(value)))
-
+            self.fail_validation(value)
+    
+    def fail_validation(self, value):
+        name = self.__class__.__name__
+        raise BadValueException('Bad value for field of type "%s": %s' %
+                                (name, repr(value)))
+    
     def is_valid_wrap(self, value):
         raise NotImplementedError()
     
@@ -153,6 +156,85 @@ class DateTimeField(Field):
     
     def unwrap(self, value):
         return self.wrap(value)
+
+
+class TupleField(Field):
+    ''' Represents a field which is a tuple of a fixed size with specific 
+        types for each element in the field '''
+    
+    def __init__(self, *item_types, **kwargs):
+        super(TupleField, self).__init__(**kwargs)
+        self.size = len(item_types)
+        self.types = item_types
+    
+    def is_valid_wrap(self, value):
+        if not hasattr(value, '__len__') or len(value) != len(self.types):
+            return False
+        print value
+        for field, value in itertools.izip(self.types, list(value)):
+            if not field.is_valid_wrap(value):
+                return False
+        return True
+    
+    def is_valid_unwrap(self, value):
+        if not hasattr(value, '__len__') or len(value) != len(self.types):
+            return False
+        
+        for field, value in itertools.izip(self.types, value):
+            if not field.is_valid_unwrap(value):
+                return False
+        return True
+    
+    def wrap(self, value):
+        self.validate_wrap(value)
+        ret = []
+        for field, value in itertools.izip(self.types, value):
+            ret.append(field.wrap(value))
+        return ret
+    
+    def unwrap(self, value):
+        self.validate_unwrap(value)
+        ret = []
+        for field, value in itertools.izip(self.types, value):
+            ret.append(field.unwrap(value))
+        return tuple(ret)
+
+class EnumField(Field):
+    ''' Represents a single value out of a list of possible values, all 
+        of the same type. == is used for comparison'''
+    
+    def __init__(self, item_type, *values, **kwargs):
+        super(EnumField, self).__init__(**kwargs)
+        self.item_type = item_type
+        self.values = values
+        for value in values:
+            self.item_type.validate_wrap(value)
+    
+    def is_valid_wrap(self, value):
+        if not self.item_type.is_valid_wrap(value):
+            return False
+        for val in self.values:
+            if val == value:
+                return True
+        return False
+    
+    def is_valid_unwrap(self, value):
+        # we can't compare the DB value to the list since that would require 
+        # actually unwrapping it.  We'll do the check in unwrap instead
+        return self.item_type.is_valid_wrap(value)
+    
+    def wrap(self, value):
+        self.validate_wrap(value)
+        return self.item_type.wrap(value)
+    
+    def unwrap(self, value):
+        self.validate_unwrap(value)
+        value = self.item_type.unwrap(value)
+        for val in self.values:
+            if val == value:
+                return val
+        self.fail_validation(value)
+    
 
 class SequenceField(Field):
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 
@@ -357,6 +439,7 @@ class KVField(DictField):
             ret[self.key_type.unwrap(k)] = self.value_type.unwrap(v)
         return ret
 
+
 class ComputedField(Field):
     '''A computed field is generated based on an object's other values.  It
         takes three parameters:
@@ -395,7 +478,6 @@ class ComputedField(Field):
     
     def __call__(self, fun):
         return ComputedFieldValue(self, fun)
-        
 
 class ComputedFieldValue(property, ComputedField):
     class UNSET(object): pass
