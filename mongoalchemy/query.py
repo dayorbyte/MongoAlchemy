@@ -214,8 +214,12 @@ class UpdateExpression(object):
         return self.atomic_op('$set', qfield, value)
     
     def unset(self, qfield):
-        ''' $unset - delete a particular value (since 1.3.0) 
-            TODO: check version is >1.3.0'''
+        ''' $unset - delete a particular value
+             .. note:: Requires server version **>= 1.3.0+**.
+            
+            TODO: check version is >1.3.0
+            
+            '''
         return self.atomic_op('$unset', qfield, True)
         
     def inc(self, qfield, value):
@@ -240,7 +244,10 @@ class UpdateExpression(object):
     
     def add_to_set(self, qfield, value):
         ''' $pullAll - remove several value(s) from an existing array
-            TODO: check version > 1.3.3 '''
+            
+            .. note:: Requires server version **>= 1.3.0+**.
+            
+            TODO: check version > 1.3.3. '''
         return self.atomic_list_op('$addToSet', qfield, value)
     
     def pop(self, qfield, value):

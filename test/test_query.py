@@ -1,5 +1,5 @@
 from nose.tools import *
-from mongoalchemy.session import Session, FailedOperation
+from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.query import BadQueryException, Query, BadResultException
