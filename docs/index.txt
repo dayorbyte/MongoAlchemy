@@ -1,0 +1,25 @@
+.. MongoAlchemy documentation master file, created by
+   sphinx-quickstart on Sat Oct  2 08:50:52 2010.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to MongoAlchemy's documentation!
+========================================
+
+Contents:
+
+.. toctree::
+    :titlesonly:
+   
+    tutorial
+    api/index
+    examples/index
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

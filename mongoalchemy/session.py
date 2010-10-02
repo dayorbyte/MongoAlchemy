@@ -65,11 +65,10 @@ class Session(object):
             database connection that the session will use.
             
             **Parameters**:
-            * `database`: the database name to use.  Should be an instance of \
-                :class:`basestring`
-            * `*args`: arguments for :class:`pymongo.connection.Connection`
-            * `*kwds`: keyword arguments for :class:`pymongo.connection.Connection`
-
+                * `database`: the database name to use.  Should be an instance of \
+                    :class:`basestring`
+                * `*args`: arguments for :class:`pymongo.connection.Connection`
+                * `**kwds`: keyword arguments for :class:`pymongo.connection.Connection`
         '''
         conn = Connection(*args, **kwds)
         db = conn[database]

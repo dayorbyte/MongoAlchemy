@@ -1,0 +1,7 @@
+
+Update Expressions
+==================================
+
+.. automodule:: mongoalchemy.query.UpdateExpressions
+   :members:
+   :undoc-members:

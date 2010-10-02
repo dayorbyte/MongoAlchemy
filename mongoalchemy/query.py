@@ -32,7 +32,18 @@ class BadResultException(Exception):
     pass
 
 class Query(object):
+    '''A query object has all of the methods necessary to programmatically 
+        generate a mongo query as well as methods to retrieve results of the 
+        query or do an update based on it.
+        
+        In general a query object should be created via ``Session.query``, 
+        not directly.
+    '''
     def __init__(self, type, db):
+        '''**Parameters**:
+            * type: A subclass of class:`mongoalchemy.document.Document`
+            * db: The ``pymongo`` database which this query is associated with.
+        '''
         self.db = db
         self.type = type
         self.query = {}
@@ -67,14 +78,26 @@ class Query(object):
         return QueryResult(cursor, self.type, fields=self._fields)
     
     def limit(self, limit):
+        '''Sets the limit on the number of documents returned
+        **Parameters**:
+            * limit: the number of documents to return
+        '''
         self._limit = limit
         return self
     
     def skip(self, skip):
+        '''Sets the number of documents to skip in the result
+        **Parameters**:
+            * skip: the number of documents to skip
+        '''
         self._skip = skip
         return self
     
     def clone(self):
+        ''' Creates a clone of the current query and all settings.  Further
+            updates to the cloned object or the original object will not 
+            affect each other
+        '''
         qclone = Query(self.type, self.db)
         qclone.query = deepcopy(self.query)
         qclone.sort = deepcopy(self.sort)
@@ -85,6 +108,9 @@ class Query(object):
         return qclone
     
     def one(self):
+        '''Execute the query and return one result.  If more than one result 
+            is returned, raises a ``BadResultException``
+        '''
         try:
             [the_one] = self
         except ValueError:
@@ -92,6 +118,10 @@ class Query(object):
         return the_one
     
     def first(self):
+        '''Execute the query and return the first result.  Unlike ``one``, if
+            there are multiple documents it simply returns the first one.  If
+            there are no documents, first returns ``None``
+        '''
         for doc in self:
             return doc
         return None
@@ -100,9 +130,19 @@ class Query(object):
         return self.__get_query_result().__getitem__(index)
     
     def hint_asc(self, qfield):
+        '''Applies a hint for the query that it should use a 
+            (``qfield``, ASCENDING) index when performing the query.
+            **Parameters**:
+                * qfield: the instance of :class:`mongoalchemy.QueryField` to use as the key.
+        '''
         return self.__hint(qfield, ASCENDING)
     
     def hint_desc(self, qfield):
+        '''Applies a hint for the query that it should use a 
+            (``qfield``, DESCENDING) index when performing the query.
+            **Parameters**:
+                * qfield: the instance of :class:`mongoalchemy.QueryField` to use as the key.
+        '''
         return self.__hint(qfield, DESCENDING)
     
     def __hint(self, qfield, direction):
@@ -114,30 +154,63 @@ class Query(object):
         return self
     
     def explain(self):
+        '''Executes an explain operation on the database for the current 
+            query and returns the raw explain object returned.
+        '''
         return self.__get_query_result().cursor.explain()
     
     def all(self):
-        return self
+        '''Return all of the results of a query in a list'''
+        return [obj for obj in self]
     
     def distinct(self, key):
+        '''Execute this query and return all of the unique values of 
+            ``key``.
+        **Parameters**:
+            * key: the instance of :class:`mongoalchemy.QueryField` to use as the distinct key.
+        '''
         return self.__get_query_result().cursor.distinct(str(key))
     
     def filter(self, *query_expressions):
+        '''Apply the given query expressions to this query object
+            
+            **Example**: ``s.query(SomeObj).filter(SomeObj.f.age > 10, SomeObj.f.blood_type == 'O')``
+            
+            **Parameters**:
+                * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+            
+            .. seealso:: :class:`~mongoalchemy.query.QueryExpression` class
+        '''
         for qe in query_expressions:
-            self.apply(qe)
+            self.__apply(qe)
         return self
     
     def count(self, with_limit_and_skip=False):
+        '''Execute a count on the number of results this query would return.
+        
+            **Parameters**:
+                * with_limit_and_skip: Include ``.limit()`` and ``.skip()`` arguments in the count?
+        '''
         return self.__get_query_result().cursor.count(with_limit_and_skip=with_limit_and_skip)
     
     def fields(self, *fields):
+        '''Only return the specified fields from the object.  Accessing a \
+            field that was not specified in ``fields`` will result in a \
+            :class:``mongoalchemy.document.FieldNotRetrieved`` exception being \
+            raised
+        
+        **Parameters**:
+            * fields: Instances of :class:``mongoalchemy.query.QueryField`` specifying \
+                which fields to return
+        '''
         if self._fields == None:
             self._fields = set()
         for f in fields:
             self._fields.add(f)
         return self
     
-    def apply(self, qe):
+    def __apply(self, qe):
+        ''' Apply a query expression, updating the query object '''
         for k, v in qe.obj.iteritems():
             if k not in self.query:
                 self.query[k] = v
@@ -147,9 +220,23 @@ class Query(object):
             self.query[k].update(**v)
     
     def ascending(self, qfield):
+        ''' Sort the result based on ``qfield`` in ascending order.  These calls 
+            can be chained to sort by multiple fields.
+            
+            **Parameters**:
+                * qfield: Instance of :class:``mongoalchemy.query.QueryField`` \
+                    specifying which field to sort by.
+        '''
         return self.__sort(qfield, ASCENDING)
     
     def descending(self, qfield):
+        ''' Sort the result based on ``qfield`` in ascending order.  These calls 
+            can be chained to sort by multiple fields.
+            
+            **Parameters**:
+                * qfield: Instance of :class:``mongoalchemy.query.QueryField`` \
+                    specifying which field to sort by.
+        '''
         return self.__sort(qfield, DESCENDING)
     
     def __sort(self, qfield, direction):
@@ -161,11 +248,27 @@ class Query(object):
         return self
     
     def not_(self, *query_expressions):
+        ''' Add a $not expression to the query, negating the query expressions 
+            given.  
+            
+            **Examples**: ``query.not_(SomeDocClass.f.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
+            
+            **Parameters**:
+            * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+            '''
         for qe in query_expressions:
             self.filter(qe.not_())
         return self
     
     def or_(self, first_qe, *qes):
+        ''' Add a $not expression to the query, negating the query expressions 
+            given.  The ``| operator`` on query expressions does the same thing
+            
+            **Examples**: ``query.or_(SomeDocClass.f.age == 18, SomeDocClass.f.age == 17)`` becomes ``{'$or' : [{ 'age' : 18 }, { 'age' : 17 }]}``
+            
+            **Parameters**:
+                * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+        '''
         res = first_qe
         for qe in qes:
             res = (res | qe)
@@ -173,35 +276,50 @@ class Query(object):
         return self
     
     def in_(self, qfield, *values):
+        ''' Check to see that the value of ``qfield`` is one of ``values``
+            **Parameters**:
+                * qfield: Instances of :class:`mongoalchemy.query.QueryExpression`
+                * values: Values should be python values which ``qfield`` \
+                    understands
+        '''
         # TODO: make sure that this field represents a list
         self.filter(QueryExpression({ str(qfield) : { '$in' : values}}))
         return self
     
     def set(self, qfield, value):
+        '''Refer to: :func:`~mongoalchemy.query.UpdateExpression.set`'''
         return UpdateExpression(self).set(qfield, value)
     
     def unset(self, qfield):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.unset`'''
         return UpdateExpression(self).unset(qfield)
     
     def inc(self, qfield, value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.inc`'''
         return UpdateExpression(self).inc(qfield, value)
     
     def append(self, qfield, value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.append`'''
         return UpdateExpression(self).append(qfield, value)
     
     def extend(self, qfield, *value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.extend`'''
         return UpdateExpression(self).extend(qfield, *value)
     
     def remove(self, qfield, value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.remove`'''
         return UpdateExpression(self).remove(qfield, value)
     
     def remove_all(self, qfield, *value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.remove_all`'''
         return UpdateExpression(self).remove_all(qfield, *value)
         
     def add_to_set(self, qfield, value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.add_to_set`'''
         return UpdateExpression(self).add_to_set(qfield, value)
         
     def pop(self, qfield, value):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop`'''
         return UpdateExpression(self).pop(qfield, value)
 
 class UpdateExpression(object):

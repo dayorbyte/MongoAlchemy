@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Document &mdash; MongoAlchemy v0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
+    <link rel="up" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" />
+    <link rel="next" title="Fields" href="fields.html" />
+    <link rel="prev" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fields.html" title="Fields"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="document">
+<h1>Document<a class="headerlink" href="#document" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="mongoalchemy.document.Document">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">Document</tt><big>(</big><em>retrieved_fields=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="classmethod">
+<dt id="mongoalchemy.document.Document.class_name">
+<em class="property">classmethod </em><tt class="descname">class_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.class_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.document.Document.commit">
+<tt class="descname">commit</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.commit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mongoalchemy.document.Document.get_collection_name">
+<em class="property">classmethod </em><tt class="descname">get_collection_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_collection_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mongoalchemy.document.Document.get_fields">
+<em class="property">classmethod </em><tt class="descname">get_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mongoalchemy.document.Document.get_indexes">
+<em class="property">classmethod </em><tt class="descname">get_indexes</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_indexes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mongoalchemy.document.Document.normalize">
+<em class="property">classmethod </em><tt class="descname">normalize</tt><big>(</big><em>fields</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.normalize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="mongoalchemy.document.Document.unwrap">
+<em class="property">classmethod </em><tt class="descname">unwrap</tt><big>(</big><em>obj</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unwrap an object returned from the mongo database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.document.Document.wrap">
+<tt class="descname">wrap</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap a MongoObject into a format which can be inserted into
+a mongo database</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.document.DocumentException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentException</tt><a class="headerlink" href="#mongoalchemy.document.DocumentException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base for all document-related exceptions</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.document.MissingValueException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">MissingValueException</tt><a class="headerlink" href="#mongoalchemy.document.MissingValueException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a required field isn&#8217;t set</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.document.ExtraValueException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">ExtraValueException</tt><a class="headerlink" href="#mongoalchemy.document.ExtraValueException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a value is passed in with no corresponding field</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.document.FieldNotRetrieved">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">FieldNotRetrieved</tt><a class="headerlink" href="#mongoalchemy.document.FieldNotRetrieved" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a partial document is loaded from the database and a field which 
+wasn&#8217;t retrieved is accessed this exception is raised</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="fields.html"
+                        title="next chapter">Fields</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/schema/document.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="fields.html" title="Fields"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+             >previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" >Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

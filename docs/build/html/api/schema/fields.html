@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fields &mdash; MongoAlchemy v0.2 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
+    <link rel="up" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" />
+    <link rel="next" title="Expression Language — Querying and Updating" href="../expressions/index.html" />
+    <link rel="prev" title="Document" href="document.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../expressions/index.html" title="Expression Language — Querying and Updating"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="document.html" title="Document"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-mongoalchemy.fields">
+<span id="fields"></span><h1>Fields<a class="headerlink" href="#module-mongoalchemy.fields" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="mongoalchemy.fields.AnythingField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">AnythingField</tt><big>(</big><em>required=True</em>, <em>default=&lt;class 'mongoalchemy.fields.UNSET'&gt;</em>, <em>db_field=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.AnythingField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.AnythingField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.AnythingField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.fields.BadFieldSpecification">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BadFieldSpecification</tt><a class="headerlink" href="#mongoalchemy.fields.BadFieldSpecification" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.fields.BadValueException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BadValueException</tt><a class="headerlink" href="#mongoalchemy.fields.BadValueException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.BoolField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BoolField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.BoolField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.ComputedField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ComputedField</tt><big>(</big><em>computed_type</em>, <em>deps=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A computed field is generated based on an object&#8217;s other values.  It
+takes three parameters:</p>
+<p>fun - the function to compute the value of the computed field
+computed_type - the type to use when wrapping the computed field
+deps - the names of fields on the current object which should be</p>
+<blockquote>
+passed in to compute the value</blockquote>
+<p>the unwrap function takes a dictionary of K/V pairs of the 
+dependencies.  Since dependencies are declared in the class 
+definition all of the dependencies for a computed field should be
+in the class definition before the computed field itself.</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.ComputedField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ComputedField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ComputedField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ComputedField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.fields.ComputedFieldValue">
+<tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ComputedFieldValue</tt><a class="headerlink" href="#mongoalchemy.fields.ComputedFieldValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.DateTimeField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">DateTimeField</tt><big>(</big><em>min_value=None</em>, <em>max_value=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.DateTimeField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DateTimeField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DateTimeField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.DictField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">DictField</tt><big>(</big><em>value_type</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores String to &lt;ValueType&gt; Dictionaries.  For non-string keys use 
+KVField.  Strings also must obey the mongo key rules (no . or $)</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.is_valid_key_unwrap">
+<tt class="descname">is_valid_key_unwrap</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_key_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.is_valid_key_wrap">
+<tt class="descname">is_valid_key_wrap</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_key_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.DictField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.EnumField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">EnumField</tt><big>(</big><em>item_type</em>, <em>*values</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a single value out of a list of possible values, all 
+of the same type. == is used for comparison</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.EnumField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.EnumField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.EnumField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.EnumField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.Field">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">Field</tt><big>(</big><em>required=True</em>, <em>default=&lt;class 'mongoalchemy.fields.UNSET'&gt;</em>, <em>db_field=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="mongoalchemy.fields.Field.db_field">
+<tt class="descname">db_field</tt><a class="headerlink" href="#mongoalchemy.fields.Field.db_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.fail_validation">
+<tt class="descname">fail_validation</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.fail_validation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.set_name">
+<tt class="descname">set_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.set_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.set_parent">
+<tt class="descname">set_parent</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.set_parent" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.validate_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.validate_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.FloatField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">FloatField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.FloatField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.IntField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">IntField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.IntField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.KVField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">KVField</tt><big>(</big><em>key_type</em>, <em>value_type</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Like a DictField, except it allows arbitrary keys.  The DB Format for 
+a KVField is { &#8216;k&#8217; : &lt;key&gt;, &#8216;v&#8217; : &lt;value&gt; }.  This will eventually
+makes it possible to have an index on the keys and values.</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.KVField.is_valid_key_wrap">
+<tt class="descname">is_valid_key_wrap</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.is_valid_key_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.KVField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.KVField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.KVField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.ListField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ListField</tt><big>(</big><em>item_type</em>, <em>min_capacity=None</em>, <em>max_capacity=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.ListField.is_valid_unwrap_type">
+<tt class="descname">is_valid_unwrap_type</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.is_valid_unwrap_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ListField.is_valid_wrap_type">
+<tt class="descname">is_valid_wrap_type</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.is_valid_wrap_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ListField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ListField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.NumberField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">NumberField</tt><big>(</big><em>constructor</em>, <em>min_value=None</em>, <em>max_value=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.NumberField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em>, <em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.ObjectIdField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ObjectIdField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField" title="Permalink to this definition">¶</a></dt>
+<dd><p>pymongo Object ID object.  Currently this is probably too strict.  A 
+string version of an ObjectId should also be acceptable</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.ObjectIdField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ObjectIdField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.ObjectIdField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.PrimitiveField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">PrimitiveField</tt><big>(</big><em>constructor</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primitive fields are fields where a single constructor can be used
+for wrapping and unwrapping an object.</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.PrimitiveField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.PrimitiveField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.SequenceField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">SequenceField</tt><big>(</big><em>item_type</em>, <em>min_capacity=None</em>, <em>max_capacity=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.child_type">
+<tt class="descname">child_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.child_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.is_valid_child_unwrap">
+<tt class="descname">is_valid_child_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_child_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.is_valid_child_wrap">
+<tt class="descname">is_valid_child_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_child_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.length_valid">
+<tt class="descname">length_valid</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.length_valid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.SetField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">SetField</tt><big>(</big><em>item_type</em>, <em>min_capacity=None</em>, <em>max_capacity=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.SetField.is_valid_unwrap_type">
+<tt class="descname">is_valid_unwrap_type</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.is_valid_unwrap_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SetField.is_valid_wrap_type">
+<tt class="descname">is_valid_wrap_type</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.is_valid_wrap_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SetField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.SetField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.StringField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">StringField</tt><big>(</big><em>max_length=None</em>, <em>min_length=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.fields.StringField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.TupleField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">TupleField</tt><big>(</big><em>*item_types</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a field which is a tuple of a fixed size with specific 
+types for each element in the field</p>
+<dl class="method">
+<dt id="mongoalchemy.fields.TupleField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.TupleField.is_valid_wrap">
+<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.TupleField.unwrap">
+<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.unwrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.TupleField.wrap">
+<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.wrap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="mongoalchemy.fields.UNSET">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">UNSET</tt><a class="headerlink" href="#mongoalchemy.fields.UNSET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="document.html"
+                        title="previous chapter">Document</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../expressions/index.html"
+                        title="next chapter">Expression Language — Querying and Updating</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/schema/fields.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../expressions/index.html" title="Expression Language — Querying and Updating"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="document.html" title="Document"
+             >previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" >Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+    </div>
+  </body>
+</html>

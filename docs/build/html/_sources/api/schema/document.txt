@@ -1,0 +1,15 @@
+
+
+Document
+========================================
+
+
+.. autoclass:: mongoalchemy.document.Document
+   :members:
+   :undoc-members:
+
+.. autoexception:: mongoalchemy.document.DocumentException
+.. autoexception:: mongoalchemy.document.MissingValueException
+.. autoexception:: mongoalchemy.document.ExtraValueException
+.. autoexception:: mongoalchemy.document.FieldNotRetrieved
+
