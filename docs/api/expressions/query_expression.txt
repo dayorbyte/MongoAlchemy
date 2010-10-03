@@ -2,6 +2,6 @@
 Query Expressions
 ==================================
 
-.. automodule:: mongoalchemy.query.QueryExpression
+.. autoclass:: mongoalchemy.query.QueryExpression
    :members:
    :undoc-members:

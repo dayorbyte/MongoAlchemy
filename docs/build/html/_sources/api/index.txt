@@ -6,10 +6,10 @@ Contents:
 
 .. toctree::
    :maxdepth: 4
-   
+
+   session   
    schema/index
    expressions/index
-   session
 
 .. automodule:: mongoalchemy
    :members:

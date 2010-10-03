@@ -56,6 +56,25 @@
             
   <div class="section" id="query-expressions">
 <h1>Query Expressions<a class="headerlink" href="#query-expressions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="mongoalchemy.query.QueryExpression">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">QueryExpression</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.query.QueryExpression.not_">
+<tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt> 
+operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.QueryExpression.or_">
+<tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 
+expression, starting a new one if one does not exst</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

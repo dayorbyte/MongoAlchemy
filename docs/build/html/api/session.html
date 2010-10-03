@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../index.html" />
     <link rel="up" title="API documentation" href="index.html" />
-    <link rel="next" title="Examples" href="../examples/index.html" />
-    <link rel="prev" title="Update Expressions" href="expressions/update.html" /> 
+    <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
+    <link rel="prev" title="API documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../examples/index.html" title="Examples"
+          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="expressions/update.html" title="Update Expressions"
+          <a href="index.html" title="API documentation"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
@@ -83,20 +83,6 @@ anything intelligent for ordering.</p>
 </ul>
 </dd>
 </dl>
-<dl class="method">
-<dt id="mongoalchemy.session.Session.clear">
-<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear the queue of database operations without executing any of 
-the pending operations</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.clear_collection">
-<tt class="descname">clear_collection</tt><big>(</big><em>*cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear all objects from the collections associated with the 
-objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
-</dd></dl>
-
 <dl class="classmethod">
 <dt id="mongoalchemy.session.Session.connect">
 <em class="property">classmethod </em><tt class="descname">connect</tt><big>(</big><em>database</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.connect" title="Permalink to this definition">¶</a></dt>
@@ -121,19 +107,6 @@ database connection that the session will use.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.session.Session.flush">
-<tt class="descname">flush</tt><big>(</big><em>safe=True</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.flush" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform all database operations currently in the queue</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.get_indexes">
-<tt class="descname">get_indexes</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.get_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the index information for the collection associated with 
-<cite>cls</cite>.  Index information is returned in the same format as <em>pymongo</em>.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mongoalchemy.session.Session.insert">
 <tt class="descname">insert</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert an item into the queue and flushes.  Later this function should be smart and delay 
@@ -150,6 +123,33 @@ insertion until the _id field is actually accessed</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="mongoalchemy.session.Session.get_indexes">
+<tt class="descname">get_indexes</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.get_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the index information for the collection associated with 
+<cite>cls</cite>.  Index information is returned in the same format as <em>pymongo</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the queue of database operations without executing any of 
+the pending operations</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.clear_collection">
+<tt class="descname">clear_collection</tt><big>(</big><em>*cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all objects from the collections associated with the 
+objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.flush">
+<tt class="descname">flush</tt><big>(</big><em>safe=True</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform all database operations currently in the queue</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -161,11 +161,11 @@ insertion until the _id field is actually accessed</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="expressions/update.html"
-                        title="previous chapter">Update Expressions</a></p>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">API documentation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../examples/index.html"
-                        title="next chapter">Examples</a></p>
+  <p class="topless"><a href="schema/index.html"
+                        title="next chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/session.txt"
@@ -198,10 +198,10 @@ insertion until the _id field is actually accessed</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../examples/index.html" title="Examples"
+          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
              >next</a> |</li>
         <li class="right" >
-          <a href="expressions/update.html" title="Update Expressions"
+          <a href="index.html" title="API documentation"
              >previous</a> |</li>
         <li><a href="../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="index.html" >API documentation</a> &raquo;</li> 

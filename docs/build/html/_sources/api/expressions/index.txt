@@ -8,7 +8,3 @@ Expression Language — Querying and Updating
    query
    query_expression
    update
-
-.. automodule:: mongoalchemy.query
-   :members:
-   :undoc-members:

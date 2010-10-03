@@ -2,6 +2,6 @@
 Update Expressions
 ==================================
 
-.. automodule:: mongoalchemy.query.UpdateExpressions
+.. autoclass:: mongoalchemy.query.UpdateExpression
    :members:
    :undoc-members:

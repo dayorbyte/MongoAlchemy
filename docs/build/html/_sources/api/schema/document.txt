@@ -3,11 +3,24 @@
 Document
 ========================================
 
+.. automodule:: mongoalchemy.document
+
+
+:class:`Document` Objects
+----------------------------------------------------------
 
 .. autoclass:: mongoalchemy.document.Document
    :members:
    :undoc-members:
 
+:class:`Index` Objects
+----------------------------------------------------------
+.. autoclass:: mongoalchemy.document.Index
+   :members:
+   :undoc-members:
+
+Exceptions
+----------------------------------------------------------
 .. autoexception:: mongoalchemy.document.DocumentException
 .. autoexception:: mongoalchemy.document.MissingValueException
 .. autoexception:: mongoalchemy.document.ExtraValueException

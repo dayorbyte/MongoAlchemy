@@ -23,7 +23,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../index.html" />
-    <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
+    <link rel="next" title="Session" href="session.html" />
     <link rel="prev" title="Tutorial" href="../tutorial.html" /> 
   </head>
   <body>
@@ -37,7 +37,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+          <a href="session.html" title="Session"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="../tutorial.html" title="Tutorial"
@@ -56,9 +56,24 @@
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="session.html">Session</a></li>
 <li class="toctree-l1"><a class="reference internal" href="schema/index.html">Schema — Document-Object Mapper and Schema Definitions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="schema/document.html">Document</a></li>
-<li class="toctree-l2"><a class="reference internal" href="schema/fields.html">Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/document.html">Document</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="schema/document.html#document-objects"><tt class="docutils literal"><span class="pre">Document</span></tt> Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/document.html#index-objects"><tt class="docutils literal"><span class="pre">Index</span></tt> Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/document.html#exceptions">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html"><tt class="docutils literal"><span class="pre">fields</span></tt> &#8212; Mapping Python Values to MongoDB Document Values</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#field-objects">Field Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#primitive-fields">Primitive Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#sequence-type-fields">Sequence Type Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#mapping-type-fields">Mapping Type Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#document-field-objects">Document Field Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#computed-field-objects">Computed Field Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#exceptions">Exceptions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="expressions/index.html">Expression Language — Querying and Updating</a><ul>
@@ -67,7 +82,6 @@
 <li class="toctree-l2"><a class="reference internal" href="expressions/update.html">Update Expressions</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="session.html">Session</a></li>
 </ul>
 </div>
 <span class="target" id="module-mongoalchemy"></span></div>
@@ -82,8 +96,8 @@
   <p class="topless"><a href="../tutorial.html"
                         title="previous chapter">Tutorial</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="schema/index.html"
-                        title="next chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
+  <p class="topless"><a href="session.html"
+                        title="next chapter">Session</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/index.txt"
@@ -116,7 +130,7 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+          <a href="session.html" title="Session"
              >next</a> |</li>
         <li class="right" >
           <a href="../tutorial.html" title="Tutorial"
