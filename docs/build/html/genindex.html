@@ -58,19 +58,16 @@
   </dl></dd>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.all">all() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.AnythingField">AnythingField (class in mongoalchemy.fields)</a></dt>
+</dl></td>
+  <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.append">append() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.append">(mongoalchemy.query.UpdateExpression method)</a></dt>
   </dl></dd>
-</dl></td>
-  <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Index.ascending">ascending() (mongoalchemy.document.Index method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.ascending">(mongoalchemy.query.Query method)</a></dt>
   </dl></dd>
-    <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.atomic_list_op">atomic_list_op() (mongoalchemy.query.UpdateExpression method)</a></dt>
-    <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.atomic_list_op_multivalue">atomic_list_op_multivalue() (mongoalchemy.query.UpdateExpression method)</a></dt>
-    <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.atomic_op">atomic_op() (mongoalchemy.query.UpdateExpression method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -129,9 +126,10 @@
     <dt><a href="api/session.html#mongoalchemy.session.Session.end">end() (mongoalchemy.session.Session method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Index.ensure">ensure() (mongoalchemy.document.Index method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField">EnumField (class in mongoalchemy.fields)</a></dt>
-    <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.execute">execute() (mongoalchemy.query.UpdateExpression method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.eq_">eq_() (mongoalchemy.query.QueryField method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.execute">execute() (mongoalchemy.query.UpdateExpression method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.explain">explain() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.extend">extend() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
@@ -145,6 +143,9 @@
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.f">f (mongoalchemy.document.Document attribute)</a></dt>
+    <dd><dl>
+      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.f">(mongoalchemy.query.QueryField attribute)</a></dt>
+  </dl></dd>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field">Field (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.FieldNotRetrieved">FieldNotRetrieved</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.fields">fields() (mongoalchemy.query.Query method)</a></dt>
@@ -160,14 +161,18 @@
 <h2 id="G">G</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.ge_">ge_() (mongoalchemy.query.QueryField method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_collection_name">get_collection_name() (mongoalchemy.document.Document class method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_fields">get_fields() (mongoalchemy.document.Document class method)</a></dt>
-</dl></td>
-  <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_indexes">get_indexes() (mongoalchemy.document.Document class method)</a></dt>
     <dd><dl>
       <dt><a href="api/session.html#mongoalchemy.session.Session.get_indexes">(mongoalchemy.session.Session method)</a></dt>
   </dl></dd>
+</dl></td>
+  <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.get_name">get_name() (mongoalchemy.query.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.get_type">get_type() (mongoalchemy.query.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.gt_">gt_() (mongoalchemy.query.QueryField method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -185,6 +190,9 @@
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.in_">in_() (mongoalchemy.query.Query method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.in_">(mongoalchemy.query.QueryField method)</a></dt>
+  </dl></dd>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.inc">inc() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.inc">(mongoalchemy.query.UpdateExpression method)</a></dt>
@@ -234,10 +242,12 @@
 <h2 id="L">L</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.le_">le_() (mongoalchemy.query.QueryField method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.limit">limit() (mongoalchemy.query.Query method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ListField">ListField (class in mongoalchemy.fields)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.lt_">lt_() (mongoalchemy.query.QueryField method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -257,9 +267,10 @@
 <h2 id="N">N</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField.ne_">ne_() (mongoalchemy.query.QueryField method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.not_">not_() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
-      <dt><a href="api/expressions/query_expression.html#mongoalchemy.query.QueryExpression.not_">(mongoalchemy.query.QueryExpression method)</a></dt>
+      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryExpression.not_">(mongoalchemy.query.QueryExpression method)</a></dt>
   </dl></dd>
 </dl></td>
   <td width="33%" valign="top"><dl>
@@ -276,7 +287,7 @@
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.or_">or_() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
-      <dt><a href="api/expressions/query_expression.html#mongoalchemy.query.QueryExpression.or_">(mongoalchemy.query.QueryExpression method)</a></dt>
+      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryExpression.or_">(mongoalchemy.query.QueryExpression method)</a></dt>
   </dl></dd>
 </dl></td>
 </tr></table>
@@ -284,9 +295,13 @@
 <h2 id="P">P</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.pop">pop() (mongoalchemy.query.Query method)</a></dt>
+    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.pop_first">pop_first() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
-      <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.pop">(mongoalchemy.query.UpdateExpression method)</a></dt>
+      <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.pop_first">(mongoalchemy.query.UpdateExpression method)</a></dt>
+  </dl></dd>
+    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.pop_last">pop_last() (mongoalchemy.query.Query method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/expressions/update.html#mongoalchemy.query.UpdateExpression.pop_last">(mongoalchemy.query.UpdateExpression method)</a></dt>
   </dl></dd>
 </dl></td>
   <td width="33%" valign="top"><dl>
@@ -301,7 +316,8 @@
     <dt><a href="api/session.html#mongoalchemy.session.Session.query">query() (mongoalchemy.session.Session method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/expressions/query_expression.html#mongoalchemy.query.QueryExpression">QueryExpression (class in mongoalchemy.query)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryExpression">QueryExpression (class in mongoalchemy.query)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query.QueryField">QueryField (class in mongoalchemy.query)</a></dt>
 </dl></td>
 </tr></table>
 

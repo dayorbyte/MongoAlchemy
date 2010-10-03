@@ -6,5 +6,5 @@ Expression Language — Querying and Updating
    :maxdepth: 2
    
    query
-   query_expression
    update
+   query_expressions

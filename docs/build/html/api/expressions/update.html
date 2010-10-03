@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
-    <link rel="next" title="Examples" href="../../examples/index.html" />
-    <link rel="prev" title="Query Expressions" href="query_expression.html" /> 
+    <link rel="next" title="Mongo Query Expression Language" href="query_expressions.html" />
+    <link rel="prev" title="Query Objects" href="query.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../../examples/index.html" title="Examples"
+          <a href="query_expressions.html" title="Mongo Query Expression Language"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="query_expression.html" title="Query Expressions"
+          <a href="query.html" title="Query Objects"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
@@ -62,90 +62,77 @@
 <dd><dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.set">
 <tt class="descname">set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>$set - set a particular value</p>
+<dd><p>Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.unset">
 <tt class="descname">unset</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.unset" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>$unset - delete a particular value</dt>
-<dd><div class="first last admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Requires server version <strong>&gt;= 1.3.0+</strong>.</p>
-</div>
-</dd>
-</dl>
-<p>TODO: check version is &gt;1.3.0</p>
+<dd><p>Atomically delete the field <tt class="docutils literal"><span class="pre">qfield</span></tt>
+.. note:: Requires server version <strong>&gt;= 1.3.0+</strong>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.inc">
 <tt class="descname">inc</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.inc" title="Permalink to this definition">¶</a></dt>
-<dd><p>$inc - increment a particular field by a value</p>
+<dd><p>Atomically increment <tt class="docutils literal"><span class="pre">qfield</span></tt> by <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.append">
 <tt class="descname">append</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>$push - append a value to an array</p>
+<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will 
+if the field is not a list field</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.extend">
 <tt class="descname">extend</tt><big>(</big><em>qfield</em>, <em>*value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.extend" title="Permalink to this definition">¶</a></dt>
-<dd><p>$pushAll - append several values to an array</p>
+<dd><p>Atomically append each value in <tt class="docutils literal"><span class="pre">value</span></tt> to the field <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.remove">
 <tt class="descname">remove</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.remove" title="Permalink to this definition">¶</a></dt>
-<dd><p>$pull - remove a value(s) from an existing array</p>
+<dd><p>Atomically remove <tt class="docutils literal"><span class="pre">value</span></tt> from <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.remove_all">
 <tt class="descname">remove_all</tt><big>(</big><em>qfield</em>, <em>*value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.remove_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>$pullAll - remove several value(s) from an existing array</p>
+<dd><p>Atomically remove each value in <tt class="docutils literal"><span class="pre">value</span></tt> from <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.add_to_set">
 <tt class="descname">add_to_set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.add_to_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>$pullAll - remove several value(s) from an existing array</p>
+<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by 
+<tt class="docutils literal"><span class="pre">qfield</span></tt> must be a set</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Requires server version <strong>&gt;= 1.3.0+</strong>.</p>
+<p class="last">Requires server version <strong>1.3.0+</strong>.</p>
 </div>
-<p>TODO: check version &gt; 1.3.3.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.UpdateExpression.pop">
-<tt class="descname">pop</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.pop" title="Permalink to this definition">¶</a></dt>
-<dd><p>$addToSet - Adds value to the array only if its not in the array already.
-TODO: v1.1 only</p>
+<dt id="mongoalchemy.query.UpdateExpression.pop_last">
+<tt class="descname">pop_last</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.pop_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically pop the last item in <tt class="docutils literal"><span class="pre">qfield.</span></tt>
+.. note:: Requires version <strong>1.1+</strong></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.UpdateExpression.atomic_list_op_multivalue">
-<tt class="descname">atomic_list_op_multivalue</tt><big>(</big><em>op</em>, <em>qfield</em>, <em>*value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.atomic_list_op_multivalue" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.query.UpdateExpression.atomic_list_op">
-<tt class="descname">atomic_list_op</tt><big>(</big><em>op</em>, <em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.atomic_list_op" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.query.UpdateExpression.atomic_op">
-<tt class="descname">atomic_op</tt><big>(</big><em>op</em>, <em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.atomic_op" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="mongoalchemy.query.UpdateExpression.pop_first">
+<tt class="descname">pop_first</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.pop_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically pop the first item in <tt class="docutils literal"><span class="pre">qfield.</span></tt>
+.. note:: Requires version <strong>1.1+</strong></p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.UpdateExpression.execute">
 <tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.UpdateExpression.execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Execute the update expression on the database</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -158,11 +145,11 @@ TODO: v1.1 only</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="query_expression.html"
-                        title="previous chapter">Query Expressions</a></p>
+  <p class="topless"><a href="query.html"
+                        title="previous chapter">Query Objects</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../../examples/index.html"
-                        title="next chapter">Examples</a></p>
+  <p class="topless"><a href="query_expressions.html"
+                        title="next chapter">Mongo Query Expression Language</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/api/expressions/update.txt"
@@ -195,10 +182,10 @@ TODO: v1.1 only</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../../examples/index.html" title="Examples"
+          <a href="query_expressions.html" title="Mongo Query Expression Language"
              >next</a> |</li>
         <li class="right" >
-          <a href="query_expression.html" title="Query Expressions"
+          <a href="query.html" title="Query Objects"
              >previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>

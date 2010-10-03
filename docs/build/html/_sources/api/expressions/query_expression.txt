@@ -1,7 +1,0 @@
-
-Query Expressions
-==================================
-
-.. autoclass:: mongoalchemy.query.QueryExpression
-   :members:
-   :undoc-members:

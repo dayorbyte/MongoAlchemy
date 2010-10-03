@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>fields — Mapping Python Values to MongoDB Document Values &mdash; MongoAlchemy v0.2 documentation</title>
+    <title>fields &mdash; MongoAlchemy v0.2 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -25,7 +25,7 @@
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
     <link rel="up" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" />
     <link rel="next" title="Expression Language — Querying and Updating" href="../expressions/index.html" />
-    <link rel="prev" title="Document" href="document.html" /> 
+    <link rel="prev" title="document" href="document.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,7 +41,7 @@
           <a href="../expressions/index.html" title="Expression Language — Querying and Updating"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="document.html" title="Document"
+          <a href="document.html" title="document"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
@@ -55,7 +55,7 @@
           <div class="body">
             
   <div class="section" id="module-mongoalchemy.fields">
-<span id="fields-mapping-python-values-to-mongodb-document-values"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">fields</span></tt> &#8212; Mapping Python Values to MongoDB Document Values<a class="headerlink" href="#module-mongoalchemy.fields" title="Permalink to this headline">¶</a></h1>
+<span id="fields"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">fields</span></tt><a class="headerlink" href="#module-mongoalchemy.fields" title="Permalink to this headline">¶</a></h1>
 <p><a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> objects transform python objects into objects which can
 be stored as a value in a MongoDB document.  They control the conversions and 
 validation of the data.</p>
@@ -739,9 +739,11 @@ no further validation is needed.</p>
 <dl class="method">
 <dt id="mongoalchemy.document.DocumentField.is_valid_unwrap">
 <tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>At the moment this method always returns True.  In the future it 
-will go through every field in <tt class="docutils literal"><span class="pre">value</span></tt> and validate it against 
-the fields in the document class.</p>
+<dd><p>At the moment this method is <strong>extremely innefficient</strong>.  It 
+unwraps the object and returns False if an exception is raised.  
+In the future it  will go through  every field in <tt class="docutils literal"><span class="pre">value</span></tt> and 
+validate it against the fields in the document class.  If 
+<tt class="docutils literal"><span class="pre">fields</span></tt> is not <tt class="xref docutils literal"><span class="pre">None</span></tt>, only the fields in <tt class="docutils literal"><span class="pre">fields</span></tt> will be checked.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Validation will still happen during the actual unwrapping</p>
@@ -840,7 +842,7 @@ field</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">fields</span></tt> &#8212; Mapping Python Values to MongoDB Document Values</a><ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">fields</span></tt></a><ul>
 <li><a class="reference internal" href="#field-objects">Field Objects</a></li>
 <li><a class="reference internal" href="#primitive-fields">Primitive Fields</a></li>
 <li><a class="reference internal" href="#sequence-type-fields">Sequence Type Fields</a></li>
@@ -854,7 +856,7 @@ field</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="document.html"
-                        title="previous chapter">Document</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">document</span></tt></a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../expressions/index.html"
                         title="next chapter">Expression Language — Querying and Updating</a></p>
@@ -893,7 +895,7 @@ field</p>
           <a href="../expressions/index.html" title="Expression Language — Querying and Updating"
              >next</a> |</li>
         <li class="right" >
-          <a href="document.html" title="Document"
+          <a href="document.html" title="document"
              >previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>

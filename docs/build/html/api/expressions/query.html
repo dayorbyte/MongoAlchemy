@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
-    <link rel="next" title="Query Expressions" href="query_expression.html" />
+    <link rel="next" title="Update Expressions" href="update.html" />
     <link rel="prev" title="Expression Language — Querying and Updating" href="index.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="query_expression.html" title="Query Expressions"
+          <a href="update.html" title="Update Expressions"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Expression Language — Querying and Updating"
@@ -175,13 +175,13 @@ query and returns the raw explain object returned.</p>
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
-<li>query_expressions: Instances of <a class="reference internal" href="query_expression.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
+<li>query_expressions: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="query_expression.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">QueryExpression</span></tt></a> class</p>
+<p class="last"><a class="reference internal" href="query_expressions.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">QueryExpression</span></tt></a> class</p>
 </div>
 </dd></dl>
 
@@ -246,7 +246,7 @@ can be chained to sort by multiple fields.</p>
 given.</p>
 <p><strong>Examples</strong>: <tt class="docutils literal"><span class="pre">query.not_(SomeDocClass.f.age</span> <span class="pre">==</span> <span class="pre">18)</span></tt> becomes <tt class="docutils literal"><span class="pre">{'$not'</span> <span class="pre">:</span> <span class="pre">{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">18</span> <span class="pre">}}</span></tt></p>
 <p><strong>Parameters</strong>:
-* query_expressions: Instances of <a class="reference internal" href="query_expression.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></p>
+* query_expressions: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></p>
 </dd></dl>
 
 <dl class="method">
@@ -258,7 +258,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
-<li>query_expressions: Instances of <a class="reference internal" href="query_expression.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
+<li>query_expressions: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
 </ul>
 </dd>
 </dl>
@@ -271,7 +271,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 <strong>Parameters</strong>:</p>
 <blockquote>
 <ul class="simple">
-<li>qfield: Instances of <a class="reference internal" href="query_expression.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
+<li>qfield: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query.QueryExpression" title="mongoalchemy.query.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryExpression</span></tt></a></li>
 <li>values: Values should be python values which <tt class="docutils literal"><span class="pre">qfield</span></tt>                     understands</li>
 </ul>
 </blockquote>
@@ -326,9 +326,15 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.Query.pop">
-<tt class="descname">pop</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.pop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Refer to:  <a class="reference internal" href="update.html#mongoalchemy.query.UpdateExpression.pop" title="mongoalchemy.query.UpdateExpression.pop"><tt class="xref py py-func docutils literal"><span class="pre">pop()</span></tt></a></p>
+<dt id="mongoalchemy.query.Query.pop_first">
+<tt class="descname">pop_first</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.pop_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refer to:  <a class="reference internal" href="update.html#mongoalchemy.query.UpdateExpression.pop_first" title="mongoalchemy.query.UpdateExpression.pop_first"><tt class="xref py py-func docutils literal"><span class="pre">pop_first()</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.Query.pop_last">
+<tt class="descname">pop_last</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.pop_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refer to:  <a class="reference internal" href="update.html#mongoalchemy.query.UpdateExpression.pop_last" title="mongoalchemy.query.UpdateExpression.pop_last"><tt class="xref py py-func docutils literal"><span class="pre">pop_last()</span></tt></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -345,8 +351,8 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
   <p class="topless"><a href="index.html"
                         title="previous chapter">Expression Language — Querying and Updating</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="query_expression.html"
-                        title="next chapter">Query Expressions</a></p>
+  <p class="topless"><a href="update.html"
+                        title="next chapter">Update Expressions</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/api/expressions/query.txt"
@@ -379,7 +385,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="query_expression.html" title="Query Expressions"
+          <a href="update.html" title="Update Expressions"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Expression Language — Querying and Updating"
