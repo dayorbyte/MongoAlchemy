@@ -60,7 +60,6 @@ class Field(object):
     auto = False
     
     def __init__(self, required=True, default=UNSET, db_field=None):
-        ''' field init docs '''
         self.required = required
         self.__db_field = db_field
         if default != UNSET:
@@ -218,7 +217,7 @@ class NumberField(PrimitiveField):
         return True
 
 class IntField(NumberField):
-    ''' Subclass of :class:`~NumberField` for ``int``s'''
+    ''' Subclass of :class:`~NumberField` for ``int``'''
     def __init__(self, **kwargs):
         '''
         **Parameters**:
@@ -232,7 +231,7 @@ class IntField(NumberField):
         return NumberField.is_valid_wrap(self, value, int)
 
 class FloatField(NumberField):
-    ''' Subclass of :class:`~NumberField` for ``float``s '''
+    ''' Subclass of :class:`~NumberField` for ``float`` '''
     def __init__(self, **kwargs):
         '''
         **Parameters**:
@@ -271,14 +270,26 @@ class DateTimeField(PrimitiveField):
 
 class TupleField(Field):
     ''' Represents a field which is a tuple of a fixed size with specific 
-        types for each element in the field '''
+        types for each element in the field.
+        
+        **Examples** ``TupleField(IntField(), BoolField())`` would accept
+        ``[19, False]`` as a value for both wrapping and unwrapping. '''
     
     def __init__(self, *item_types, **kwargs):
+        '''
+            **Parameters**:
+                * \*item_types: instances of :class:`Field`, in the order they \
+                    will appear in the tuples.
+                * \*\*kwargs: arguments for :class:`Field`
+        '''
         super(TupleField, self).__init__(**kwargs)
         self.size = len(item_types)
         self.types = item_types
     
     def is_valid_wrap(self, value):
+        ''' Checks that the correct number of elements are in ``value`` and that
+            each element validates agains the associated Field class
+        '''
         if not hasattr(value, '__len__') or len(value) != len(self.types):
             return False
         
@@ -288,6 +299,9 @@ class TupleField(Field):
         return True
     
     def is_valid_unwrap(self, value):
+        ''' Checks that the correct number of elements are in ``value`` and that
+            each element validates agains the associated Field class
+        '''
         if not hasattr(value, '__len__') or len(value) != len(self.types):
             return False
         
@@ -297,6 +311,11 @@ class TupleField(Field):
         return True
     
     def wrap(self, value):
+        ''' Validate and then wrap ``value`` for insertion.
+            **Parameters**
+                * value: the tuple (or list) to wrap
+        '''
+
         self.validate_wrap(value)
         ret = []
         for field, value in itertools.izip(self.types, value):
@@ -304,6 +323,10 @@ class TupleField(Field):
         return ret
     
     def unwrap(self, value):
+        ''' Validate and then unwrap ``value`` for object creation.
+            **Parameters**
+                * value: list returned from the database.  
+        '''
         self.validate_unwrap(value)
         ret = []
         for field, value in itertools.izip(self.types, value):
@@ -312,9 +335,18 @@ class TupleField(Field):
 
 class EnumField(Field):
     ''' Represents a single value out of a list of possible values, all 
-        of the same type. == is used for comparison'''
+        of the same type. == is used for comparison
+        
+        **Example**: ``EnumField(IntField(), 4, 6, 7)`` would accept anything 
+        in ``(4, 6, 7)`` as a value.  It would not accept ``5``.
+        '''
     
     def __init__(self, item_type, *values, **kwargs):
+        '''
+        **Parameters**:
+            * item_type: Instance of :class:`Field` to use for validation, and (un)wrapping
+            * values: Possible values.  ``item_type.is_valid_wrap(value)`` should be ``True``
+        '''
         super(EnumField, self).__init__(**kwargs)
         self.item_type = item_type
         self.values = values
@@ -322,6 +354,9 @@ class EnumField(Field):
             self.item_type.validate_wrap(value)
     
     def is_valid_wrap(self, value):
+        ''' Checks that value is valid for `EnumField.item_type` and that 
+            value is one of the values specified when the EnumField was 
+            constructed '''
         if not self.item_type.is_valid_wrap(value):
             return False
         for val in self.values:
@@ -330,15 +365,24 @@ class EnumField(Field):
         return False
     
     def is_valid_unwrap(self, value):
-        # we can't compare the DB value to the list since that would require 
-        # actually unwrapping it.  We'll do the check in unwrap instead
-        return self.item_type.is_valid_wrap(value)
+        ''' 
+            Checks that value is valid for `EnumField.item_type`.  
+            
+            .. note ::
+                Since checking the value itself is not possible until is is 
+                actually unwrapped, that check is done in :func:`EnumField.unwrap`'''
+        return self.item_type.is_valid_unwrap(value)
     
     def wrap(self, value):
+        '''Validate and wrap value using the wrapping function from ``EnumField.item_type``
+        '''
         self.validate_wrap(value)
         return self.item_type.wrap(value)
     
     def unwrap(self, value):
+        ''' Unwrap value using the unwrap function from ``EnumField.item_type``.
+            Since unwrap validation could not happen in is_valid_wrap, it 
+            happens in this function.'''
         self.validate_unwrap(value)
         value = self.item_type.unwrap(value)
         for val in self.values:
@@ -348,8 +392,16 @@ class EnumField(Field):
     
 
 class SequenceField(Field):
+    ''' Base class for Fields which are an iterable collection of objects in which
+        every child element is of the same type'''
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 
             **kwargs):
+        '''
+            **Parameters**:
+                * item_type: :class:`Field` instance used for validation and (un)wrapping
+                * min_capacity: minimum number of items contained in values
+                * max_capacity: maximum number of items contained in values 
+        '''
         super(SequenceField, self).__init__(**kwargs)
         self.item_type = item_type
         self.min = min_capacity
@@ -358,15 +410,16 @@ class SequenceField(Field):
             raise BadFieldSpecification("List item_type is not a field!")
     
     def child_type(self):
+        ''' Returns the :class:`Field` instance used for items in the sequence'''
         return self.item_type
     
-    def is_valid_child_wrap(self, value):
+    def _is_valid_child_wrap(self, value):
         return self.item_type.is_valid_wrap(value)
     
-    def is_valid_child_unwrap(self, value):
+    def _is_valid_child_unwrap(self, value):
         return self.item_type.is_valid_unwrap(value)
     
-    def length_valid(self, value):
+    def _length_valid(self, value):
         if self.min != None and len(value) < self.min: 
             return False
         if self.max != None and len(value) > self.max: 
@@ -374,60 +427,85 @@ class SequenceField(Field):
         return True
     
     def is_valid_wrap(self, value):
-        if not self.is_valid_wrap_type(value):
+        ''' Checks that the type of ``value`` is correct as well as validating
+            the elements of value'''
+        if not self._is_valid_wrap_type(value):
             return False
-        if not self.length_valid(value):
+        if not self._length_valid(value):
             return False
         for v in value:
-            if not self.is_valid_child_wrap(v):
+            if not self._is_valid_child_wrap(v):
                 return False
         return True
 
     def is_valid_unwrap(self, value):
-        if not self.is_valid_unwrap_type(value):
+        ''' Checks that the type of ``value`` is correct as well as validating
+            the elements of value'''
+        if not self._is_valid_unwrap_type(value):
             return False
-        if not self.length_valid(value):
+        if not self._length_valid(value):
             return False
         for v in value:
-            if not self.is_valid_child_unwrap(v):
+            if not self._is_valid_child_unwrap(v):
                 return False
         return True
 
 class ListField(SequenceField):
-    def is_valid_wrap_type(self, value):
+    '''Field representing a python list.
+        
+        .. seealso:: :class:`SequenceField`'''
+    def _is_valid_wrap_type(self, value):
         return isinstance(value, list) or isinstance(value, tuple)
-    is_valid_unwrap_type = is_valid_wrap_type
+    _is_valid_unwrap_type = _is_valid_wrap_type
     
     def wrap(self, value):
+        ''' Wraps the elements of ``value`` using ``ListField.item_type`` and
+            returns them in a list'''
         self.validate_wrap(value)
         return [self.item_type.wrap(v) for v in value]
     def unwrap(self, value):
+        ''' Unwraps the elements of ``value`` using ``ListField.item_type`` and
+            returns them in a list'''
         self.validate_unwrap(value)
         return [self.item_type.unwrap(v) for v in value]
 
 class SetField(SequenceField):
-    def is_valid_wrap_type(self, value):
+    '''Field representing a python set.
+        
+        .. seealso:: :class:`SequenceField`'''
+    def _is_valid_wrap_type(self, value):
         return isinstance(value, set)
     
-    def is_valid_unwrap_type(self, value):
+    def _is_valid_unwrap_type(self, value):
         return isinstance(value, list)
     
     def wrap(self, value):
+        ''' Unwraps the elements of ``value`` using ``SetField.item_type`` and
+            returns them in a set
+            '''
         self.validate_wrap(value)
         return [self.item_type.wrap(v) for v in value]
     
     def unwrap(self, value):
+        ''' Unwraps the elements of ``value`` using ``SetField.item_type`` and
+            returns them in a set'''
         self.validate_unwrap(value)
         return set([self.item_type.unwrap(v) for v in value])
 
 class AnythingField(Field):
+    ''' A field that passes through whatever is set with no validation.  Useful
+        for free-form objects '''
+    
     def wrap(self, value):
+        '''Always returns the value passed in'''
         return value
 
     def unwrap(self, value):
+        '''Always returns the value passed in'''
         return value
     
     def is_valid_wrap(self, value):
+        '''Always returns True'''
         return True
 
 class ObjectIdField(Field):
@@ -437,55 +515,72 @@ class ObjectIdField(Field):
         super(ObjectIdField, self).__init__(**kwargs)
     
     def is_valid_wrap(self, value):
+        ''' Checks that ``value`` is a pymongo ``ObjectId``'''
         return isinstance(value, ObjectId)
     
     def wrap(self, value):
+        ''' Validates that ``value`` is an ObjectId, then returns it '''
         self.validate_wrap(value)
         return value
     
     def unwrap(self, value):
+        ''' Validates that ``value`` is an ObjectId, then returns it '''
         self.validate_unwrap(value)
         return value
 
 
 class DictField(Field):
-    ''' Stores String to <ValueType> Dictionaries.  For non-string keys use 
-        KVField.  Strings also must obey the mongo key rules (no . or $)
+    ''' Stores String to ``value_type`` Dictionaries.  For non-string keys use 
+        :class:`KVField`.  Strings also must obey the mongo key rules 
+        (no ``.`` or ``$``)
         '''
     def __init__(self, value_type, **kwargs):
+        '''
+            **Parameters**:
+                * value_type: the Field type to use for the values
+        '''
         super(DictField, self).__init__(**kwargs)
         self.value_type = value_type
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("DictField value type is not a field!")
     
-    def is_valid_key_wrap(self, key):
+    def _is_valid_key_wrap(self, key):
         return isinstance(key, basestring) and '.' not in key and '$' not in key
     
-    def is_valid_key_unwrap(self, key):
-        return self.is_valid_key_wrap(key)
+    def _is_valid_key_unwrap(self, key):
+        return self._is_valid_key_wrap(key)
     
     
     def is_valid_unwrap(self, value):
+        ''' Checks that value is a ``dict``, that every key is a valid MongoDB
+            key, and that every value validates based on DictField.value_type
+        '''
         if not isinstance(value, dict):
             return False
         for k, v in value.iteritems():
-            if not self.is_valid_key_unwrap(k):
+            if not self._is_valid_key_unwrap(k):
                 return False
             if not self.value_type.is_valid_unwrap(v):
                 return False
         return True
         
     def is_valid_wrap(self, value):
+        ''' Checks that value is a ``dict``, that every key is a valid MongoDB
+            key, and that every value validates based on DictField.value_type
+        '''
         if not isinstance(value, dict):
             return False
         for k, v in value.iteritems():
-            if not self.is_valid_key_wrap(k):
+            if not self._is_valid_key_wrap(k):
                 return False
             if not self.value_type.is_valid_wrap(v):
                 return False
         return True
     
     def wrap(self, value):
+        ''' Validates ``value`` and then returns a dictionary with each key in
+            ``value`` mapped to its value wrapped with ``DictField.value_type``
+        '''
         self.validate_wrap(value)
         ret = {}
         for k, v in value.iteritems():
@@ -493,6 +588,9 @@ class DictField(Field):
         return ret
     
     def unwrap(self, value):
+        ''' Validates ``value`` and then returns a dictionary with each key in
+            ``value`` mapped to its value unwrapped using ``DictField.value_type``
+        '''
         self.validate_unwrap(value)
         ret = {}
         for k, v in value.iteritems():
@@ -513,7 +611,7 @@ class KVField(DictField):
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("KVField value type is not a field!")
     
-    def is_valid_key_wrap(self, key):
+    def _is_valid_key_wrap(self, key):
         return self.key_type.is_valid_wrap(key)
     
     def is_valid_unwrap(self, value):
