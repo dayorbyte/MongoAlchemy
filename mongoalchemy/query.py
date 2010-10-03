@@ -492,6 +492,10 @@ class QueryField(object):
     def __eq__(self, value):
         return self.eq_(value)
     def eq_(self, value):
+        ''' Creates a query expression where ``this field == value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name == value``
+        '''
         if not self.__type.is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
         return QueryExpression({ self.__absolute_name() : value })
@@ -499,27 +503,46 @@ class QueryField(object):
     def __lt__(self, value):
         return self.lt_(value)
     def lt_(self, value):
-        ''' Creates a query where this field is less than ``value`` '''
+        ''' Creates a query expression where ``this field < value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name < value``
+        '''
         return self.__comparator('$lt', value)
     
     def __le__(self, value):
         return self.le_(value)
     def le_(self, value):
+        ''' Creates a query expression where ``this field <= value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name <= value``
+        '''
         return self.__comparator('$lte', value)
     
     def __ne__(self, value):
         return self.ne_(value)
     def ne_(self, value):
+        ''' Creates a query expression where ``this field != value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name != value``
+        '''
         return self.__comparator('$ne', value)
     
     def __gt__(self, value):
         return self.gt_(value)
     def gt_(self, value):
+        ''' Creates a query expression where ``this field > value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name > value``
+        '''
         return self.__comparator('$gt', value)
     
     def __ge__(self, value):
         return self.ge_(value)
     def ge_(self, value):
+        ''' Creates a query expression where ``this field >= value`` 
+        
+            .. note:: The prefered usage is via an operator: ``User.f.name >= value``
+        '''
         return self.__comparator('$gte', value)
     
     def __comparator(self, op, value):
@@ -533,22 +556,43 @@ class QueryField(object):
             raise BadQueryException('Invalid "value" for %s comparison against %s: %s' % (self, op, value))
 
 class QueryExpression(object):
+    ''' A QueryExpression wraps a dictionary representing a query to perform 
+        on a mongo collection.  The 
+    
+        .. note:: There is no ``and_`` expression because multiple expressions
+            can be specified to a single call of :func:`Query.filter`
+    '''
     def __init__(self, obj):
         self.obj = obj
     def not_(self):
         '''Negates this instance's query expression using MongoDB's ``$not`` 
-            operator'''
+            operator
+            
+            **Example**: ``(User.f.name == 'Jeff').not_()``
+            
+            .. note:: Another usage is via an operator, but parens are needed 
+                to get past precedence issues: ``~ (User.f.name == 'Jeff')``
+            '''
 
         return QueryExpression({
                 '$not' : self.obj
             })
+    
+    def __invert__(self):
+        return self.not_()
     
     def __or__(self, expression):
         return self.or_(expression)
     
     def or_(self, expression):
         ''' Adds the given expression to this instance's MongoDB ``$or`` 
-            expression, starting a new one if one does not exst'''
+            expression, starting a new one if one does not exst
+            
+            **Example**: ``(User.f.name == 'Jeff').or_(User.f.name == 'Jack')``
+            
+            .. note:: The prefered usageis via an operator: ``User.f.name == 'Jeff' | User.f.name == 'Jack'``
+            
+            '''
         
         if '$or' in self.obj:
             self.obj['$or'].append(expression.obj)
@@ -557,7 +601,7 @@ class QueryExpression(object):
             '$or' : [self.obj, expression.obj]
         }
         return self
-
+    
     
 class QueryResult(object):
     def __init__(self, cursor, type, fields=None):

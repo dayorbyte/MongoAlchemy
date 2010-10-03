@@ -280,6 +280,7 @@ def qf_dot_f_test():
 def test_not():
     q = Query(T, None)
     
+    assert q.filter( ~(T.f.i == 3) ).query == { '$not' : {'i' : 3} }
     assert q.not_(T.f.i == 3).query == { '$not' : {'i' : 3} }
 
 def test_or():
