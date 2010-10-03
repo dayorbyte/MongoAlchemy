@@ -254,7 +254,7 @@ def test_bad_query_field_name():
 #
 
 def qf_parent_test():
-    assert str(T2.f.t.i.get_parent()) == 't'
+    assert str(T2.f.t.i._get_parent()) == 't'
 
 @raises(BadQueryException)
 def qf_bad_subfield_test():

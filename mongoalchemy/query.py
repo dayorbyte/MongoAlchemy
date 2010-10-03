@@ -413,6 +413,7 @@ class UpdateExpression(object):
         return self
     
     def execute(self):
+        ''' Execute the update expression on the database '''
         assert len(self.update_data) > 0
         collection = self.query.db[self.query.type.get_collection_name()]
         for index in self.query.type.get_indexes():
@@ -440,13 +441,16 @@ class QueryField(object):
         self.__type = type
         self.__parent = parent
     
-    def get_parent(self):
+    def _get_parent(self):
         return self.__parent
     
     def get_name(self):
+        ''' Gets the MongoDB field name for the :class:`mongoalchemy.fields.Field`
+            this QueryField is wrapping'''
         return self.__type.db_field
     
     def get_type(self):
+        ''' Returns the underlying :class:`mongoalchemy.fields.Field` '''
         return self.__type
     
     def __getattr__(self, name):
@@ -457,6 +461,12 @@ class QueryField(object):
     
     @property
     def f(self):
+        ''' ``f`` provides acces to the sub-fields of this field.  They can 
+            also be accessed directly if they do not interfere with an 
+            attribute of :class:`QueryField`.
+            
+            **Example**: ``SomeDoc.f.outer_field.f.inner_field`` is the same as ``SomeDoc.f.outer_field.inner_field``
+        '''
         fields = self.__type.type.get_fields()
         return QueryFieldSet(self.__type, fields, parent=self)
     
@@ -465,10 +475,13 @@ class QueryField(object):
         current = self
         while current:
             res.append(current.get_name())
-            current = current.__parent
+            current = current._get_parent()
         return '.'.join(reversed(res))
     
     def in_(self, *values):
+        ''' A query to check if this query field is one of the values 
+            in ``values``.  Produces a MongoDB ``$in`` expression.
+        '''
         return QueryExpression({
             str(self) : { '$in' : values }
         })
@@ -477,18 +490,36 @@ class QueryField(object):
         return self.__absolute_name()
     
     def __eq__(self, value):
+        return self.eq_(value)
+    def eq_(self, value):
         if not self.__type.is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
         return QueryExpression({ self.__absolute_name() : value })
+    
     def __lt__(self, value):
+        return self.lt_(value)
+    def lt_(self, value):
+        ''' Creates a query where this field is less than ``value`` '''
         return self.__comparator('$lt', value)
+    
     def __le__(self, value):
+        return self.le_(value)
+    def le_(self, value):
         return self.__comparator('$lte', value)
+    
     def __ne__(self, value):
+        return self.ne_(value)
+    def ne_(self, value):
         return self.__comparator('$ne', value)
+    
     def __gt__(self, value):
+        return self.gt_(value)
+    def gt_(self, value):
         return self.__comparator('$gt', value)
+    
     def __ge__(self, value):
+        return self.ge_(value)
+    def ge_(self, value):
         return self.__comparator('$gte', value)
     
     def __comparator(self, op, value):
