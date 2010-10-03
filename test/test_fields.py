@@ -82,11 +82,11 @@ def datetime_wrong_type_test():
 
 @raises(BadValueException)
 def datetime_too_new_test():
-    DateTimeField(max_value=datetime(2009, 7, 9)).wrap(datetime(2009, 7, 10))
+    DateTimeField(max_date=datetime(2009, 7, 9)).wrap(datetime(2009, 7, 10))
 
 @raises(BadValueException)
 def datetime_too_old_test():
-    DateTimeField(min_value=datetime(2009, 7, 9)).wrap(datetime(2009, 7, 8))
+    DateTimeField(min_date=datetime(2009, 7, 9)).wrap(datetime(2009, 7, 8))
 
 def datetime_value_test():
     s = DateTimeField()

@@ -19,25 +19,48 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+'''
+
+:class:`Field` objects transform python objects into objects which can
+be stored as a value in a MongoDB document.  They control the conversions and 
+validation of the data.
+
+If you want to define your own type of :class:`Field` there are four methods 
+a subclass must implement:
+
+* :func:`Field.wrap` --- Takes a value and returns an object composed entirely \
+    of types that MongoDB understands (dicts, lists, numbers, strings, datetimes, etc.)
+* :func:`Field.unwrap` --- Takes a value in the format produced by :func:`~Field.wrap` and 
+    returns a python object.
+
+:func:`~Field.wrap` and :func:`~Field.unwrap` should be inverse operations.  
+In particular, ``field.unwrap(field.wrap(obj))`` == obj should always be true.
+
+* :func:`Field.is_valid_wrap` --- Returns true if calling :func:`~Field.wrap` will \
+    succeed.  This function should be fast, as it will be called whenever a value 
+    is set on a document for this type of field.
+* :func:`Field.is_valid_unwrap` --- Returns true if calling :func:`~Field.unwrap` will \
+    succeed.
+
+The documentation for each :class:`Field` class will largely just be giving the input and
+output types for :func:`~Field.wrap` and :func:`~Field.unwrap`.
+
+'''
+
+
 
 import itertools
 from datetime import datetime
 from pymongo.objectid import ObjectId
-
-class BadValueException(Exception):
-    pass
-
-class BadFieldSpecification(Exception):
-    pass
-
-class UNSET(object): 
-    pass
+from mongoalchemy.util import UNSET
 
 
 class Field(object):
+    ''' Field class docs '''
     auto = False
     
     def __init__(self, required=True, default=UNSET, db_field=None):
+        ''' field init docs '''
         self.required = required
         self.__db_field = db_field
         if default != UNSET:
@@ -45,39 +68,85 @@ class Field(object):
     
     @property
     def db_field(self):
+        ''' The name to use when setting this field on a document.  If 
+            ``db_field`` is passed to the constructor, that is returned.  Otherwise
+            the value is the name which this field was assigned to on the owning
+            document.
+        '''
         if self.__db_field != None:
             return self.__db_field
         return self.name
     
-    def set_name(self, name):
+    def _set_name(self, name):
         self.name = name
     
-    def set_parent(self, parent):
+    def _set_parent(self, parent):
         self.parent = parent
     
     def wrap(self, value):
+        ''' Returns an object suitable for setting as a value on a MongoDB object.  
+            Raises ``NotImplementedError`` in the base class.
+            
+            **Parameters**: 
+                * value: The value to convert.
+        '''
         raise NotImplementedError()
     
     def unwrap(self, value):
+        ''' Returns an object suitable for setting as a value on a subclass of
+            :class:`~mongoalchemy.document.Document`.  
+            Raises ``NotImplementedError`` in the base class.
+            
+            **Parameters**: 
+                * value: The value to convert.
+            '''
         raise NotImplementedError()
     
     def validate_wrap(self, value):
+        ''' Called before wrapping.  Calls :func:`~Field.wrap` and 
+            raises a :class:`BadValueException` if validation fails            
+            
+            **Parameters**: 
+                * value: The value to validate
+        '''
         if not self.is_valid_wrap(value):
-            self.fail_validation(value)
+            self._fail_validation(value)
     
     def validate_unwrap(self, value):
+        ''' Called before unwrapping.  Calls :func:`~Field.unwrap` and raises 
+            a :class:`BadValueException` if validation fails            
+        
+            **Parameters**: 
+                * value: The value to validate
+        '''
         if not self.is_valid_unwrap(value):
-            self.fail_validation(value)
+            self._fail_validation(value)
     
-    def fail_validation(self, value):
+    def _fail_validation(self, value):
         name = self.__class__.__name__
         raise BadValueException('Bad value for field of type "%s": %s' %
                                 (name, repr(value)))
     
     def is_valid_wrap(self, value):
+        '''Returns whether ``value`` is a valid value to wrap.
+            Raises ``NotImplementedError`` in the base class.
+        
+            **Parameters**: 
+                * value: The value to check
+        '''
         raise NotImplementedError()
     
     def is_valid_unwrap(self, value):
+        ''' Returns whether ``value`` is a valid value to unwrap.
+            Raises ``NotImplementedError`` in the base class.
+            
+            .. note::
+                ``is_valid_unwrap`` calls ``is_valid_wrap``, so any class without
+                a is_valid_unwrap function is inheriting that behaviour.
+        
+            **Parameters**: 
+                * value: The value to check
+        '''
         return self.is_valid_wrap(value)
 
 class PrimitiveField(Field):
@@ -95,12 +164,21 @@ class PrimitiveField(Field):
         return self.constructor(value)
 
 class StringField(PrimitiveField):
+    ''' Unicode Strings.  ``unicode`` is used to wrap and unwrap values, 
+        and any subclass of basestring is an acceptable input'''
     def __init__(self, max_length=None, min_length=None, **kwargs):
+        '''
+        **Parameters**:
+            * max_length: maximum string length
+            * min_length: minimum string length
+            * \*\*kwargs: arguments for :class:`Field`
+        '''
         self.max = max_length
         self.min = min_length
         super(StringField, self).__init__(constructor=unicode, **kwargs)
 
     def is_valid_wrap(self, value):
+        ''' Validates the type and length of ``value`` '''
         if not isinstance(value, basestring):
             return False
         if self.max != None and len(value) > self.max:
@@ -110,18 +188,27 @@ class StringField(PrimitiveField):
         return True
 
 class BoolField(PrimitiveField):
+    ''' ``True`` or ``False``.'''
     def __init__(self, **kwargs):
         super(BoolField, self).__init__(constructor=bool, **kwargs)
     def is_valid_wrap(self, value):
         return isinstance(value, bool)
 
 class NumberField(PrimitiveField):
+    ''' Base class for numeric fields '''
     def __init__(self, constructor, min_value=None, max_value=None, **kwargs):
+        '''
+        **Parameters**:
+            * max_value: maximum value
+            * min_value: minimum value
+            * \*\*kwargs: arguments for :class:`Field`
+        '''
         super(NumberField, self).__init__(constructor=constructor, **kwargs)
         self.min = min_value
         self.max = max_value
 
     def is_valid_wrap(self, value, type):
+        ''' Validates the type and value of ``value`` '''
         if not isinstance(value, type): 
             return False
         if self.min != None and value < self.min:
@@ -131,24 +218,49 @@ class NumberField(PrimitiveField):
         return True
 
 class IntField(NumberField):
+    ''' Subclass of :class:`~NumberField` for ``int``s'''
     def __init__(self, **kwargs):
+        '''
+        **Parameters**:
+            * max_length: maximum value
+            * min_length: minimum value
+            * \*\*kwargs: arguments for :class:`Field`
+        '''
         super(IntField, self).__init__(constructor=int, **kwargs)
     def is_valid_wrap(self, value):
+        ''' Validates the type and value of ``value`` '''
         return NumberField.is_valid_wrap(self, value, int)
 
 class FloatField(NumberField):
+    ''' Subclass of :class:`~NumberField` for ``float``s '''
     def __init__(self, **kwargs):
+        '''
+        **Parameters**:
+            * max_value: maximum value
+            * min_value: minimum value
+            * \*\*kwargs: arguments for :class:`Field`
+        '''
         super(FloatField, self).__init__(constructor=float, **kwargs)
     def is_valid_wrap(self, value):
+        ''' Validates the type and value of ``value`` '''
         return NumberField.is_valid_wrap(self, value, float)
 
-class DateTimeField(Field):
-    def __init__(self, min_value=None, max_value=None, **kwargs):
-        super(DateTimeField, self).__init__(**kwargs)
-        self.min = min_value
-        self.max = max_value
+class DateTimeField(PrimitiveField):
+    ''' Field for datetime objects. '''
+    def __init__(self, min_date=None, max_date=None, **kwargs):
+        '''
+        **Parameters**:
+            * max_date: maximum date
+            * min_date: minimum date
+            * \*\*kwargs: arguments for :class:`Field`
+        '''
+        super(DateTimeField, self).__init__(lambda dt : dt, **kwargs)
+        self.min = min_date
+        self.max = max_date
     
     def is_valid_wrap(self, value):
+        ''' Validates the value's type as well as it being in the valid 
+            date range'''
         if not isinstance(value, datetime):
             return False
         if self.min != None and value < self.min:
@@ -156,14 +268,6 @@ class DateTimeField(Field):
         if self.max != None and value > self.max:
             return False
         return True
-    
-    def wrap(self, value):
-        self.validate_wrap(value)
-        return value
-    
-    def unwrap(self, value):
-        return self.wrap(value)
-
 
 class TupleField(Field):
     ''' Represents a field which is a tuple of a fixed size with specific 
@@ -240,7 +344,7 @@ class EnumField(Field):
         for val in self.values:
             if val == value:
                 return val
-        self.fail_validation(value)
+        self._fail_validation(value)
     
 
 class SequenceField(Field):
@@ -446,15 +550,14 @@ class KVField(DictField):
             ret[self.key_type.unwrap(k)] = self.value_type.unwrap(v)
         return ret
 
-
 class ComputedField(Field):
-    '''A computed field is generated based on an object's other values.  It
-        takes three parameters:
-        
-        fun - the function to compute the value of the computed field
-        computed_type - the type to use when wrapping the computed field
-        deps - the names of fields on the current object which should be 
-            passed in to compute the value
+    '''A computed field is generated based on an object's other values.  
+    
+        **Parameters**:
+            * fun: the function to compute the value of the computed field
+            * computed_type: the type to use when wrapping the computed field
+            * deps: the names of fields on the current object which should be \
+                passed in to compute the value
         
         the unwrap function takes a dictionary of K/V pairs of the 
         dependencies.  Since dependencies are declared in the class 
@@ -488,10 +591,8 @@ class ComputedField(Field):
 
 
 class ComputedFieldValue(property, ComputedField):
-    class UNSET(object): pass
-    
     def __init__(self, field, fun):
-        self.__computed_value = self.UNSET
+        self.__computed_value = UNSET
         self.field = field
         self.fun = fun
     
@@ -504,11 +605,11 @@ class ComputedFieldValue(property, ComputedField):
             raise BadValueException('Computed Function return a bad value')
         return value
     
-    def set_name(self, name):
+    def _set_name(self, name):
         self.name = name
         self.field.name = name
     
-    def set_parent(self, parent):
+    def _set_parent(self, parent):
         self.parent = parent
         self.field.parent = parent
     
@@ -524,6 +625,13 @@ class ComputedFieldValue(property, ComputedField):
         if instance == None:
             return self.field
         # TODO: dirty cache indictor + check a field option for never caching
-        if self.__computed_value == self.UNSET:
+        if self.__computed_value == UNSET:
             self.__computed_value = self.compute_value(instance)
         return self.__computed_value
+
+class BadValueException(Exception):
+    pass
+
+class BadFieldSpecification(Exception):
+    pass
+

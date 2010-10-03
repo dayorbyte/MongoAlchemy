@@ -25,3 +25,11 @@ def classproperty(fun):
         def __get__(self, instance, owner):
             return fun(owner)
     return Descriptor()
+
+class UNSET(object): 
+    def __repr__(self):
+        return 'UNSET'
+    def __eq__(self, other):
+        return other.__class__ == self.__class__
+UNSET = UNSET()
+

@@ -41,8 +41,8 @@ class Query(object):
     '''
     def __init__(self, type, db):
         '''**Parameters**:
-            * type: A subclass of class:`mongoalchemy.document.Document`
-            * db: The ``pymongo`` database which this query is associated with.
+                * type: A subclass of class:`mongoalchemy.document.Document`
+                * db: The ``pymongo`` database which this query is associated with.
         '''
         self.db = db
         self.type = type
@@ -402,6 +402,10 @@ class UpdateExpression(object):
         collection.update(self.query.query, self.update_data)
 
 class QueryFieldSet(object):
+    ''' Intermediate class used to allow access to create QueryField objects 
+        from a subclass of Document.  Should generally be indirectly accessed 
+        via ``Document.f``.
+    '''
     def __init__(self, type, fields, parent=None):
         self.type = type
         self.fields = fields
@@ -483,6 +487,9 @@ class QueryExpression(object):
     def __init__(self, obj):
         self.obj = obj
     def not_(self):
+        '''Negates this instance's query expression using MongoDB's ``$not`` 
+            operator'''
+
         return QueryExpression({
                 '$not' : self.obj
             })
@@ -491,6 +498,9 @@ class QueryExpression(object):
         return self.or_(expression)
     
     def or_(self, expression):
+        ''' Adds the given expression to this instance's MongoDB ``$or`` 
+            expression, starting a new one if one does not exst'''
+        
         if '$or' in self.obj:
             self.obj['$or'].append(expression.obj)
             return self
