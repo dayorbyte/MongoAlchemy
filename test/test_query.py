@@ -356,9 +356,15 @@ def add_to_set_test():
         '$addToSet' : { 'l' : 1 }
     }
     
-def pop_test():
+def pop_first_test():
     q = update_test_setup()
-    assert q.pop(T.f.l, 1).update_data == {
+    assert q.pop_first(T.f.l).update_data == {
+        '$pop' : { 'l' : -1 }
+    }
+
+def pop_last_test():
+    q = update_test_setup()
+    assert q.pop_last(T.f.l).update_data == {
         '$pop' : { 'l' : 1 }
     }
 

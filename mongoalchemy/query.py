@@ -26,9 +26,12 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 class BadQueryException(Exception):
+    ''' Raised when a method would result in a query which is not well-formed.
+    '''
     pass
 
 class BadResultException(Exception):
+    ''' Only raised right now when .one() finds more than one object '''
     pass
 
 class Query(object):
@@ -318,9 +321,13 @@ class Query(object):
         '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.add_to_set`'''
         return UpdateExpression(self).add_to_set(qfield, value)
         
-    def pop(self, qfield, value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop`'''
-        return UpdateExpression(self).pop(qfield, value)
+    def pop_first(self, qfield):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop_first`'''
+        return UpdateExpression(self).pop_first(qfield)
+    
+    def pop_last(self, qfield):
+        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop_last`'''
+        return UpdateExpression(self).pop_last(qfield)
 
 class UpdateExpression(object):
     def __init__(self, query):
@@ -328,52 +335,57 @@ class UpdateExpression(object):
         self.update_data = {}
     
     def set(self, qfield, value):
-        ''' $set - set a particular value'''
-        return self.atomic_op('$set', qfield, value)
+        ''' Atomically set ``qfield`` to ``value``'''
+        return self._atomic_op('$set', qfield, value)
     
     def unset(self, qfield):
-        ''' $unset - delete a particular value
+        ''' Atomically delete the field ``qfield``
              .. note:: Requires server version **>= 1.3.0+**.
-            
-            TODO: check version is >1.3.0
-            
-            '''
-        return self.atomic_op('$unset', qfield, True)
+        '''
+        # TODO: assert server version is >1.3.0
+        return self._atomic_op('$unset', qfield, True)
         
     def inc(self, qfield, value):
-        ''' $inc - increment a particular field by a value '''
-        return self.atomic_op('$inc', qfield, value)
+        ''' Atomically increment ``qfield`` by ``value`` '''
+        return self._atomic_op('$inc', qfield, value)
         
     def append(self, qfield, value):
-        ''' $push - append a value to an array'''
-        return self.atomic_list_op('$push', qfield, value)
+        ''' Atomically append ``value`` to ``qfield``.  The operation will 
+            if the field is not a list field'''
+        return self._atomic_list_op('$push', qfield, value)
         
     def extend(self, qfield, *value):
-        ''' $pushAll - append several values to an array '''
-        return self.atomic_list_op_multivalue('$pushAll', qfield, *value)
+        ''' Atomically append each value in ``value`` to the field ``qfield`` '''
+        return self._atomic_list_op_multivalue('$pushAll', qfield, *value)
         
     def remove(self, qfield, value):
-        ''' $pull - remove a value(s) from an existing array'''
-        return self.atomic_list_op('$pull', qfield, value)
+        ''' Atomically remove ``value`` from ``qfield``'''
+        return self._atomic_list_op('$pull', qfield, value)
         
     def remove_all(self, qfield, *value):
-        ''' $pullAll - remove several value(s) from an existing array'''
-        return self.atomic_list_op_multivalue('$pullAll', qfield, *value)
+        ''' Atomically remove each value in ``value`` from ``qfield``'''
+        return self._atomic_list_op_multivalue('$pullAll', qfield, *value)
     
     def add_to_set(self, qfield, value):
-        ''' $pullAll - remove several value(s) from an existing array
+        ''' Atomically add ``value`` to ``qfield``.  The field represented by 
+            ``qfield`` must be a set
             
-            .. note:: Requires server version **>= 1.3.0+**.
-            
-            TODO: check version > 1.3.3. '''
-        return self.atomic_list_op('$addToSet', qfield, value)
+            .. note:: Requires server version **1.3.0+**.
+        '''
+        # TODO: check version > 1.3.3
+        return self._atomic_list_op('$addToSet', qfield, value)
     
-    def pop(self, qfield, value):
-        ''' $addToSet - Adds value to the array only if its not in the array already.
-            TODO: v1.1 only'''
-        return self.atomic_list_op('$pop', qfield, value)
+    def pop_last(self, qfield):
+        ''' Atomically pop the last item in ``qfield.``
+            .. note:: Requires version **1.1+**'''
+        return self._atomic_generic_op('$pop', qfield, 1)
     
-    def atomic_list_op_multivalue(self, op, qfield, *value):
+    def pop_first(self, qfield):
+        ''' Atomically pop the first item in ``qfield.``
+            .. note:: Requires version **1.1+**'''
+        return self._atomic_generic_op('$pop', qfield, -1)
+    
+    def _atomic_list_op_multivalue(self, op, qfield, *value):
         wrapped = []
         for v in value:
             wrapped.append(qfield.get_type().item_type.wrap(v))
@@ -382,16 +394,22 @@ class UpdateExpression(object):
         self.update_data[op][qfield.get_name()] = value
         return self
     
-    def atomic_list_op(self, op, qfield, value):
+    def _atomic_list_op(self, op, qfield, value):
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = qfield.get_type().child_type().wrap(value)
         return self
     
-    def atomic_op(self, op, qfield, value):
+    def _atomic_op(self, op, qfield, value):
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = qfield.get_type().wrap(value)
+        return self
+    
+    def _atomic_generic_op(self, op, qfield, value):
+        if op not in self.update_data:
+            self.update_data[op] = {}
+        self.update_data[op][qfield.get_name()] = value
         return self
     
     def execute(self):

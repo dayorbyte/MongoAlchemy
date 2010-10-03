@@ -328,13 +328,20 @@ class DocumentField(Field):
         return value.__class__ == self.type
     
     def is_valid_unwrap(self, value, fields=None):
-        '''At the moment this method always returns True.  In the future it 
-            will go through every field in ``value`` and validate it against 
-            the fields in the document class.
+        '''At the moment this method is **extremely innefficient**.  It 
+            unwraps the object and returns False if an exception is raised.  
+            In the future it  will go through  every field in ``value`` and 
+            validate it against the fields in the document class.  If 
+            ``fields`` is not ``None``, only the fields in ``fields`` will be checked.
             
             .. note::
                 Validation will still happen during the actual unwrapping
             '''
+        # this is super-wasteful
+        try:
+            self.type.unwrap(value, fields=fields)
+        except Exception, e:
+            return False
         return True
 
 class BadIndexException(Exception):
