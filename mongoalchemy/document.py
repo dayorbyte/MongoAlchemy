@@ -274,42 +274,67 @@ class Document(object):
         return cls(**params)
 
 class DocumentField(Field):
-    
+    ''' A field which wraps a :class:`Document`'''
     def __init__(self, document_class, **kwargs):
         super(DocumentField, self).__init__(**kwargs)
         self.type = document_class
 
     def validate_wrap(self, value):
+        ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_wrap` and 
+            raises a :class:`BadValueException` if validation fails            
+            
+            **Parameters**: 
+                * value: The value to validate
+        '''
         if not self.is_valid_wrap(value):
-            name = self.__class__.__name__
-            raise BadValueException('Bad value for field of type "%s(%s)": %s' %
-                                    (name, self.type.class_name(), repr(value)))
+            self._fail_validation(value)
+    
     def validate_unwrap(self, value, fields=None):
+        ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_unwrap` and 
+            raises a :class:`BadValueException` if validation fails            
+            
+            **Parameters**: 
+                * value: The value to validate
+                * fields: The fields being returned if this is a partial \
+                    document. They will be ignored when validating the fields \
+                    of ``value``
+        '''
         if not self.is_valid_unwrap(value, fields=fields):
-            name = self.__class__.__name__
-            raise BadValueException('Bad value for field of type "%s(%s)": %s' %
-                                    (name, self.type.class_name(), repr(value)))
+            self._fail_validation(value)
 
     
+    def _fail_validation(self, value):
+        name = self.__class__.__name__
+        raise BadValueException('Bad value for field of type "%s(%s)": %s' %
+                        (name, self.type.class_name(), repr(value)))
+    
     def wrap(self, value):
+        '''Validate ``value`` and then use the document's class to wrap the 
+            value'''
         self.validate_wrap(value)
         return self.type.wrap(value)
     
     def unwrap(self, value, fields=None):
+        '''Validate ``value`` and then use the document's class to unwrap the 
+            value'''
         self.validate_unwrap(value, fields=fields)
         return self.type.unwrap(value, fields=fields)
     
     def is_valid_wrap(self, value):
-        # we've validated everything we set on the object, so this should 
-        # always return True if it's the right kind of object
+        ''' Checks that ``value`` is an instance of ``DocumentField.document_class``.
+            if it is, then validation on its fields has already been done and
+            no further validation is needed.
+        '''
         return value.__class__ == self.type
     
     def is_valid_unwrap(self, value, fields=None):
-        # this is super-wasteful
-        try:
-            self.type.unwrap(value, fields=fields)
-        except:
-            return False
+        '''At the moment this method always returns True.  In the future it 
+            will go through every field in ``value`` and validate it against 
+            the fields in the document class.
+            
+            .. note::
+                Validation will still happen during the actual unwrapping
+            '''
         return True
 
 class BadIndexException(Exception):

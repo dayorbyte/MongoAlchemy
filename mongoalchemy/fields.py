@@ -102,7 +102,7 @@ class Field(object):
         raise NotImplementedError()
     
     def validate_wrap(self, value):
-        ''' Called before wrapping.  Calls :func:`~Field.wrap` and 
+        ''' Called before wrapping.  Calls :func:`~Field.is_valid_wrap` and 
             raises a :class:`BadValueException` if validation fails            
             
             **Parameters**: 
@@ -112,7 +112,7 @@ class Field(object):
             self._fail_validation(value)
     
     def validate_unwrap(self, value):
-        ''' Called before unwrapping.  Calls :func:`~Field.unwrap` and raises 
+        ''' Called before unwrapping.  Calls :func:`~Field.is_valid_unwrap` and raises 
             a :class:`BadValueException` if validation fails            
         
             **Parameters**: 
@@ -599,10 +599,15 @@ class DictField(Field):
 
 class KVField(DictField):
     ''' Like a DictField, except it allows arbitrary keys.  The DB Format for 
-        a KVField is { 'k' : <key>, 'v' : <value> }.  This will eventually
+        a ``KVField`` is ``[ { 'k' : key, 'v' : value }, ...]``.  This will eventually
         makes it possible to have an index on the keys and values.
     '''
     def __init__(self, key_type, value_type, **kwargs):
+        '''
+            **Parameters**:
+                * key_type: the Field type to use for the keys
+                * value_type: the Field type to use for the values
+        '''
         super(DictField, self).__init__(**kwargs)
         self.key_type = key_type
         self.value_type = value_type
@@ -615,6 +620,11 @@ class KVField(DictField):
         return self.key_type.is_valid_wrap(key)
     
     def is_valid_unwrap(self, value):
+        ''' Expects a list of dictionaries with ``k`` and ``v`` set to the 
+            keys and values that will be unwrapped into the output python 
+            dictionary should have
+        '''
+        
         if not isinstance(value, list):
             return False
         for value_dict in value:
@@ -631,6 +641,11 @@ class KVField(DictField):
         return True
     
     def wrap(self, value):
+        ''' Expects a dictionary with the keys being instances of ``KVField.key_type``
+            and the values being instances of ``KVField.value_type``.  After validation, 
+            the dictionary is transformed into a list of dictionaries with ``k`` and ``v``
+            fields set to the keys and values from the original dictionary.
+        '''
         self.validate_wrap(value)
         ret = []
         for k, v in value.iteritems():
@@ -640,6 +655,11 @@ class KVField(DictField):
         return ret
     
     def unwrap(self, value):
+        ''' Expects a list of dictionaries with ``k`` and ``v`` set to the 
+            keys and values that will be unwrapped into the output python 
+            dictionary should have.  Validates the input and then constructs the
+            dictionary from the list.
+        '''
         self.validate_unwrap(value)
         ret = {}
         for value_dict in value:
@@ -649,21 +669,27 @@ class KVField(DictField):
         return ret
 
 class ComputedField(Field):
-    '''A computed field is generated based on an object's other values.  
-    
-        **Parameters**:
-            * fun: the function to compute the value of the computed field
-            * computed_type: the type to use when wrapping the computed field
-            * deps: the names of fields on the current object which should be \
-                passed in to compute the value
-        
+    ''' A computed field is generated based on an object's other values.  
+
         the unwrap function takes a dictionary of K/V pairs of the 
         dependencies.  Since dependencies are declared in the class 
         definition all of the dependencies for a computed field should be
         in the class definition before the computed field itself.
+        
+        .. warning::
+            The computed field interacts weirdly with documents right now, 
+            especially with respect to partial loading.  If using this class
+            watch out for strange behaviour
     '''
     auto = True
     def __init__(self, computed_type, deps=None, **kwargs):
+        '''
+            **Parameters**:
+                * fun: the function to compute the value of the computed field
+                * computed_type: the type to use when wrapping the computed field
+                * deps: the names of fields on the current object which should be \
+                    passed in to compute the value
+        '''
         super(ComputedField, self).__init__(**kwargs)
         self.computed_type = computed_type
         if deps == None:
@@ -671,16 +697,20 @@ class ComputedField(Field):
         self.deps = set(deps)
     
     def is_valid_wrap(self, value):
+        '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         return self.computed_type.is_valid_wrap(value)
     
     def is_valid_unwrap(self, value):
+        '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         return self.computed_type.is_valid_unwrap(value)
     
     def wrap(self, value):
+        ''' Validates ``value`` and wraps it with ``ComputedField.computed_type``'''
         self.validate_wrap(value)
         return self.computed_type.wrap(value)
     
     def unwrap(self, value):
+        ''' Validates ``value`` and unwraps it with ``ComputedField.computed_type``'''
         self.validate_unwrap(value)
         return self.computed_type.unwrap(value)
     
@@ -728,8 +758,12 @@ class ComputedFieldValue(property, ComputedField):
         return self.__computed_value
 
 class BadValueException(Exception):
+    '''An exception which is raised when there is something wrong with a 
+        value'''
     pass
 
 class BadFieldSpecification(Exception):
+    '''An exception that is raised when there is an error in creating a 
+        field'''
     pass
 
