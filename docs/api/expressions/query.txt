@@ -6,5 +6,11 @@ Query Objects
    :members:
    :undoc-members:
 
+.. autoclass:: mongoalchemy.query.QueryResult
+   :members:
+   :undoc-members:
+
+
+
 
 

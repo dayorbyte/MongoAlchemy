@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="MongoAlchemy v0.2 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
-    <link rel="next" title="Examples" href="../../examples/index.html" />
-    <link rel="prev" title="Update Expressions" href="update.html" /> 
+    <link rel="next" title="Update Expressions" href="update_expressions.html" />
+    <link rel="prev" title="Query Objects" href="query.html" /> 
   </head>
   <body>
     <div class="related">
@@ -38,10 +38,10 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../../examples/index.html" title="Examples"
+          <a href="update_expressions.html" title="Update Expressions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="update.html" title="Update Expressions"
+          <a href="query.html" title="Query Objects"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
@@ -59,24 +59,24 @@
 <div class="section" id="query-fields">
 <h2>Query Fields<a class="headerlink" href="#query-fields" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="mongoalchemy.query.QueryField">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">QueryField</tt><big>(</big><em>name</em>, <em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryField</tt><big>(</big><em>name</em>, <em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="mongoalchemy.query.QueryField.get_name">
-<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.get_name" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.get_name">
+<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the MongoDB field name for the <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a>
 this QueryField is wrapping</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.get_type">
-<tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.get_type" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.get_type">
+<tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the underlying <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a></p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="mongoalchemy.query.QueryField.f">
-<tt class="descname">f</tt><a class="headerlink" href="#mongoalchemy.query.QueryField.f" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.f">
+<tt class="descname">f</tt><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.f" title="Permalink to this definition">¶</a></dt>
 <dd><p><tt class="docutils literal"><span class="pre">f</span></tt> provides acces to the sub-fields of this field.  They can 
 also be accessed directly if they do not interfere with an 
 attribute of <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt>.</p>
@@ -84,15 +84,15 @@ attribute of <tt class="xref py py-class docutils literal"><span class="pre">Que
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.in_">
-<tt class="descname">in_</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.in_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.in_">
+<tt class="descname">in_</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.in_" title="Permalink to this definition">¶</a></dt>
 <dd><p>A query to check if this query field is one of the values 
 in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$in</span></tt> expression.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.eq_">
-<tt class="descname">eq_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.eq_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.eq_">
+<tt class="descname">eq_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.eq_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -101,8 +101,8 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.lt_">
-<tt class="descname">lt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.lt_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.lt_">
+<tt class="descname">lt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.lt_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -111,8 +111,8 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.le_">
-<tt class="descname">le_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.le_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.le_">
+<tt class="descname">le_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.le_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -121,8 +121,8 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.ne_">
-<tt class="descname">ne_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.ne_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.ne_">
+<tt class="descname">ne_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.ne_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -131,8 +131,8 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.gt_">
-<tt class="descname">gt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.gt_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.gt_">
+<tt class="descname">gt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.gt_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -141,8 +141,8 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryField.ge_">
-<tt class="descname">ge_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryField.ge_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryField.ge_">
+<tt class="descname">ge_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.ge_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -156,18 +156,18 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <div class="section" id="query-expressions">
 <h2>Query Expressions<a class="headerlink" href="#query-expressions" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="mongoalchemy.query.QueryExpression">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">QueryExpression</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryExpression">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryExpression</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression" title="Permalink to this definition">¶</a></dt>
 <dd><p>A QueryExpression wraps a dictionary representing a query to perform 
-on a mongo collection.  In most cases a query will be constructed</p>
+on a mongo collection.  The</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">There is no <tt class="docutils literal"><span class="pre">and_</span></tt> expression because multiple expressions
 can be specified to a single call of <tt class="xref py py-func docutils literal"><span class="pre">Query.filter()</span></tt></p>
 </div>
 <dl class="method">
-<dt id="mongoalchemy.query.QueryExpression.not_">
-<tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryExpression.not_">
+<tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt> 
 operator</p>
 <p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff').not_()</span></tt></p>
@@ -179,8 +179,8 @@ to get past precedence issues: <tt class="docutils literal"><span class="pre">~<
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.query.QueryExpression.or_">
-<tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.query_expression.QueryExpression.or_">
+<tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 
 expression, starting a new one if one does not exst</p>
 <p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff').or_(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jack')</span></tt></p>
@@ -211,11 +211,11 @@ expression, starting a new one if one does not exst</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="update.html"
-                        title="previous chapter">Update Expressions</a></p>
+  <p class="topless"><a href="query.html"
+                        title="previous chapter">Query Objects</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../../examples/index.html"
-                        title="next chapter">Examples</a></p>
+  <p class="topless"><a href="update_expressions.html"
+                        title="next chapter">Update Expressions</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/api/expressions/query_expressions.txt"
@@ -248,10 +248,10 @@ expression, starting a new one if one does not exst</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../../examples/index.html" title="Examples"
+          <a href="update_expressions.html" title="Update Expressions"
              >next</a> |</li>
         <li class="right" >
-          <a href="update.html" title="Update Expressions"
+          <a href="query.html" title="Query Objects"
              >previous</a> |</li>
         <li><a href="../../index.html">MongoAlchemy v0.2 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>

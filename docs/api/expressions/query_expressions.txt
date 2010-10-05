@@ -5,7 +5,7 @@ Mongo Query Expression Language
 Query Fields
 ----------------------------------------------------
 
-.. autoclass:: mongoalchemy.query.QueryField
+.. autoclass:: mongoalchemy.query_expression.QueryField
    :members:
    :undoc-members:
 
@@ -13,6 +13,6 @@ Query Fields
 Query Expressions
 ----------------------------------------------------
 
-.. autoclass:: mongoalchemy.query.QueryExpression
+.. autoclass:: mongoalchemy.query_expression.QueryExpression
    :members:
    :undoc-members:
