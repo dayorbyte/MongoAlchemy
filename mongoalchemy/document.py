@@ -41,7 +41,7 @@ programmatically.  A document can have multiple indexes by adding extra
 import pymongo
 
 from mongoalchemy.util import classproperty
-from mongoalchemy.query import QueryFieldSet
+from mongoalchemy.query_expression import QueryFieldSet
 from mongoalchemy.fields import ObjectIdField, Field, BadValueException
 
 class DocumentMeta(type):
