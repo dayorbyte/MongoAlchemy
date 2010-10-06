@@ -68,4 +68,15 @@ def computed_field_wrap_test():
     obj = TestDoc2(a=1, b=2)
     TestDoc2.wrap(obj)
 
+@raises(BadValueException)
+def computed_field_wrap_test_wrong_type():
+    
+    class TestDoc2(Document):
+        a = IntField()
+        b = IntField()
+        @ComputedField(IntField(), deps=[a,b])
+        def c(obj):
+            return 'some-bad-value'
+
+    TestDoc2.c.wrap('bad-value')
 

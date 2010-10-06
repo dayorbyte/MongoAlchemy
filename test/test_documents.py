@@ -137,11 +137,14 @@ def wrong_wrap_type_test2():
     doca = DocA(test_doc2=doc2)
     doca.wrap()
 
+def is_valid_unwrap_test_true():
+    assert DocA.test_doc.is_valid_unwrap({ 'int1' : 1 }) == True
+
+def is_valid_unwrap_test_false():
+    assert DocA.test_doc2.is_valid_unwrap({ 'int1' : 1 }) == False
 
 @raises(BadValueException) 
 def wrong_unwrap_type_test():
-    # TODO: this should really raise BadValueException, 
-    # since it should fail in validation
     DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
 
 

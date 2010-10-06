@@ -64,6 +64,7 @@ class Field(object):
         self.__db_field = db_field
         if default != UNSET:
             self.default = default
+        self.name =  'Unbound_%s' % self.__class__.__name__
     
     @property
     def db_field(self):
@@ -108,36 +109,11 @@ class Field(object):
             **Parameters**: 
                 * value: The value to validate
         '''
-        if not self.is_valid_wrap(value):
-            self._fail_validation(value)
+        raise NotImplementedError()
     
     def validate_unwrap(self, value):
         ''' Called before unwrapping.  Calls :func:`~Field.is_valid_unwrap` and raises 
-            a :class:`BadValueException` if validation fails            
-        
-            **Parameters**: 
-                * value: The value to validate
-        '''
-        if not self.is_valid_unwrap(value):
-            self._fail_validation(value)
-    
-    def _fail_validation(self, value):
-        name = self.__class__.__name__
-        raise BadValueException('Bad value for field of type "%s": %s' %
-                                (name, repr(value)))
-    
-    def is_valid_wrap(self, value):
-        '''Returns whether ``value`` is a valid value to wrap.
-            Raises ``NotImplementedError`` in the base class.
-        
-            **Parameters**: 
-                * value: The value to check
-        '''
-        raise NotImplementedError()
-    
-    def is_valid_unwrap(self, value):
-        ''' Returns whether ``value`` is a valid value to unwrap.
-            Raises ``NotImplementedError`` in the base class.
+            a :class:`BadValueException` if validation fails
             
             .. note::
                 ``is_valid_unwrap`` calls ``is_valid_wrap``, so any class without
@@ -146,7 +122,42 @@ class Field(object):
             **Parameters**: 
                 * value: The value to check
         '''
-        return self.is_valid_wrap(value)
+
+        self.validate_wrap(value)
+    
+    def _fail_validation(self, value, reason='', cause=None):
+        raise BadValueException(self.name, value, reason, cause=cause)
+    
+    def _fail_validation_type(self, value, *type):
+        types = '\n'.join([str(t) for t in type])
+        got = value.__class__.__name__
+        raise BadValueException(self.name, value, 'Value is not an instance of %s (got: %s)' % (types, got))
+    
+    def is_valid_wrap(self, value):
+        '''Returns whether ``value`` is a valid value to wrap.
+            Raises ``NotImplementedError`` in the base class.
+        
+            **Parameters**: 
+                * value: The value to check
+        '''
+        try:
+            self.validate_wrap(value)
+        except BadValueException:
+            return False
+        return True
+    
+    def is_valid_unwrap(self, value):
+        ''' Returns whether ``value`` is a valid value to unwrap.
+            Raises ``NotImplementedError`` in the base class.
+        
+            **Parameters**: 
+                * value: The value to check
+        '''
+        try:
+            self.validate_unwrap(value)
+        except BadValueException:
+            return False
+        return True
 
 class PrimitiveField(Field):
     '''Primitive fields are fields where a single constructor can be used
@@ -176,22 +187,22 @@ class StringField(PrimitiveField):
         self.min = min_length
         super(StringField, self).__init__(constructor=unicode, **kwargs)
 
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Validates the type and length of ``value`` '''
         if not isinstance(value, basestring):
-            return False
+            self._fail_validation_type(value, basestring)
         if self.max != None and len(value) > self.max:
-            return False
+            self._fail_validation(value, 'Value too long')
         if self.min != None and len(value) < self.min:
-            return False
-        return True
+            self._fail_validation(value, 'Value too short')
 
 class BoolField(PrimitiveField):
     ''' ``True`` or ``False``.'''
     def __init__(self, **kwargs):
         super(BoolField, self).__init__(constructor=bool, **kwargs)
-    def is_valid_wrap(self, value):
-        return isinstance(value, bool)
+    def validate_wrap(self, value):
+        if not isinstance(value, bool):
+            self._fail_validation_type(value, bool)
 
 class NumberField(PrimitiveField):
     ''' Base class for numeric fields '''
@@ -206,15 +217,14 @@ class NumberField(PrimitiveField):
         self.min = min_value
         self.max = max_value
 
-    def is_valid_wrap(self, value, type):
+    def validate_wrap(self, value, type):
         ''' Validates the type and value of ``value`` '''
         if not isinstance(value, type): 
-            return False
+            self._fail_validation_type(value, type)
         if self.min != None and value < self.min:
-            return False
+            self._fail_validation(value, 'Value too small')
         if self.max != None and value > self.max:
-            return False
-        return True
+            self._fail_validation(value, 'Value too large')
 
 class IntField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``int``'''
@@ -226,9 +236,9 @@ class IntField(NumberField):
             * \*\*kwargs: arguments for :class:`Field`
         '''
         super(IntField, self).__init__(constructor=int, **kwargs)
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Validates the type and value of ``value`` '''
-        return NumberField.is_valid_wrap(self, value, int)
+        NumberField.validate_wrap(self, value, int)
 
 class FloatField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``float`` '''
@@ -240,9 +250,9 @@ class FloatField(NumberField):
             * \*\*kwargs: arguments for :class:`Field`
         '''
         super(FloatField, self).__init__(constructor=float, **kwargs)
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Validates the type and value of ``value`` '''
-        return NumberField.is_valid_wrap(self, value, float)
+        return NumberField.validate_wrap(self, value, float)
 
 class DateTimeField(PrimitiveField):
     ''' Field for datetime objects. '''
@@ -257,16 +267,15 @@ class DateTimeField(PrimitiveField):
         self.min = min_date
         self.max = max_date
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Validates the value's type as well as it being in the valid 
             date range'''
         if not isinstance(value, datetime):
-            return False
+            self._fail_validation_type(value, datetime)
         if self.min != None and value < self.min:
-            return False
+            self._fail_validation(value, 'DateTime too old')
         if self.max != None and value > self.max:
-            return False
-        return True
+            self._fail_validation(value, 'DateTime too new')
 
 class TupleField(Field):
     ''' Represents a field which is a tuple of a fixed size with specific 
@@ -286,36 +295,31 @@ class TupleField(Field):
         self.size = len(item_types)
         self.types = item_types
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Checks that the correct number of elements are in ``value`` and that
             each element validates agains the associated Field class
         '''
-        if not hasattr(value, '__len__') or len(value) != len(self.types):
-            return False
+        if not isinstance(value, list) and not isinstance(value, tuple):
+            self._fail_validation_type(value, tuple, list)
         
         for field, value in itertools.izip(self.types, list(value)):
-            if not field.is_valid_wrap(value):
-                return False
-        return True
+            field.validate_wrap(value)
     
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         ''' Checks that the correct number of elements are in ``value`` and that
             each element validates agains the associated Field class
         '''
-        if not hasattr(value, '__len__') or len(value) != len(self.types):
-            return False
+        if not isinstance(value, list) and not isinstance(value, tuple):
+            self._fail_validation_type(value, tuple, list)
         
         for field, value in itertools.izip(self.types, value):
-            if not field.is_valid_unwrap(value):
-                return False
-        return True
+            field.validate_unwrap(value)
     
     def wrap(self, value):
         ''' Validate and then wrap ``value`` for insertion.
             **Parameters**
                 * value: the tuple (or list) to wrap
         '''
-
         self.validate_wrap(value)
         ret = []
         for field, value in itertools.izip(self.types, value):
@@ -353,25 +357,23 @@ class EnumField(Field):
         for value in values:
             self.item_type.validate_wrap(value)
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Checks that value is valid for `EnumField.item_type` and that 
             value is one of the values specified when the EnumField was 
             constructed '''
-        if not self.item_type.is_valid_wrap(value):
-            return False
-        for val in self.values:
-            if val == value:
-                return True
-        return False
+        self.item_type.validate_wrap(value)
+        
+        if value not in self.values:
+            self._fail_validation(value, 'Value was not in the enum values')
     
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         ''' 
             Checks that value is valid for `EnumField.item_type`.  
             
             .. note ::
                 Since checking the value itself is not possible until is is 
                 actually unwrapped, that check is done in :func:`EnumField.unwrap`'''
-        return self.item_type.is_valid_unwrap(value)
+        self.item_type.validate_unwrap(value)
     
     def wrap(self, value):
         '''Validate and wrap value using the wrapping function from ``EnumField.item_type``
@@ -388,7 +390,7 @@ class EnumField(Field):
         for val in self.values:
             if val == value:
                 return val
-        self._fail_validation(value)
+        self._fail_validation(value, 'Value was not in the enum values')
     
 
 class SequenceField(Field):
@@ -413,50 +415,42 @@ class SequenceField(Field):
         ''' Returns the :class:`Field` instance used for items in the sequence'''
         return self.item_type
     
-    def _is_valid_child_wrap(self, value):
-        return self.item_type.is_valid_wrap(value)
+    def _validate_child_wrap(self, value):
+        self.item_type.validate_wrap(value)
     
-    def _is_valid_child_unwrap(self, value):
-        return self.item_type.is_valid_unwrap(value)
+    def _validate_child_unwrap(self, value):
+        self.item_type.validate_unwrap(value)
     
     def _length_valid(self, value):
         if self.min != None and len(value) < self.min: 
-            return False
+            self._fail_validation(value, 'Value has too few elements')
         if self.max != None and len(value) > self.max: 
-            return False
-        return True
+            self._fail_validation(value, 'Value has too many elements')
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Checks that the type of ``value`` is correct as well as validating
             the elements of value'''
-        if not self._is_valid_wrap_type(value):
-            return False
-        if not self._length_valid(value):
-            return False
+        self._validate_wrap_type(value)
+        self._length_valid(value)
         for v in value:
-            if not self._is_valid_child_wrap(v):
-                return False
-        return True
+            self._validate_child_wrap(v)
 
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         ''' Checks that the type of ``value`` is correct as well as validating
             the elements of value'''
-        if not self._is_valid_unwrap_type(value):
-            return False
-        if not self._length_valid(value):
-            return False
+        self._validate_unwrap_type(value)
+        self._length_valid(value)
         for v in value:
-            if not self._is_valid_child_unwrap(v):
-                return False
-        return True
+            self._validate_child_unwrap(v)
 
 class ListField(SequenceField):
     '''Field representing a python list.
         
         .. seealso:: :class:`SequenceField`'''
-    def _is_valid_wrap_type(self, value):
-        return isinstance(value, list) or isinstance(value, tuple)
-    _is_valid_unwrap_type = _is_valid_wrap_type
+    def _validate_wrap_type(self, value):
+        if not isinstance(value, list) or isinstance(value, tuple):
+            self._fail_validation_type(value, list, tuple)
+    _validate_unwrap_type = _validate_wrap_type
     
     def wrap(self, value):
         ''' Wraps the elements of ``value`` using ``ListField.item_type`` and
@@ -473,11 +467,13 @@ class SetField(SequenceField):
     '''Field representing a python set.
         
         .. seealso:: :class:`SequenceField`'''
-    def _is_valid_wrap_type(self, value):
-        return isinstance(value, set)
+    def _validate_wrap_type(self, value):
+        if not isinstance(value, set):
+            self._fail_validation_type(value, set)
     
-    def _is_valid_unwrap_type(self, value):
-        return isinstance(value, list)
+    def _validate_unwrap_type(self, value):
+        if not isinstance(value, list):
+            self._fail_validation_type(value, list)
     
     def wrap(self, value):
         ''' Unwraps the elements of ``value`` using ``SetField.item_type`` and
@@ -504,9 +500,12 @@ class AnythingField(Field):
         '''Always returns the value passed in'''
         return value
     
-    def is_valid_wrap(self, value):
-        '''Always returns True'''
-        return True
+    def validate_unwrap(self, value):
+        '''Always passes'''
+        pass
+    def validate_wrap(self, value):
+        '''Always passes'''
+        pass
 
 class ObjectIdField(Field):
     '''pymongo Object ID object.  Currently this is probably too strict.  A 
@@ -514,9 +513,10 @@ class ObjectIdField(Field):
     def __init__(self, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Checks that ``value`` is a pymongo ``ObjectId``'''
-        return isinstance(value, ObjectId)
+        if not isinstance(value, ObjectId):
+            self._fail_validation_type(value, ObjectId)
     
     def wrap(self, value):
         ''' Validates that ``value`` is an ObjectId, then returns it '''
@@ -544,38 +544,41 @@ class DictField(Field):
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("DictField value type is not a field!")
     
-    def _is_valid_key_wrap(self, key):
-        return isinstance(key, basestring) and '.' not in key and '$' not in key
+    def _validate_key_wrap(self, key):
+        if not isinstance(key, basestring):
+            self._fail_validation(key, 'DictField keys must be of type basestring')
+        if  '.' in key or '$' in key:
+            self._fail_validation(key, 'DictField keys cannot contains "." or "$".  You may want a KVField instead')
     
-    def _is_valid_key_unwrap(self, key):
-        return self._is_valid_key_wrap(key)
+    def _validate_key_unwrap(self, key):
+        self._validate_key_wrap(key)
     
     
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         ''' Checks that value is a ``dict``, that every key is a valid MongoDB
             key, and that every value validates based on DictField.value_type
         '''
         if not isinstance(value, dict):
-            return False
+            self._fail_validation_type(value, dict)
         for k, v in value.iteritems():
-            if not self._is_valid_key_unwrap(k):
-                return False
-            if not self.value_type.is_valid_unwrap(v):
-                return False
-        return True
+            self._validate_key_unwrap(k)
+            try:
+                self.value_type.validate_unwrap(v)
+            except BadValueException, bve:
+                self._fail_validation(value, 'Bad value for key %s' % k, cause=bve)
         
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         ''' Checks that value is a ``dict``, that every key is a valid MongoDB
             key, and that every value validates based on DictField.value_type
         '''
         if not isinstance(value, dict):
-            return False
+            self._fail_validation_type(value, dict)
         for k, v in value.iteritems():
-            if not self._is_valid_key_wrap(k):
-                return False
-            if not self.value_type.is_valid_wrap(v):
-                return False
-        return True
+            self._validate_key_wrap(k)
+            try:
+                self.value_type.validate_wrap(v)
+            except BadValueException, bve:
+                self._fail_validation(value, 'Bad value for key %s' % k, cause=bve)
     
     def wrap(self, value):
         ''' Validates ``value`` and then returns a dictionary with each key in
@@ -616,28 +619,53 @@ class KVField(DictField):
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("KVField value type is not a field!")
     
-    def _is_valid_key_wrap(self, key):
-        return self.key_type.is_valid_wrap(key)
+    def _validate_key_wrap(self, key):
+        try:
+            self.key_type.validate_wrap(key)
+        except BadValueException, bve:
+            self._fail_validation(key, 'Bad value for key', cause=bve)
     
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         ''' Expects a list of dictionaries with ``k`` and ``v`` set to the 
             keys and values that will be unwrapped into the output python 
             dictionary should have
         '''
         
         if not isinstance(value, list):
-            return False
+            self._fail_validation_type(value, list)
         for value_dict in value:
             if not isinstance(value_dict, dict):
-                return False
+                cause = BadValueException('', value_dict, 'Values in a KVField list must be dicts')
+                self._fail_validation(value, 'Values in a KVField list must be dicts', cause=cause)
             k = value_dict.get('k')
             v = value_dict.get('v')
-            if k == None or v == None:
-                return False
-            if not self.key_type.is_valid_unwrap(k):
-                return False
-            if not self.value_type.is_valid_unwrap(v):
-                return False
+            if k == None:
+                self._fail_validation(value, 'Value had None for a key')
+            try:
+                self.key_type.validate_unwrap(k)
+            except BadValueException, bve:
+                self._fail_validation(value, 'Bad value for KVField key %s' % k, cause=bve)
+            
+            try:
+                self.value_type.validate_unwrap(v)
+            except BadValueException, bve:
+                self._fail_validation(value, 'Bad value for KFVield value %s' % k, cause=bve)
+            
+            # try:
+            #     self.key_type.validate_unwrap(v)
+            # except BadValueException, bve:
+            #     self._fail_validation(value, 'Bad value for key %s' % k, cause=bve)
+            # 
+            # try:
+            #     self.value_type.validate_unwrap(v)
+            # except BadValueException, bve:
+            #     self._fail_validation(value, 'Bad value for KVField valye key %s' % k, cause=bve)
+            # 
+            # 
+            # if not self.key_type.is_valid_unwrap(k):
+            #     return False
+            # if not self.value_type.is_valid_unwrap(v):
+            #     return False
         return True
     
     def wrap(self, value):
@@ -696,13 +724,19 @@ class ComputedField(Field):
             deps = set()
         self.deps = set(deps)
     
-    def is_valid_wrap(self, value):
+    def validate_wrap(self, value):
         '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
-        return self.computed_type.is_valid_wrap(value)
+        try:
+            self.computed_type.validate_wrap(value)
+        except BadValueException, bve:
+            self._fail_validation(value, 'Bad value for computed field', cause=bve)
     
-    def is_valid_unwrap(self, value):
+    def validate_unwrap(self, value):
         '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
-        return self.computed_type.is_valid_unwrap(value)
+        try:
+            self.computed_type.validate_unwrap(value)
+        except BadValueException, bve:
+            self._fail_validation(value, 'Bad value for computed field', cause=bve)
     
     def wrap(self, value):
         ''' Validates ``value`` and wraps it with ``ComputedField.computed_type``'''
@@ -729,8 +763,10 @@ class ComputedFieldValue(property, ComputedField):
         for dep in self.field.deps:
             args[dep.name] = getattr(doc, dep.name)
         value = self.fun(args)
-        if not self.field.computed_type.is_valid_wrap(value):
-            raise BadValueException('Computed Function return a bad value')
+        try:
+            self.field.computed_type.validate_wrap(value)
+        except BadValueException, bve:
+            self.field._fail_validation(value, 'Computed Function return a bad value', cause=bve)
         return value
     
     def _set_name(self, name):
@@ -760,7 +796,11 @@ class ComputedFieldValue(property, ComputedField):
 class BadValueException(Exception):
     '''An exception which is raised when there is something wrong with a 
         value'''
-    pass
+    def __init__(self, name, value, reason, cause=None):
+        self.name = name
+        self.value = value
+        self.cause = cause
+        Exception.__init__(self, 'Bad value for field of type "%s".  Reason: "%s".  Bad Value: %s\n\n%s' % (name, reason, repr(value), cause))
 
 class BadFieldSpecification(Exception):
     '''An exception that is raised when there is an error in creating a 

@@ -41,8 +41,13 @@ def list_value_test():
 
 # Set Field
 @raises(BadValueException)
-def set_wrong_type_test():
+def set_wrong_type_test_wrap():
     SetField(IntField()).wrap([4])
+
+@raises(BadValueException)
+def set_wrong_type_test_unwrap():
+    SetField(IntField()).unwrap((4,))
+
 
 @raises(BadValueException)
 def set_wrong_child_type_test():

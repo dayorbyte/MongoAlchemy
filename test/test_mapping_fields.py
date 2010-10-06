@@ -29,6 +29,11 @@ def dict_value_test():
     assert s.unwrap(s.wrap(foo)) == foo
 
 @raises(BadValueException)
+def bad_key_integer_wrap_test():
+    DictField(StringField()).wrap({1 : 'b'})
+
+
+@raises(BadValueException)
 def bad_key_dot_wrap_test():
     DictField(StringField()).wrap({'a.b' : 'b'})
 
@@ -77,6 +82,11 @@ def kv_wrong_key_type_test_unwrap():
 @raises(BadFieldSpecification)
 def kv_bad_key_type_test():
     KVField(int, IntField())
+
+@raises(BadValueException)
+def kv_bad_key_value_none_test():
+    KVField(IntField(), IntField()).unwrap([{'k' : None, 'v' : 1}])
+
 
 @raises(BadFieldSpecification)
 def kv_bad_value_type_test():

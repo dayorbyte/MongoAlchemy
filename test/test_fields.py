@@ -18,8 +18,13 @@ def test_unimplemented_is_valid_wrap():
     Field().is_valid_wrap({})
 
 @raises(NotImplementedError)
-def test_unimplemented_is_valid_wrap():
-    Field().is_valid_wrap({})
+def test_unimplemented_is_valid_unwrap():
+    Field().is_valid_unwrap({})
+
+def test_is_valid_unwrap():
+    assert IntField().is_valid_unwrap('') == False
+    assert IntField().is_valid_unwrap(1) == True
+
 
 @raises(BadValueException)
 def test_validate_unwrap_fail():
@@ -98,6 +103,7 @@ def test_anything():
     a = AnythingField()
     foo = {'23423423' : [23423432], 'fvfvf' : { 'a' : [] }}
     assert a.is_valid_wrap(foo)
+    assert a.is_valid_unwrap(foo)
     assert a.unwrap(a.wrap(foo)) == foo
 
 #ObjectID Field
