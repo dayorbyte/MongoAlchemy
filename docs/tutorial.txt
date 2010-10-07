@@ -49,6 +49,9 @@ EnumField will check both that the value it is constructed with is of the
 correct type, but also that its value is one of the values given in the 
 constructor.
 
+.. seealso:: 
+    
+    :class:`~mongoalchemy.document.Document` and :mod:`~mongoalchemy.fields`
 
 Sessions
 ---------------------------------------
@@ -157,6 +160,6 @@ Performance
 
 .. note:: still to come!
 
-* Indexes
-* Hints
-* Partial Document Loading
+* Indexes (For now, see :class:`~mongoalchemy.document.Index`)
+* Hints (For now, see :func:`~mongoalchemy.query.Query.hint_asc` and :func:`~mongoalchemy.query.Query.hint_desc`)
+* Partial Document Loading (For now, see the ``fields`` parameter to :class:`~mongoalchemy.document.Document`)

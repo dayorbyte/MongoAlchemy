@@ -75,14 +75,18 @@ a subclass must implement:</p>
 In particular, <tt class="docutils literal"><span class="pre">field.unwrap(field.wrap(obj))</span></tt> == obj should always be true.</p>
 <ul>
 <li><dl class="first docutils">
-<dt><a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_wrap" title="mongoalchemy.fields.Field.is_valid_wrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.is_valid_wrap()</span></tt></a> &#8212; Returns true if calling <a class="reference internal" href="#mongoalchemy.fields.Field.wrap" title="mongoalchemy.fields.Field.wrap"><tt class="xref py py-func docutils literal"><span class="pre">wrap()</span></tt></a> will     succeed.  This function should be fast, as it will be called whenever a value </dt>
+<dt><a class="reference internal" href="#mongoalchemy.fields.Field.validate_wrap" title="mongoalchemy.fields.Field.validate_wrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.validate_wrap()</span></tt></a> &#8212; Raises a <a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> if calling <a class="reference internal" href="#mongoalchemy.fields.Field.wrap" title="mongoalchemy.fields.Field.wrap"><tt class="xref py py-func docutils literal"><span class="pre">wrap()</span></tt></a> will     fail.  This function should be fast, as it will be called whenever a value </dt>
 <dd><p class="first last">is set on a document for this type of field.</p>
 </dd>
 </dl>
 </li>
-<li><p class="first"><a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="mongoalchemy.fields.Field.is_valid_unwrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.is_valid_unwrap()</span></tt></a> &#8212; Returns true if calling <a class="reference internal" href="#mongoalchemy.fields.Field.unwrap" title="mongoalchemy.fields.Field.unwrap"><tt class="xref py py-func docutils literal"><span class="pre">unwrap()</span></tt></a> will     succeed.</p>
+<li><p class="first"><a class="reference internal" href="#mongoalchemy.fields.Field.validate_unwrap" title="mongoalchemy.fields.Field.validate_unwrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.validate_unwrap()</span></tt></a> &#8212; Raises a <a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> if calling <a class="reference internal" href="#mongoalchemy.fields.Field.unwrap" title="mongoalchemy.fields.Field.unwrap"><tt class="xref py py-func docutils literal"><span class="pre">unwrap()</span></tt></a> will     fail.</p>
 </li>
 </ul>
+<p>To just check whether something is valid for wrapping or unwrapping, each field has a 
+<a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_wrap" title="mongoalchemy.fields.Field.is_valid_wrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.is_valid_wrap()</span></tt></a> and an <a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="mongoalchemy.fields.Field.is_valid_unwrap"><tt class="xref py py-func docutils literal"><span class="pre">Field.is_valid_unwrap()</span></tt></a> function which call 
+their respective validation function, returning True if a 
+<a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> is not raised.</p>
 <p>The documentation for each <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> class will largely just be giving the input and
 output types for <a class="reference internal" href="#mongoalchemy.fields.Field.wrap" title="mongoalchemy.fields.Field.wrap"><tt class="xref py py-func docutils literal"><span class="pre">wrap()</span></tt></a> and <a class="reference internal" href="#mongoalchemy.fields.Field.unwrap" title="mongoalchemy.fields.Field.unwrap"><tt class="xref py py-func docutils literal"><span class="pre">unwrap()</span></tt></a>.</p>
 <div class="section" id="field-objects">
@@ -148,10 +152,15 @@ raises a <a class="reference internal" href="#mongoalchemy.fields.BadValueExcept
 <tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called before unwrapping.  Calls <a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="mongoalchemy.fields.Field.is_valid_unwrap"><tt class="xref py py-func docutils literal"><span class="pre">is_valid_unwrap()</span></tt></a> and raises 
 a <a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> if validation fails</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">is_valid_unwrap</span></tt> calls <tt class="docutils literal"><span class="pre">is_valid_wrap</span></tt>, so any class without
+a is_valid_unwrap function is inheriting that behaviour.</p>
+</div>
 <dl class="docutils">
 <dt><strong>Parameters</strong>: </dt>
 <dd><ul class="first last simple">
-<li>value: The value to validate</li>
+<li>value: The value to check</li>
 </ul>
 </dd>
 </dl>
@@ -176,11 +185,6 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns whether <tt class="docutils literal"><span class="pre">value</span></tt> is a valid value to unwrap.
 Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> in the base class.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last"><tt class="docutils literal"><span class="pre">is_valid_unwrap</span></tt> calls <tt class="docutils literal"><span class="pre">is_valid_wrap</span></tt>, so any class without
-a is_valid_unwrap function is inheriting that behaviour.</p>
-</div>
 <dl class="docutils">
 <dt><strong>Parameters</strong>: </dt>
 <dd><ul class="first last simple">
@@ -227,8 +231,8 @@ and any subclass of basestring is an acceptable input</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.StringField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.StringField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the type and length of <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
@@ -239,8 +243,8 @@ and any subclass of basestring is an acceptable input</p>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BoolField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField" title="Permalink to this definition">¶</a></dt>
 <dd><p><tt class="xref docutils literal"><span class="pre">True</span></tt> or <tt class="xref docutils literal"><span class="pre">False</span></tt>.</p>
 <dl class="method">
-<dt id="mongoalchemy.fields.BoolField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.BoolField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -259,8 +263,8 @@ and any subclass of basestring is an acceptable input</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.NumberField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em>, <em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.NumberField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the type and value of <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
@@ -280,8 +284,8 @@ and any subclass of basestring is an acceptable input</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.IntField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.IntField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the type and value of <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
@@ -301,8 +305,8 @@ and any subclass of basestring is an acceptable input</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.FloatField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.FloatField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the type and value of <tt class="docutils literal"><span class="pre">value</span></tt></p>
 </dd></dl>
 
@@ -322,8 +326,8 @@ and any subclass of basestring is an acceptable input</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.DateTimeField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.DateTimeField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates the value&#8217;s type as well as it being in the valid 
 date range</p>
 </dd></dl>
@@ -346,15 +350,15 @@ types for each element in the field.</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.TupleField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.TupleField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that the correct number of elements are in <tt class="docutils literal"><span class="pre">value</span></tt> and that
 each element validates agains the associated Field class</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.TupleField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.TupleField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that the correct number of elements are in <tt class="docutils literal"><span class="pre">value</span></tt> and that
 each element validates agains the associated Field class</p>
 </dd></dl>
@@ -401,16 +405,16 @@ in <tt class="docutils literal"><span class="pre">(4,</span> <span class="pre">6
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.EnumField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.EnumField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that value is valid for <cite>EnumField.item_type</cite> and that 
 value is one of the values specified when the EnumField was 
 constructed</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.EnumField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.EnumField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that value is valid for <cite>EnumField.item_type</cite>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -441,8 +445,8 @@ happens in this function.</p>
 <dd><p>pymongo Object ID object.  Currently this is probably too strict.  A 
 string version of an ObjectId should also be acceptable</p>
 <dl class="method">
-<dt id="mongoalchemy.fields.ObjectIdField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.ObjectIdField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is a pymongo <tt class="docutils literal"><span class="pre">ObjectId</span></tt></p>
 </dd></dl>
 
@@ -478,9 +482,15 @@ for free-form objects</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.AnythingField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Always returns True</p>
+<dt id="mongoalchemy.fields.AnythingField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always passes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.AnythingField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.validate_wrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always passes</p>
 </dd></dl>
 
 </dd></dl>
@@ -509,15 +519,15 @@ every child element is of the same type</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.SequenceField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.SequenceField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that the type of <tt class="docutils literal"><span class="pre">value</span></tt> is correct as well as validating
 the elements of value</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.SequenceField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.SequenceField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that the type of <tt class="docutils literal"><span class="pre">value</span></tt> is correct as well as validating
 the elements of value</p>
 </dd></dl>
@@ -607,15 +617,15 @@ returns them in a set</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.DictField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.DictField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that value is a <tt class="docutils literal"><span class="pre">dict</span></tt>, that every key is a valid MongoDB
 key, and that every value validates based on DictField.value_type</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.DictField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.DictField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that value is a <tt class="docutils literal"><span class="pre">dict</span></tt>, that every key is a valid MongoDB
 key, and that every value validates based on DictField.value_type</p>
 </dd></dl>
@@ -651,8 +661,8 @@ makes it possible to have an index on the keys and values.</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.KVField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.KVField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a list of dictionaries with <tt class="docutils literal"><span class="pre">k</span></tt> and <tt class="docutils literal"><span class="pre">v</span></tt> set to the 
 keys and values that will be unwrapped into the output python 
 dictionary should have</p>
@@ -686,22 +696,8 @@ dictionary from the list.</p>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field which wraps a <tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></p>
 <dl class="method">
-<dt id="mongoalchemy.document.DocumentField.validate_wrap">
-<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.validate_wrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Called before wrapping.  Calls <tt class="xref py py-func docutils literal"><span class="pre">is_valid_wrap()</span></tt> and 
-raises a <a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> if validation fails</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to validate</li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.document.DocumentField.validate_unwrap">
-<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.document.DocumentField.is_valid_unwrap">
+<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called before wrapping.  Calls <tt class="xref py py-func docutils literal"><span class="pre">is_valid_unwrap()</span></tt> and 
 raises a <a class="reference internal" href="#mongoalchemy.fields.BadValueException" title="mongoalchemy.fields.BadValueException"><tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt></a> if validation fails</p>
 <dl class="docutils">
@@ -729,25 +725,18 @@ value</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.document.DocumentField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.document.DocumentField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is an instance of <tt class="docutils literal"><span class="pre">DocumentField.document_class</span></tt>.
 if it is, then validation on its fields has already been done and
 no further validation is needed.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.document.DocumentField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>At the moment this method is <strong>extremely innefficient</strong>.  It 
-unwraps the object and returns False if an exception is raised.  
-In the future it  will go through  every field in <tt class="docutils literal"><span class="pre">value</span></tt> and 
-validate it against the fields in the document class.  If 
-<tt class="docutils literal"><span class="pre">fields</span></tt> is not <tt class="xref docutils literal"><span class="pre">None</span></tt>, only the fields in <tt class="docutils literal"><span class="pre">fields</span></tt> will be checked.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Validation will still happen during the actual unwrapping</p>
-</div>
+<dt id="mongoalchemy.document.DocumentField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates every field in the underlying document type.  If <tt class="docutils literal"><span class="pre">fields</span></tt> 
+is not <tt class="xref docutils literal"><span class="pre">None</span></tt>, only the fields in <tt class="docutils literal"><span class="pre">fields</span></tt> will be checked.</p>
 </dd></dl>
 
 </dd></dl>
@@ -779,14 +768,14 @@ watch out for strange behaviour</p>
 </dd>
 </dl>
 <dl class="method">
-<dt id="mongoalchemy.fields.ComputedField.is_valid_wrap">
-<tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.ComputedField.validate_wrap">
+<tt class="descname">validate_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that <tt class="docutils literal"><span class="pre">value</span></tt> is valid for unwrapping with <tt class="docutils literal"><span class="pre">ComputedField.computed_type</span></tt></p>
 </dd></dl>
 
 <dl class="method">
-<dt id="mongoalchemy.fields.ComputedField.is_valid_unwrap">
-<tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.fields.ComputedField.validate_unwrap">
+<tt class="descname">validate_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check that <tt class="docutils literal"><span class="pre">value</span></tt> is valid for unwrapping with <tt class="docutils literal"><span class="pre">ComputedField.computed_type</span></tt></p>
 </dd></dl>
 
@@ -819,7 +808,7 @@ watch out for strange behaviour</p>
 <h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="mongoalchemy.fields.BadValueException">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BadValueException</tt><a class="headerlink" href="#mongoalchemy.fields.BadValueException" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BadValueException</tt><big>(</big><em>name</em>, <em>value</em>, <em>reason</em>, <em>cause=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BadValueException" title="Permalink to this definition">¶</a></dt>
 <dd><p>An exception which is raised when there is something wrong with a 
 value</p>
 </dd></dl>

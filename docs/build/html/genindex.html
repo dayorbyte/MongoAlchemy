@@ -99,6 +99,7 @@
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedFieldValue.compute_value">compute_value() (mongoalchemy.fields.ComputedFieldValue method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField">ComputedField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedFieldValue">ComputedFieldValue (class in mongoalchemy.fields)</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.config_extra_fields">config_extra_fields (mongoalchemy.document.Document attribute)</a></dt>
     <dt><a href="api/session.html#mongoalchemy.session.Session.connect">connect() (mongoalchemy.session.Session class method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.count">count() (mongoalchemy.query.Query method)</a></dt>
 </dl></td>
@@ -207,31 +208,9 @@
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.IntField">IntField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.is_valid_unwrap">is_valid_unwrap() (mongoalchemy.document.DocumentField method)</a></dt>
     <dd><dl>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.is_valid_unwrap">(mongoalchemy.fields.ComputedField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DictField.is_valid_unwrap">(mongoalchemy.fields.DictField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField.is_valid_unwrap">(mongoalchemy.fields.EnumField method)</a></dt>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.is_valid_unwrap">(mongoalchemy.fields.Field method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.KVField.is_valid_unwrap">(mongoalchemy.fields.KVField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.is_valid_unwrap">(mongoalchemy.fields.SequenceField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.TupleField.is_valid_unwrap">(mongoalchemy.fields.TupleField method)</a></dt>
   </dl></dd>
-    <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.is_valid_wrap">is_valid_wrap() (mongoalchemy.document.DocumentField method)</a></dt>
-    <dd><dl>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.AnythingField.is_valid_wrap">(mongoalchemy.fields.AnythingField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.BoolField.is_valid_wrap">(mongoalchemy.fields.BoolField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.is_valid_wrap">(mongoalchemy.fields.ComputedField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DateTimeField.is_valid_wrap">(mongoalchemy.fields.DateTimeField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DictField.is_valid_wrap">(mongoalchemy.fields.DictField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField.is_valid_wrap">(mongoalchemy.fields.EnumField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.is_valid_wrap">(mongoalchemy.fields.Field method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.FloatField.is_valid_wrap">(mongoalchemy.fields.FloatField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.IntField.is_valid_wrap">(mongoalchemy.fields.IntField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.NumberField.is_valid_wrap">(mongoalchemy.fields.NumberField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ObjectIdField.is_valid_wrap">(mongoalchemy.fields.ObjectIdField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.is_valid_wrap">(mongoalchemy.fields.SequenceField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.StringField.is_valid_wrap">(mongoalchemy.fields.StringField method)</a></dt>
-      <dt><a href="api/schema/fields.html#mongoalchemy.fields.TupleField.is_valid_wrap">(mongoalchemy.fields.TupleField method)</a></dt>
-  </dl></dd>
+    <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.is_valid_wrap">is_valid_wrap() (mongoalchemy.fields.Field method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -258,10 +237,11 @@
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/document.html#mongoalchemy.document.MissingValueException">MissingValueException</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.mongo_id">mongo_id (mongoalchemy.document.Document attribute)</a></dt>
     <dt><a href="api/index.html#module-mongoalchemy">mongoalchemy (module)</a></dt>
-    <dt><a href="api/schema/document.html#module-mongoalchemy.document">mongoalchemy.document (module)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/schema/document.html#module-mongoalchemy.document">mongoalchemy.document (module)</a></dt>
     <dt><a href="api/schema/fields.html#module-mongoalchemy.fields">mongoalchemy.fields (module)</a></dt>
     <dt><a href="api/session.html#module-mongoalchemy.session">mongoalchemy.session (module)</a></dt>
 </dl></td>
@@ -399,15 +379,36 @@
 <h2 id="V">V</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.validate_unwrap">validate_unwrap() (mongoalchemy.document.DocumentField method)</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.validate_unwrap">validate_unwrap() (mongoalchemy.document.Document class method)</a></dt>
     <dd><dl>
+      <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.validate_unwrap">(mongoalchemy.document.DocumentField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.AnythingField.validate_unwrap">(mongoalchemy.fields.AnythingField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.validate_unwrap">(mongoalchemy.fields.ComputedField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DictField.validate_unwrap">(mongoalchemy.fields.DictField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField.validate_unwrap">(mongoalchemy.fields.EnumField method)</a></dt>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.validate_unwrap">(mongoalchemy.fields.Field method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.KVField.validate_unwrap">(mongoalchemy.fields.KVField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.validate_unwrap">(mongoalchemy.fields.SequenceField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.TupleField.validate_unwrap">(mongoalchemy.fields.TupleField method)</a></dt>
   </dl></dd>
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.validate_wrap">validate_wrap() (mongoalchemy.document.DocumentField method)</a></dt>
     <dd><dl>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.AnythingField.validate_wrap">(mongoalchemy.fields.AnythingField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.BoolField.validate_wrap">(mongoalchemy.fields.BoolField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.validate_wrap">(mongoalchemy.fields.ComputedField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DateTimeField.validate_wrap">(mongoalchemy.fields.DateTimeField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.DictField.validate_wrap">(mongoalchemy.fields.DictField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField.validate_wrap">(mongoalchemy.fields.EnumField method)</a></dt>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.validate_wrap">(mongoalchemy.fields.Field method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.FloatField.validate_wrap">(mongoalchemy.fields.FloatField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.IntField.validate_wrap">(mongoalchemy.fields.IntField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.NumberField.validate_wrap">(mongoalchemy.fields.NumberField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ObjectIdField.validate_wrap">(mongoalchemy.fields.ObjectIdField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.validate_wrap">(mongoalchemy.fields.SequenceField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.StringField.validate_wrap">(mongoalchemy.fields.StringField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.TupleField.validate_wrap">(mongoalchemy.fields.TupleField method)</a></dt>
   </dl></dd>
 </dl></td>
 </tr></table>

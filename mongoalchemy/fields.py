@@ -36,11 +36,17 @@ a subclass must implement:
 :func:`~Field.wrap` and :func:`~Field.unwrap` should be inverse operations.  
 In particular, ``field.unwrap(field.wrap(obj))`` == obj should always be true.
 
-* :func:`Field.is_valid_wrap` --- Returns true if calling :func:`~Field.wrap` will \
-    succeed.  This function should be fast, as it will be called whenever a value 
+* :func:`Field.validate_wrap` --- Raises a :class:`BadValueException` if calling :func:`~Field.wrap` will \
+    fail.  This function should be fast, as it will be called whenever a value 
     is set on a document for this type of field.
-* :func:`Field.is_valid_unwrap` --- Returns true if calling :func:`~Field.unwrap` will \
-    succeed.
+* :func:`Field.validate_unwrap` --- Raises a :class:`BadValueException` if calling :func:`~Field.unwrap` will \
+    fail.
+
+To just check whether something is valid for wrapping or unwrapping, each field has a 
+:func:`Field.is_valid_wrap` and an :func:`Field.is_valid_unwrap` function which call 
+their respective validation function, returning True if a 
+:class:`BadValueException` is not raised.
+
 
 The documentation for each :class:`Field` class will largely just be giving the input and
 output types for :func:`~Field.wrap` and :func:`~Field.unwrap`.
