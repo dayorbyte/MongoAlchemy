@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField, MissingValueException
+from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException
 from mongoalchemy.fields import *
 from test.util import known_failure
 
@@ -38,7 +38,7 @@ def test_basic():
     s = get_session()
     d = Doc(count=0)
     s.insert(d)
-    assert d._id
+    assert d.mongo_id
 
 def test_basic2():
     class Doc(Document):
@@ -47,6 +47,12 @@ def test_basic2():
     
     assert Doc.class_name() == 'Doc', Doc.class_name()
     assert Doc.get_collection_name() == 'DocCol'
+
+@raises(DocumentException)
+def bad_extra_fields_param_test():
+    class BadDoc(Document):
+        config_extra_fields = 'blah'
+
 
 @raises(MissingValueException)
 def test_required_fields():

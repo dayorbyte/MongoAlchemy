@@ -178,9 +178,9 @@ class Query(object):
             **Example**: ``s.query(SomeObj).filter(SomeObj.f.age > 10, SomeObj.f.blood_type == 'O')``
             
             **Parameters**:
-                * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+                * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
             
-            .. seealso:: :class:`~mongoalchemy.query.QueryExpression` class
+            .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression` class
         '''
         for qe in query_expressions:
             self.__apply(qe)
@@ -255,7 +255,7 @@ class Query(object):
             **Examples**: ``query.not_(SomeDocClass.f.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
             
             **Parameters**:
-            * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+            * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
             '''
         for qe in query_expressions:
             self.filter(qe.not_())
@@ -268,7 +268,7 @@ class Query(object):
             **Examples**: ``query.or_(SomeDocClass.f.age == 18, SomeDocClass.f.age == 17)`` becomes ``{'$or' : [{ 'age' : 18 }, { 'age' : 17 }]}``
             
             **Parameters**:
-                * query_expressions: Instances of :class:`mongoalchemy.query.QueryExpression`
+                * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
         '''
         res = first_qe
         for qe in qes:
@@ -279,7 +279,7 @@ class Query(object):
     def in_(self, qfield, *values):
         ''' Check to see that the value of ``qfield`` is one of ``values``
             **Parameters**:
-                * qfield: Instances of :class:`mongoalchemy.query.QueryExpression`
+                * qfield: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
                 * values: Values should be python values which ``qfield`` \
                     understands
         '''
@@ -288,43 +288,43 @@ class Query(object):
         return self
     
     def set(self, qfield, value):
-        '''Refer to: :func:`~mongoalchemy.query.UpdateExpression.set`'''
+        '''Refer to: :func:`~mongoalchemy.update_expression.UpdateExpression.set`'''
         return UpdateExpression(self).set(qfield, value)
     
     def unset(self, qfield):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.unset`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.unset`'''
         return UpdateExpression(self).unset(qfield)
     
     def inc(self, qfield, value=1):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.inc`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.inc`'''
         return UpdateExpression(self).inc(qfield, value=value)
     
     def append(self, qfield, value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.append`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.append`'''
         return UpdateExpression(self).append(qfield, value)
     
     def extend(self, qfield, *value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.extend`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.extend`'''
         return UpdateExpression(self).extend(qfield, *value)
     
     def remove(self, qfield, value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.remove`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.remove`'''
         return UpdateExpression(self).remove(qfield, value)
     
     def remove_all(self, qfield, *value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.remove_all`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.remove_all`'''
         return UpdateExpression(self).remove_all(qfield, *value)
         
     def add_to_set(self, qfield, value):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.add_to_set`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.add_to_set`'''
         return UpdateExpression(self).add_to_set(qfield, value)
         
     def pop_first(self, qfield):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop_first`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.pop_first`'''
         return UpdateExpression(self).pop_first(qfield)
     
     def pop_last(self, qfield):
-        '''Refer to:  :func:`~mongoalchemy.query.UpdateExpression.pop_last`'''
+        '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.pop_last`'''
         return UpdateExpression(self).pop_last(qfield)
 
 

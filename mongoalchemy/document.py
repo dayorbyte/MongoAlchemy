@@ -46,13 +46,23 @@ from mongoalchemy.fields import ObjectIdField, Field, BadValueException
 
 class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
+        # Validate Config Options
+        
+        # Create Class
         new_class = type.__new__(mcs, classname, bases, class_dict)
         
+        if new_class.config_extra_fields not in ['error', 'ignore']:
+            raise DocumentException("config_extra_fields must be one of: 'error', 'ignore'")
+
+        
+        # Set up links between fields and the document class
         for name, value in class_dict.iteritems():
             if not isinstance(value, Field):
                 continue
             value._set_name(name)
             value._set_parent(new_class)
+        
+        # Create a query field instance for use in query expressions
         new_class.f = QueryFieldSet(new_class, new_class.get_fields())
         return new_class
 
@@ -76,7 +86,15 @@ class FieldNotRetrieved(DocumentException):
 class Document(object):
     __metaclass__ = DocumentMeta
     
-    _id = ObjectIdField(required=False)
+    mongo_id = ObjectIdField(required=False, db_field='_id')
+    ''' Default field for the mongo object ID (``_id`` in the database). This field
+        is automatically set on objects when they are saved into the database.
+        This field can be overridden in subclasses if the default ID is not
+        acceptable '''
+    
+    config_extra_fields = 'error'
+    ''' Controls the method to use when dealing with fields passed in to the
+        document constructor.  Possible values are 'error' and 'ignore' '''
     
     def __init__(self, retrieved_fields=None, **kwargs):
         '''
@@ -113,9 +131,10 @@ class Document(object):
             if hasattr(field, 'default'):
                 setattr(self, name, field.default)
         
-        for k in kwargs:
-            if k not in fields:
-                raise ExtraValueException(k)
+        if self.config_extra_fields != 'ignore':
+            for k in kwargs:
+                if k not in fields:
+                    raise ExtraValueException(k)
     
     def __setattr__(self, name, value):
         cls = self.__class__
@@ -149,7 +168,7 @@ class Document(object):
         expressions, updates, loading partial documents, and a number of other 
         places.
         
-        .. seealso:: :class:`~mongoalchemy.query.QueryExpression`, :class:`~mongoalchemy.query.Query`
+        .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression`, :class:`~mongoalchemy.query.Query`
     
     '''
     
@@ -221,7 +240,7 @@ class Document(object):
         for index in self.get_indexes():
             index.ensure(collection)
         id = collection.save(self.wrap())
-        self._id = id
+        self.mongo_id = id
     
     def wrap(self):
         '''Returns a transformation of this document into a form suitable to 
