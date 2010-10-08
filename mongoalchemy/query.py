@@ -40,12 +40,12 @@ class Query(object):
         In general a query object should be created via ``Session.query``, 
         not directly.
     '''
-    def __init__(self, type, db):
+    def __init__(self, type, session):
         '''**Parameters**:
                 * type: A subclass of class:`mongoalchemy.document.Document`
-                * db: The ``pymongo`` database which this query is associated with.
+                * db: The :class:`~mongoalchemy.session.Session` which this query is associated with.
         '''
-        self.db = db
+        self.session = session
         self.type = type
         self.query = {}
         self.sort = []
@@ -58,25 +58,16 @@ class Query(object):
         return self.__get_query_result()
     
     def __get_query_result(self):
-        collection = self.db[self.type.get_collection_name()]
-        for index in self.type.get_indexes():
-            index.ensure(collection)
-        
-        kwargs = dict()
-        if self._fields:
-            kwargs['fields'] = [str(f) for f in self._fields]
-        
-        cursor = collection.find(self.query, **kwargs)
-        
-        if self.sort:
-            cursor.sort(self.sort)
-        if self.hints:
-            cursor.hint(self.hints)
-        if self._limit != None:
-            cursor.limit(self._limit)
-        if self._skip != None:
-            cursor.skip(self._skip)
-        return QueryResult(cursor, self.type, fields=self._fields)
+        return self.session.execute_query(self)
+    
+    def get_fields(self):
+        return self._fields
+    
+    def get_limit(self):
+        return self._limit
+    
+    def get_skip(self):
+        return self._skip
     
     def limit(self, limit):
         '''Sets the limit on the number of documents returned
@@ -99,7 +90,7 @@ class Query(object):
             updates to the cloned object or the original object will not 
             affect each other
         '''
-        qclone = Query(self.type, self.db)
+        qclone = Query(self.type, self.session)
         qclone.query = deepcopy(self.query)
         qclone.sort = deepcopy(self.sort)
         qclone._fields = deepcopy(self._fields)

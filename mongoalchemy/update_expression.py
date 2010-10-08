@@ -30,6 +30,7 @@ from mongoalchemy.query_expression import QueryField, QueryExpression, BadQueryE
 class UpdateExpression(object):
     def __init__(self, query):
         self.query = query
+        self.session = query.session
         self.update_data = {}
         self.__upsert = False
         self.__multi = False
@@ -134,13 +135,15 @@ class UpdateExpression(object):
         self.update_data[op][qfield.get_name()] = value
         return self
     
+    def get_upsert(self):
+        return self.__upsert
+    
+    def get_multi(self):
+        return self.__multi
+    
     def execute(self):
         ''' Execute the update expression on the database '''
-        assert len(self.update_data) > 0
-        collection = self.query.db[self.query.type.get_collection_name()]
-        for index in self.query.type.get_indexes():
-            index.ensure(collection)
-        collection.update(self.query.query, self.update_data, upsert=self.__upsert, multi=self.__multi)
+        self.session.execute_update(self)
 
 class UpdateException(Exception):
     ''' Base class for exceptions related to updates '''

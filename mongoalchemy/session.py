@@ -43,7 +43,7 @@
 
 
 from pymongo.connection import Connection
-from mongoalchemy.query import Query
+from mongoalchemy.query import Query, QueryResult
 
 class Session(object):
 
@@ -93,7 +93,37 @@ class Session(object):
         # This really should be adding a query operation to the 
         # queue which is then forced to execute when the results are being
         # read
-        return Query(type, self.db)
+        return Query(type, self)
+    
+    def execute_query(self, query):
+        ''' Get the results of ``query``.  This method will flush the queue '''
+        collection = self.db[query.type.get_collection_name()]
+        for index in query.type.get_indexes():
+            index.ensure(collection)
+        
+        kwargs = dict()
+        if query.get_fields():
+            kwargs['fields'] = [str(f) for f in query.get_fields()]
+        
+        cursor = collection.find(query.query, **kwargs)
+        
+        if query.sort:
+            cursor.sort(query.sort)
+        if query.hints:
+            cursor.hint(query.hints)
+        if query.get_limit() != None:
+            cursor.limit(query.get_limit())
+        if query.get_skip() != None:
+            cursor.skip(query.get_skip())
+        return QueryResult(cursor, query.type, fields=query.get_fields())
+    
+    def execute_update(self, update):
+        assert len(update.update_data) > 0
+        collection = self.db[update.query.type.get_collection_name()]
+        for index in update.query.type.get_indexes():
+            index.ensure(collection)
+        collection.update(update.query.query, update.update_data, upsert=update.get_upsert(), multi=update.get_multi())
+
     
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 
