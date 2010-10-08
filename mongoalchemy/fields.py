@@ -82,12 +82,19 @@ class FieldMeta(type):
         return type.__new__(mcs, classname, bases, class_dict)
 
 class Field(object):
-    ''' Field class docs '''
     auto = False
     
     __metaclass__ = FieldMeta
     
     def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False):
+        '''
+        **Parameters**:
+            * required: The field must be passed when constructing a document (optional. default: ``True``)
+            * default:  Default value to use if one is not given (optional.)
+            * db_field: name to use when saving or loading this field from the database \
+                (optional.  default is the name the field is assigned to on a documet)
+            * allow_none: allow ``None`` as a value (optional. default: False)
+        '''
         self.required = required
         self._allow_none = allow_none
         self.__db_field = db_field
