@@ -84,6 +84,8 @@ class UpdateExpression(object):
         return self._atomic_generic_op('$pop', qfield, -1)
     
     def _atomic_list_op_multivalue(self, op, qfield, *value):
+        if op not in qfield.get_type().valid_modifiers:
+            raise InvalidModifierException(qfield.get_type(), op)
         wrapped = []
         for v in value:
             wrapped.append(qfield.get_type().item_type.wrap(v))
@@ -93,18 +95,27 @@ class UpdateExpression(object):
         return self
     
     def _atomic_list_op(self, op, qfield, value):
+        if op not in qfield.get_type().valid_modifiers:
+            raise InvalidModifierException(qfield.get_type(), op)
+        
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = qfield.get_type().child_type().wrap(value)
         return self
     
     def _atomic_op(self, op, qfield, value):
+        if op not in qfield.get_type().valid_modifiers:
+            raise InvalidModifierException(qfield.get_type(), op)
+
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = qfield.get_type().wrap(value)
         return self
     
     def _atomic_generic_op(self, op, qfield, value):
+        if op not in qfield.get_type().valid_modifiers:
+            raise InvalidModifierException(qfield.get_type(), op)
+        
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_name()] = value
@@ -118,3 +129,16 @@ class UpdateExpression(object):
             index.ensure(collection)
         collection.update(self.query.query, self.update_data)
 
+class UpdateException(Exception):
+    ''' Base class for exceptions related to updates '''
+    pass
+
+class InvalidModifierException(UpdateException):
+    ''' Exception raised if a modifier was used which isn't valid for a field '''
+    def __init__(self, field, op):
+        UpdateException.__init__(self, 'Invalid modifier for %s field: %s' % (field.__class__.__name__, op))
+
+class ConflictingModifierException(UpdateException):
+    ''' Exception raised if conflicting modifiers are being used in the 
+        update expression '''
+    pass

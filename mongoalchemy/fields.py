@@ -60,6 +60,12 @@ from datetime import datetime
 from pymongo.objectid import ObjectId
 from mongoalchemy.util import UNSET
 import functools
+from copy import deepcopy
+
+SCALAR_MODIFIERS = set(['$set', '$unset'])
+NUMBER_MODIFIERS = SCALAR_MODIFIERS | set(['$inc'])
+LIST_MODIFIERS = SCALAR_MODIFIERS | set(['$push', '$addToSet', '$pull', '$pushAll', '$pullAll', '$pop'])
+ANY_MODIFIER = LIST_MODIFIERS | NUMBER_MODIFIERS
 
 class FieldMeta(type):
     def __new__(mcs, classname, bases, class_dict):
@@ -158,7 +164,7 @@ class Field(object):
             **Parameters**: 
                 * value: The value to check
         '''
-
+        
         self.validate_wrap(value)
     
     def _fail_validation(self, value, reason='', cause=None):
@@ -198,10 +204,13 @@ class Field(object):
 class PrimitiveField(Field):
     '''Primitive fields are fields where a single constructor can be used
         for wrapping and unwrapping an object.'''
+    
+    valid_modifiers = SCALAR_MODIFIERS
+    
     def __init__(self, constructor, **kwargs):
         super(PrimitiveField, self).__init__(**kwargs)
         self.constructor = constructor
-
+        
     def wrap(self, value):
         self.validate_wrap(value)
         return self.constructor(value)
@@ -222,7 +231,7 @@ class StringField(PrimitiveField):
         self.max = max_length
         self.min = min_length
         super(StringField, self).__init__(constructor=unicode, **kwargs)
-
+        
     def validate_wrap(self, value):
         ''' Validates the type and length of ``value`` '''
         if not isinstance(value, basestring):
@@ -242,6 +251,9 @@ class BoolField(PrimitiveField):
 
 class NumberField(PrimitiveField):
     ''' Base class for numeric fields '''
+    
+    valid_modifiers = NUMBER_MODIFIERS
+    
     def __init__(self, constructor, min_value=None, max_value=None, **kwargs):
         '''
         **Parameters**:
@@ -252,7 +264,7 @@ class NumberField(PrimitiveField):
         super(NumberField, self).__init__(constructor=constructor, **kwargs)
         self.min = min_value
         self.max = max_value
-
+        
     def validate_wrap(self, value, type):
         ''' Validates the type and value of ``value`` '''
         if not isinstance(value, type): 
@@ -320,6 +332,9 @@ class TupleField(Field):
         **Examples** ``TupleField(IntField(), BoolField())`` would accept
         ``[19, False]`` as a value for both wrapping and unwrapping. '''
     
+    # uses scalar modifiers since it is not variable length
+    valid_modifiers = SCALAR_MODIFIERS
+    
     def __init__(self, *item_types, **kwargs):
         '''
             **Parameters**:
@@ -381,6 +396,8 @@ class EnumField(Field):
         in ``(4, 6, 7)`` as a value.  It would not accept ``5``.
         '''
     
+    valid_modifiers = SCALAR_MODIFIERS
+    
     def __init__(self, item_type, *values, **kwargs):
         '''
         **Parameters**:
@@ -432,6 +449,9 @@ class EnumField(Field):
 class SequenceField(Field):
     ''' Base class for Fields which are an iterable collection of objects in which
         every child element is of the same type'''
+    
+    valid_modifiers = LIST_MODIFIERS
+    
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 
             **kwargs):
         '''
@@ -470,7 +490,7 @@ class SequenceField(Field):
         self._length_valid(value)
         for v in value:
             self._validate_child_wrap(v)
-
+            
     def validate_unwrap(self, value):
         ''' Checks that the type of ``value`` is correct as well as validating
             the elements of value'''
@@ -528,6 +548,8 @@ class AnythingField(Field):
     ''' A field that passes through whatever is set with no validation.  Useful
         for free-form objects '''
     
+    valid_modifiers = ANY_MODIFIER
+    
     def wrap(self, value):
         '''Always returns the value passed in'''
         return value
@@ -546,6 +568,10 @@ class AnythingField(Field):
 class ObjectIdField(Field):
     '''pymongo Object ID object.  Currently this is probably too strict.  A 
         string version of an ObjectId should also be acceptable'''
+    
+    # modifiers on ObjectId not allowed!
+    valid_modifiers = set() 
+    
     def __init__(self, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
     
@@ -570,6 +596,9 @@ class DictField(Field):
         :class:`KVField`.  Strings also must obey the mongo key rules 
         (no ``.`` or ``$``)
         '''
+    
+    valid_modifiers = SCALAR_MODIFIERS
+    
     def __init__(self, value_type, **kwargs):
         '''
             **Parameters**:
@@ -734,7 +763,7 @@ class KVField(DictField):
 
 class ComputedField(Field):
     ''' A computed field is generated based on an object's other values.  
-
+        
         the unwrap function takes a dictionary of K/V pairs of the 
         dependencies.  Since dependencies are declared in the class 
         definition all of the dependencies for a computed field should be
@@ -745,6 +774,9 @@ class ComputedField(Field):
             especially with respect to partial loading.  If using this class
             watch out for strange behaviour
     '''
+    
+    valid_modifiers = SCALAR_MODIFIERS
+    
     auto = True
     def __init__(self, computed_type, deps=None, **kwargs):
         '''

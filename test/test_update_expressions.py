@@ -2,12 +2,14 @@ from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
+from mongoalchemy.update_expression import InvalidModifierException
 from mongoalchemy.query import BadQueryException, Query, BadResultException
 from test.util import known_failure
 
 class T(Document):
     i = IntField()
     j = IntField(required=False)
+    s = StringField(required=False)
     l = ListField(IntField(), required=False)
     a = IntField(required=False, db_field='aa')
     index = Index().ascending('i')
@@ -27,6 +29,7 @@ def update_test_setup():
     s.clear_collection(T)
     return s.query(T)
 
+# SET
 
 def set_test():
     q = update_test_setup()
@@ -34,12 +37,16 @@ def set_test():
         '$set' : { 'i' : 5 }
     }
 
+# UNSET
+
 def unset_test():
     q = update_test_setup()
     assert q.unset(T.f.i).update_data == {
         '$unset' : { 'i' : True }
     }
-    
+
+# INC
+
 def inc_test():
     q = update_test_setup()
     assert q.inc(T.f.i, 4).update_data == {
@@ -48,44 +55,92 @@ def inc_test():
     assert q.inc(T.f.i).update_data == {
         '$inc' : { 'i' : 1 }
     }
-    
-    
+
+@raises(InvalidModifierException)
+def inc_invalid_test():
+    q = update_test_setup()
+    q.inc(T.f.s, 1)
+
+# APPEND
+
 def append_test():
     q = update_test_setup()
     assert q.append(T.f.l, 1).update_data == {
         '$push' : { 'l' : 1 }
     }
-    
+
+@raises(InvalidModifierException)
+def append_invalid_test():
+    q = update_test_setup()
+    q.append(T.f.s, 1)
+
+# EXTEND
+
 def extend_test():
     q = update_test_setup()
     assert q.extend(T.f.l, *(1, 2, 3)).update_data == {
         '$pushAll' : { 'l' : (1, 2, 3) }
     }
 
+
+@raises(InvalidModifierException)
+def extend_invalid_test():
+    q = update_test_setup()
+    q.extend(T.f.s, [1])
+
+# REMOVE
+
 def remove_test():
     q = update_test_setup()
     assert q.remove(T.f.l, 1).update_data == {
         '$pull' : { 'l' : 1 }
     }
-    
+
+@raises(InvalidModifierException)
+def remove_invalid_test():
+    q = update_test_setup()
+    q.remove(T.f.s, 1)
+
+# REMOVE ALL
+
 def remove_all_test():
     q = update_test_setup()
     assert q.remove_all(T.f.l, *(1, 2, 3)).update_data == {
         '$pullAll' : { 'l' : (1, 2, 3) }
     }
 
+@raises(InvalidModifierException)
+def remove_all_invalid_test():
+    q = update_test_setup()
+    q.remove_all(T.f.s, 1, 2, 3)
+
+# ADD TO SET
 
 def add_to_set_test():
     q = update_test_setup()
     assert q.add_to_set(T.f.l, 1).update_data == {
         '$addToSet' : { 'l' : 1 }
     }
-    
+
+@raises(InvalidModifierException)
+def add_to_set_invalid_test():
+    q = update_test_setup()
+    q.add_to_set(T.f.s, 1)
+
+# POP FIRST
+
 def pop_first_test():
     q = update_test_setup()
     assert q.pop_first(T.f.l).update_data == {
         '$pop' : { 'l' : -1 }
     }
+
+@raises(InvalidModifierException)
+def pop_first_invalid_test():
+    q = update_test_setup()
+    q.pop_last(T.f.s)
+
+# POP LAST
 
 def pop_last_test():
     q = update_test_setup()
@@ -94,4 +149,8 @@ def pop_last_test():
     }
 
 
+@raises(InvalidModifierException)
+def pop_last_invalid_test():
+    q = update_test_setup()
+    q.pop_first(T.f.s)
 
