@@ -94,7 +94,9 @@ class Document(object):
     
     config_extra_fields = 'error'
     ''' Controls the method to use when dealing with fields passed in to the
-        document constructor.  Possible values are 'error' and 'ignore' '''
+        document constructor.  Possible values are 'error' and 'ignore'. Any 
+        fields which couldn't be mapped can be retrieved (and edited) using
+        :func:`~Document.get_extra_fields` '''
     
     def __init__(self, retrieved_fields=None, **kwargs):
         '''
@@ -177,6 +179,9 @@ class Document(object):
     '''
     
     def get_extra_fields(self):
+        ''' if :attr:`Document.config_extra_fields` is set to 'ignore', this method will return
+            a dictionary of the fields which couldn't be mapped to the document.
+        '''
         return self.__extra_fields
     
     @classmethod

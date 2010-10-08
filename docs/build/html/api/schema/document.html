@@ -100,7 +100,9 @@ acceptable</p>
 <dt id="mongoalchemy.document.Document.config_extra_fields">
 <tt class="descname">config_extra_fields</tt><a class="headerlink" href="#mongoalchemy.document.Document.config_extra_fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Controls the method to use when dealing with fields passed in to the
-document constructor.  Possible values are &#8216;error&#8217; and &#8216;ignore&#8217;</p>
+document constructor.  Possible values are &#8216;error&#8217; and &#8216;ignore&#8217;. Any
+fields which couldn&#8217;t be mapped can be retrieved (and edited) using
+<a class="reference internal" href="#mongoalchemy.document.Document.get_extra_fields" title="mongoalchemy.document.Document.get_extra_fields"><tt class="xref py py-func docutils literal"><span class="pre">get_extra_fields()</span></tt></a></p>
 </dd></dl>
 
 <dl class="attribute">
@@ -114,6 +116,13 @@ places.</p>
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="../expressions/query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">QueryExpression</span></tt></a>, <a class="reference internal" href="../expressions/query.html#mongoalchemy.query.Query" title="mongoalchemy.query.Query"><tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt></a></p>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.document.Document.get_extra_fields">
+<tt class="descname">get_extra_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_extra_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>if <a class="reference internal" href="#mongoalchemy.document.Document.config_extra_fields" title="mongoalchemy.document.Document.config_extra_fields"><tt class="xref py py-attr docutils literal"><span class="pre">Document.config_extra_fields</span></tt></a> is set to &#8216;ignore&#8217;, this method will return
+a dictionary of the fields which couldn&#8217;t be mapped to the document.</p>
 </dd></dl>
 
 <dl class="classmethod">
