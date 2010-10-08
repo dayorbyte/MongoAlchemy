@@ -92,6 +92,13 @@ def test_one_fail():
     s.insert(T(i=4))
     s.query(T).one()
 
+@raises(BadResultException) # too few values to unpack
+def test_one_fail_too_few():
+    s = get_session()
+    s.clear_collection(T)
+    s.query(T).one()
+
+
 def test_one():
     s = get_session()
     s.clear_collection(T)

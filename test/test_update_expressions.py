@@ -29,6 +29,18 @@ def update_test_setup():
     s.clear_collection(T)
     return s.query(T)
 
+# General Update tests
+
+def test_multi():
+    q = update_test_setup()
+    q.set(T.f.i, 5).set(T.f.j, 6).upsert().execute()
+    q.set(T.f.i, 5).set(T.f.j, 7).upsert().execute()
+    q.set(T.f.i, 5).set(T.f.j, 8).upsert().execute()
+    q.set(T.f.j, 9).multi().execute()
+    for t in q:
+        assert t.j == 9
+
+
 # SET
 
 def set_test():
