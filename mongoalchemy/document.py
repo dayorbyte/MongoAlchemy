@@ -110,6 +110,8 @@ class Document(object):
         self.partial = retrieved_fields != None
         self.retrieved_fields = self.__normalize(retrieved_fields)
         
+        self.__extra_fields = {}
+        
         cls = self.__class__
                 
         fields = self.get_fields()
@@ -130,11 +132,13 @@ class Document(object):
             
             if hasattr(field, 'default'):
                 setattr(self, name, field.default)
-        
-        if self.config_extra_fields != 'ignore':
+            
             for k in kwargs:
                 if k not in fields:
-                    raise ExtraValueException(k)
+                    if self.config_extra_fields == 'ignore':
+                        self.__extra_fields[k] = kwargs[k]
+                    else:
+                        raise ExtraValueException(k)
     
     def __setattr__(self, name, value):
         cls = self.__class__
@@ -171,6 +175,9 @@ class Document(object):
         .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression`, :class:`~mongoalchemy.query.Query`
     
     '''
+    
+    def get_extra_fields(self):
+        return self.__extra_fields
     
     @classmethod
     def get_fields(cls):
@@ -247,6 +254,8 @@ class Document(object):
             be saved into a mongo database.  This is done by using the ``wrap()``
             methods of the underlying fields to set values.'''
         res = {}
+        for k, v in self.__extra_fields.iteritems():
+            res[k] = v
         cls = self.__class__
         for name in dir(cls):
             field = getattr(cls, name)
@@ -287,6 +296,9 @@ class Document(object):
         params = {}
         for k, v in obj.iteritems():
             k = name_reverse.get(k, k)
+            if not hasattr(cls, k) and cls.config_extra_fields:
+                params[str(k)] = v
+                continue
             field = getattr(cls, k)
             if fields != None and isinstance(field, DocumentField):
                 normalized_fields = cls.__normalize(fields)

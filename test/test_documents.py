@@ -53,6 +53,16 @@ def bad_extra_fields_param_test():
     class BadDoc(Document):
         config_extra_fields = 'blah'
 
+def extra_fields_test():
+    class BadDoc(Document):
+        config_extra_fields = 'ignore'
+    doc_with_extra = {'foo' : [1]}
+    
+    unwrapped = BadDoc.unwrap(doc_with_extra)
+    assert unwrapped.get_extra_fields() == doc_with_extra
+    
+    assert BadDoc.wrap(unwrapped) == doc_with_extra
+
 
 @raises(MissingValueException)
 def test_required_fields():
