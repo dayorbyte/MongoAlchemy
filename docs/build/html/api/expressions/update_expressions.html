@@ -60,6 +60,19 @@
 <dt id="mongoalchemy.update_expression.UpdateExpression">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.update_expression.</tt><tt class="descname">UpdateExpression</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.upsert">
+<tt class="descname">upsert</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.upsert" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a document matching the query doesn&#8217;t exist, create one</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.multi">
+<tt class="descname">multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.multi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update multiple documents.  The Mongo default is to only update 
+the first matching document</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.set">
 <tt class="descname">set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
