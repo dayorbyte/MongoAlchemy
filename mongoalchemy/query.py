@@ -112,11 +112,13 @@ class Query(object):
         '''Execute the query and return one result.  If more than one result 
             is returned, raises a ``BadResultException``
         '''
-        try:
-            [the_one] = self
-        except ValueError:
-            raise BadResultException('Too many results for .one()')
-        return the_one
+        count = -1
+        for count, result in enumerate(self):
+            if count > 0:
+                raise BadResultException('Too many results for .one()')
+        if count == -1:
+            raise BadResultException('Too few results for .one()')
+        return result
     
     def first(self):
         '''Execute the query and return the first result.  Unlike ``one``, if

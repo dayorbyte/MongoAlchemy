@@ -31,6 +31,19 @@ class UpdateExpression(object):
     def __init__(self, query):
         self.query = query
         self.update_data = {}
+        self.__upsert = False
+        self.__multi = False
+    
+    def upsert(self):
+        ''' If a document matching the query doesn't exist, create one '''
+        self.__upsert = True
+        return self
+    
+    def multi(self):
+        ''' Update multiple documents.  The Mongo default is to only update 
+            the first matching document '''
+        self.__multi = True
+        return self
     
     def set(self, qfield, value):
         ''' Atomically set ``qfield`` to ``value``'''
@@ -127,7 +140,7 @@ class UpdateExpression(object):
         collection = self.query.db[self.query.type.get_collection_name()]
         for index in self.query.type.get_indexes():
             index.ensure(collection)
-        collection.update(self.query.query, self.update_data)
+        collection.update(self.query.query, self.update_data, upsert=self.__upsert, multi=self.__multi)
 
 class UpdateException(Exception):
     ''' Base class for exceptions related to updates '''
