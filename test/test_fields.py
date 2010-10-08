@@ -25,6 +25,12 @@ def test_is_valid_unwrap():
     assert IntField().is_valid_unwrap('') == False
     assert IntField().is_valid_unwrap(1) == True
 
+def test_allow_none():
+    assert IntField(allow_none=True).is_valid_unwrap(None) == True
+    assert IntField(allow_none=True).is_valid_wrap(None) == True
+    assert IntField().is_valid_unwrap(None) == False
+    assert IntField().is_valid_wrap(None) == False
+
 
 @raises(BadValueException)
 def test_validate_unwrap_fail():

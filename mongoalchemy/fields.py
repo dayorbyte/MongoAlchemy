@@ -59,14 +59,37 @@ import itertools
 from datetime import datetime
 from pymongo.objectid import ObjectId
 from mongoalchemy.util import UNSET
+import functools
 
+class FieldMeta(type):
+    def __new__(mcs, classname, bases, class_dict):
+        
+        def validation_wrapper(fun):
+            def wrapped(self, value, *args, **kwds):
+                if self._allow_none and value == None:
+                    return
+                return fun(self, value, *args, **kwds)
+            functools.update_wrapper(wrapped, fun, ('__name__', '__doc__'))
+            return wrapped
+        
+        if 'validate_wrap' in class_dict:
+            class_dict['validate_wrap'] = validation_wrapper(class_dict['validate_wrap'])
+        
+        if 'validate_unwrap' in class_dict:
+            class_dict['validate_unwrap'] = validation_wrapper(class_dict['validate_unwrap'])
+        
+        # Create Class
+        return type.__new__(mcs, classname, bases, class_dict)
 
 class Field(object):
     ''' Field class docs '''
     auto = False
     
-    def __init__(self, required=True, default=UNSET, db_field=None):
+    __metaclass__ = FieldMeta
+    
+    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False):
         self.required = required
+        self._allow_none = allow_none
         self.__db_field = db_field
         if default != UNSET:
             self.default = default
