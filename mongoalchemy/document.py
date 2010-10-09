@@ -55,15 +55,26 @@ class DocumentMeta(type):
             raise DocumentException("config_extra_fields must be one of: 'error', 'ignore'")
 
         
-        # Set up links between fields and the document class
+        # 1. Set up links between fields and the document class
         for name, value in class_dict.iteritems():
             if not isinstance(value, Field):
                 continue
             value._set_name(name)
             value._set_parent(new_class)
         
+        # 2. create a dict of fields to set on the object
+        new_class._fields = {}
+        for name in dir(new_class):
+            if name == 'f':
+                continue
+            field = getattr(new_class, name)
+            if not isinstance(field, Field):
+                continue
+            new_class._fields[name] = field
+        
         # Create a query field instance for use in query expressions
         new_class.f = QueryFieldSet(new_class, new_class.get_fields())
+        
         return new_class
 
 class DocumentException(Exception):
@@ -189,15 +200,7 @@ class Document(object):
         '''Returns a dict mapping the names of the fields in a document 
             or subclass to the associated :class:`~mongoalchemy.fields.Field`
         '''
-        fields = {}
-        for name in dir(cls):
-            if name == 'f':
-                continue
-            field = getattr(cls, name)
-            if not isinstance(field, Field):
-                continue
-            fields[name] = field
-        return fields
+        return cls._fields
     
     @classmethod
     def class_name(cls):
@@ -315,6 +318,34 @@ class Document(object):
         if fields != None:
             params['retrieved_fields'] = fields
         return cls(**params)
+
+class DictDoc(object):
+    ''' Adds a mapping interface to a document.  Supports ``__getitem__`` and 
+        ``__contains__``.  Both methods will only retrieve values assigned to
+        a field, not methods or other attributes.
+    '''
+    def __getitem__(self, name):
+        ''' Gets the fiels ``name`` from the document '''
+        fields = self.get_fields()
+        if name in fields:
+            return getattr(self, name)
+        raise KeyError(name)
+    
+    def __contains__(self, name):
+        '''Return whether a field is present.  Fails if ``name`` is not a 
+            field or ``name`` is not set on the document or if ``name`` was 
+            not a field retrieved from the database
+        '''
+        try:
+            self[name]
+        except FieldNotRetrieved:
+            return False
+        except AttributeError:
+            return False
+        except KeyError:
+            return False
+        return True
+        
 
 class DocumentField(Field):
     ''' A field which wraps a :class:`Document`'''

@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException
+from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException, DictDoc
 from mongoalchemy.fields import *
 from test.util import known_failure
 
@@ -15,6 +15,14 @@ class TestDoc2(Document):
     sfield = StringField()
     def __repr__(self):
         return 'TestDoc(int1=%s)' % self.sfield
+
+class T(Document, DictDoc):
+    i = IntField()
+    j = IntField(required=False)
+    s = StringField(required=False)
+    l = ListField(IntField(), required=False)
+    a = IntField(required=False, db_field='aa')
+    index = Index().ascending('i')
 
 
 class DocA(Document):
@@ -163,4 +171,16 @@ def is_valid_unwrap_test_false():
 def wrong_unwrap_type_test():
     DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
 
+
+# test DictDoc
+
+def test_dictdoc_contains():
+    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    assert 'i' in t
+    assert 'j' not in t
+    assert 's' not in t
+    assert 'noexist' not in t
+    assert t['i'] == 1
+        
+    
 
