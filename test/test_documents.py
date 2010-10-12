@@ -182,5 +182,9 @@ def test_dictdoc_contains():
     assert 'noexist' not in t
     assert t['i'] == 1
         
-    
+def test_dictdoc_set():
+    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    assert 'i' in t
+    t['i'] = 4
+    assert t.i == 4
 

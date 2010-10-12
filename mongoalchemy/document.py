@@ -325,11 +325,15 @@ class DictDoc(object):
         a field, not methods or other attributes.
     '''
     def __getitem__(self, name):
-        ''' Gets the fiels ``name`` from the document '''
+        ''' Gets the field ``name`` from the document '''
         fields = self.get_fields()
         if name in fields:
             return getattr(self, name)
         raise KeyError(name)
+    
+    def __setitem__(self, name, value):
+        ''' Sets the field ``name`` on the document '''
+        setattr(self, name, value)
     
     def __contains__(self, name):
         '''Return whether a field is present.  Fails if ``name`` is not a 
