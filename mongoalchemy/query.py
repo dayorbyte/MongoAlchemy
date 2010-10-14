@@ -176,7 +176,7 @@ class Query(object):
             .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression` class
         '''
         for qe in query_expressions:
-            self.__apply(qe)
+            self._apply(qe)
         return self
     
     def count(self, with_limit_and_skip=False):
@@ -203,7 +203,7 @@ class Query(object):
             self._fields.add(f)
         return self
     
-    def __apply(self, qe):
+    def _apply(self, qe):
         ''' Apply a query expression, updating the query object '''
         for k, v in qe.obj.iteritems():
             if k not in self.query:
@@ -241,18 +241,18 @@ class Query(object):
         self.sort.append((name, direction))
         return self
     
-    def not_(self, *query_expressions):
-        ''' Add a $not expression to the query, negating the query expressions 
-            given.  
-            
-            **Examples**: ``query.not_(SomeDocClass.f.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
-            
-            **Parameters**:
-            * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
-            '''
-        for qe in query_expressions:
-            self.filter(qe.not_())
-        return self
+    # def not_(self, *query_expressions):
+    #     ''' Add a $not expression to the query, negating the query expressions 
+    #         given.  
+    #         
+    #         **Examples**: ``query.not_(SomeDocClass.f.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
+    #         
+    #         **Parameters**:
+    #         * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
+    #         '''
+    #     for qe in query_expressions:
+    #         self.filter(qe.not_())
+    #     return self
     
     def or_(self, first_qe, *qes):
         ''' Add a $not expression to the query, negating the query expressions 
@@ -343,3 +343,49 @@ class QueryResult(object):
         return self
 
 
+class RemoveQuery(object):
+    def __init__(self, type, session):
+        '''**Parameters**:
+                * type: A subclass of class:`mongoalchemy.document.Document`
+                * db: The :class:`~mongoalchemy.session.Session` which this query is associated with.
+        '''
+        self.session = session
+        self.type = type
+        self.safe = None
+        self.get_last_args = {}
+        self.query = {}
+        self.__query_obj = Query(type, session)
+    
+    def set_safe(self, is_safe, **kwargs):
+        ''' Set this remove to be safe.  It will call getLastError after the 
+            remove to make sure it was successful.  ``**kwargs`` are parameters to 
+            MongoDB's getLastError command (as in pymongo's remove).
+        '''
+        self.safe = is_safe
+        self.get_last_args.update(**kwargs)
+        return self
+    
+    def execute(self):
+        ''' Run the remove command on the session.  Return the result of 
+            ``getLastError`` if ``safe`` is ``True``'''
+        return self.session.execute_remove(self)
+    
+    def filter(self, *query_expressions):
+        self.__query_obj.filter(*query_expressions)
+        self.query = self.__query_obj.query
+        return self
+    
+    # def not_(self, *query_expressions):
+    #     self.__query_obj.not_(*query_expressions)
+    #     self.query = self.__query_obj.query
+    #     return self
+        
+    def or_(self, first_qe, *qes):
+        self.__query_obj.or_(first_qe, *qes)
+        self.query = self.__query_obj.query
+        return self
+    
+    def in_(self, qfield, *values):
+        self.__query_obj.in_(qfield, *values)
+        self.query = self.__query_obj.query
+        return self

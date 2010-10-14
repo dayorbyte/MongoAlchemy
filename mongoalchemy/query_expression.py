@@ -171,22 +171,22 @@ class QueryExpression(object):
     '''
     def __init__(self, obj):
         self.obj = obj
-    def not_(self):
-        '''Negates this instance's query expression using MongoDB's ``$not`` 
-            operator
-            
-            **Example**: ``(User.f.name == 'Jeff').not_()``
-            
-            .. note:: Another usage is via an operator, but parens are needed 
-                to get past precedence issues: ``~ (User.f.name == 'Jeff')``
-            '''
-
-        return QueryExpression({
-                '$not' : self.obj
-            })
+    # def not_(self):
+    #     '''Negates this instance's query expression using MongoDB's ``$not`` 
+    #         operator
+    #         
+    #         **Example**: ``(User.f.name == 'Jeff').not_()``
+    #         
+    #         .. note:: Another usage is via an operator, but parens are needed 
+    #             to get past precedence issues: ``~ (User.f.name == 'Jeff')``
+    #         '''
+    # 
+    #     return QueryExpression({
+    #             '$not' : self.obj
+    #         })
     
-    def __invert__(self):
-        return self.not_()
+    # def __invert__(self):
+    #     return self.not_()
     
     def __or__(self, expression):
         return self.or_(expression)

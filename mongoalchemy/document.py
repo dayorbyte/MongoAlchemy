@@ -244,6 +244,13 @@ class Document(object):
                 ret[strf] = None
         return ret
     
+    def has_id(self):
+        try:
+            getattr(self, 'mongo_id')
+        except AttributeError:
+            return False
+        return True 
+    
     def commit(self, db):
         ''' Save this object to the database and set the ``_id`` field of this
             document to the returned id.

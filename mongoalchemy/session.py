@@ -43,7 +43,8 @@
 
 
 from pymongo.connection import Connection
-from mongoalchemy.query import Query, QueryResult
+from mongoalchemy.query import Query, QueryResult, RemoveQuery
+from mongoalchemy.document import FieldNotRetrieved
 
 class Session(object):
 
@@ -58,6 +59,7 @@ class Session(object):
         '''
         self.db = database
         self.queue = []
+        self.safe = False
     
     @classmethod
     def connect(self, database, *args, **kwds):
@@ -117,7 +119,40 @@ class Session(object):
             cursor.skip(query.get_skip())
         return QueryResult(cursor, query.type, fields=query.get_fields())
     
+    def remove_query(self, type):
+        ''' Begin a remove query on the database's collection for `type`.
+  
+           .. seealso:: :class:`~mongoalchemy.update_expression.RemoveQuery` class'''
+        return RemoveQuery(type, self)
+    
+    def remove(self, obj, safe=None):
+        '''
+            Remove a particular object from the database.  If the object has 
+            no mongo ID set, the method just returns.  If this is a partial 
+            document without the mongo ID field retrieved a ``FieldNotRetrieved``
+            will be raised
+            
+            **Parameters**:
+                * obj: the object to save
+                * safe: whether to wait for the operation to complete.  Defaults \
+                    to the session's ``safe`` value.
+        '''
+        self.flush()
+        if safe == None:
+            safe = self.safe
+        if not obj.has_id():
+            return None
+        return self.db[obj.get_collection_name()].remove(obj.mongo_id, safe=safe)
+    
+    def execute_remove(self, remove):
+        self.flush()
+        safe = self.safe
+        if remove.safe != None:
+            safe = remove.safe
+        return self.db[remove.type.get_collection_name()].remove(remove.query, safe=safe)
+    
     def execute_update(self, update):
+        self.flush()
         assert len(update.update_data) > 0
         collection = self.db[update.query.type.get_collection_name()]
         for index in update.query.type.get_indexes():
@@ -147,6 +182,8 @@ class Session(object):
         ''' Perform all database operations currently in the queue'''
         for index, item in enumerate(self.queue):
             item.commit(self.db)
+        self.clear()
+            
     
     def __enter__(self):
         return self

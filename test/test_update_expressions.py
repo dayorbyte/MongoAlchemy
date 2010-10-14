@@ -3,7 +3,7 @@ from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.update_expression import InvalidModifierException
-from mongoalchemy.query import BadQueryException, Query, BadResultException
+from mongoalchemy.query import BadQueryException, Query, BadResultException, RemoveQuery
 from test.util import known_failure
 
 class T(Document):
@@ -40,7 +40,46 @@ def test_multi():
     for t in q:
         assert t.j == 9
 
+# Test Remove
 
+def test_remove():
+    # setup
+    s = get_session()
+    s.clear_collection(T)
+    for i in range(0, 15):
+        s.insert(T(i=i))
+    assert s.query(T).count() == 15
+    
+    def getall():
+        return [t.i for t in s.query(T).all()]
+    
+    s.remove_query(T).filter(T.f.i > 8).execute()
+    assert s.query(T).count() == 9
+    
+    # TODO: to /really/ test this I need to cause an error.
+    remove_result = s.remove_query(T).filter(T.f.i > 7).set_safe(True).execute()
+    assert remove_result['ok'] == 1
+    assert s.query(T).count() == 8
+    
+    s.remove_query(T).or_(T.f.i == 7, T.f.i == 6).execute()
+    remaining = [0, 1, 2, 3, 4, 5]
+    assert remaining == getall(), getall()
+    
+    s.remove_query(T).in_(T.f.i, 0, 1).execute()
+    remaining.remove(1)
+    remaining.remove(0)
+    assert remaining == getall(), getall()
+
+def test_remove_obj():
+    s = get_session()
+    s.clear_collection(T)
+    t = T(i=4)
+    s.insert(t)
+    assert s.query(T).count() == 1
+    s.remove(t)
+    assert s.query(T).count() == 0
+    t2 = T(i=3)
+    s.remove(t2)
 # SET
 
 def set_test():

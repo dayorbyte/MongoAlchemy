@@ -67,11 +67,11 @@ def qf_bad_value_compare_test():
 def qf_dot_f_test():
     assert str(T2.f.t.f.i) == 't.i'
 
-def test_not():
-    q = Query(T, None)
-    
-    assert q.filter( ~(T.f.i == 3) ).query == { '$not' : {'i' : 3} }
-    assert q.not_(T.f.i == 3).query == { '$not' : {'i' : 3} }
+# def test_not():
+#     q = Query(T, None)
+#     
+#     assert q.filter( ~(T.f.i == 3) ).query == { '$not' : {'i' : 3} }
+#     assert q.not_(T.f.i == 3).query == { '$not' : {'i' : 3} }
 
 def test_or():
     q = Query(T, None)
