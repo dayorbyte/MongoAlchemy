@@ -854,7 +854,7 @@ class ComputedFieldValue(property, ComputedField):
         # raise BadValueException('Tried to set a computed field to an illegal value: %s' % value)
     
     def __get__(self, instance, owner):
-        if instance == None:
+        if isinstance(instance, type(None)):
             return self.field
         # TODO: dirty cache indictor + check a field option for never caching
         if self.__computed_value == UNSET:
