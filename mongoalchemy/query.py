@@ -371,6 +371,8 @@ class RemoveQuery(object):
         return self.session.execute_remove(self)
     
     def filter(self, *query_expressions):
+        ''' Filter the remove expression with ``*query_expressions``, as in
+            the ``Query`` filter method.'''
         self.__query_obj.filter(*query_expressions)
         self.query = self.__query_obj.query
         return self
@@ -381,11 +383,16 @@ class RemoveQuery(object):
     #     return self
         
     def or_(self, first_qe, *qes):
+        ''' Works the same as the query expression method ``or_``
+        '''
         self.__query_obj.or_(first_qe, *qes)
         self.query = self.__query_obj.query
         return self
     
     def in_(self, qfield, *values):
+        ''' Works the same as the query expression method ``in_``
+        '''
+
         self.__query_obj.in_(qfield, *values)
         self.query = self.__query_obj.query
         return self

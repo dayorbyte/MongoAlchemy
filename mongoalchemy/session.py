@@ -145,6 +145,8 @@ class Session(object):
         return self.db[obj.get_collection_name()].remove(obj.mongo_id, safe=safe)
     
     def execute_remove(self, remove):
+        ''' Execute a remove expression.  Should generally only be called implicitly.
+        '''
         self.flush()
         safe = self.safe
         if remove.safe != None:
@@ -152,6 +154,9 @@ class Session(object):
         return self.db[remove.type.get_collection_name()].remove(remove.query, safe=safe)
     
     def execute_update(self, update):
+        ''' Execute an update expression.  Should generally only be called implicitly.
+        '''
+
         self.flush()
         assert len(update.update_data) > 0
         collection = self.db[update.query.type.get_collection_name()]
