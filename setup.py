@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-VERSION = '0.2.8'
+VERSION = '0.2.9'
 DESCRIPTION = 'Document-Object Mapper/Toolkit for Mongo Databases'
 
 setup(
