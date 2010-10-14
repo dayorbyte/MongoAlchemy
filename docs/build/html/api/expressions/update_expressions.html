@@ -142,9 +142,71 @@ if the field is not a list field</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.get_upsert">
+<tt class="descname">get_upsert</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.get_upsert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.get_multi">
+<tt class="descname">get_multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.get_multi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.execute">
 <tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute the update expression on the database</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="remove-queries">
+<h1>Remove Queries<a class="headerlink" href="#remove-queries" title="Permalink to this headline">¶</a></h1>
+<p>Remove queries are executed with the <tt class="docutils literal"><span class="pre">remove_query</span></tt> method on a session.
+They have the same filtering methods as querying.</p>
+<dl class="class">
+<dt id="mongoalchemy.query.RemoveQuery">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">RemoveQuery</tt><big>(</big><em>type</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a remove query to remove the matched objects from the database
+<strong>Parameters</strong>:</p>
+<blockquote>
+<ul class="simple">
+<li>type: A subclass of class:<cite>mongoalchemy.document.Document</cite></li>
+<li>db: The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</li>
+</ul>
+</blockquote>
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.set_safe">
+<tt class="descname">set_safe</tt><big>(</big><em>is_safe</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.set_safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this remove to be safe.  It will call getLastError after the 
+remove to make sure it was successful.  <tt class="docutils literal"><span class="pre">**kwargs</span></tt> are parameters to 
+MongoDB&#8217;s getLastError command (as in pymongo&#8217;s remove).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the remove command on the session.  Return the result of 
+<tt class="docutils literal"><span class="pre">getLastError</span></tt> if <tt class="docutils literal"><span class="pre">safe</span></tt> is <tt class="xref docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.filter">
+<tt class="descname">filter</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the remove expression with <tt class="docutils literal"><span class="pre">*query_expressions</span></tt>, as in
+the <tt class="docutils literal"><span class="pre">Query</span></tt> filter method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.or_">
+<tt class="descname">or_</tt><big>(</big><em>first_qe</em>, <em>*qes</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.or_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works the same as the query expression method <tt class="docutils literal"><span class="pre">or_</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.in_">
+<tt class="descname">in_</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.in_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works the same as the query expression method <tt class="docutils literal"><span class="pre">in_</span></tt></p>
 </dd></dl>
 
 </dd></dl>
@@ -157,6 +219,12 @@ if the field is not a list field</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Update Expressions</a></li>
+<li><a class="reference internal" href="#remove-queries">Remove Queries</a></li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="query_expressions.html"
                         title="previous chapter">Mongo Query Expression Language</a></p>

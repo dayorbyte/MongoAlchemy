@@ -345,7 +345,8 @@ class QueryResult(object):
 
 class RemoveQuery(object):
     def __init__(self, type, session):
-        '''**Parameters**:
+        ''' Execute a remove query to remove the matched objects from the database
+            **Parameters**:
                 * type: A subclass of class:`mongoalchemy.document.Document`
                 * db: The :class:`~mongoalchemy.session.Session` which this query is associated with.
         '''

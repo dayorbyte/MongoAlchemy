@@ -58,7 +58,7 @@
 <h1>Query Objects<a class="headerlink" href="#query-objects" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="mongoalchemy.query.Query">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">Query</tt><big>(</big><em>type</em>, <em>db</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">Query</tt><big>(</big><em>type</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query" title="Permalink to this definition">¶</a></dt>
 <dd><p>A query object has all of the methods necessary to programmatically 
 generate a mongo query as well as methods to retrieve results of the 
 query or do an update based on it.</p>
@@ -66,7 +66,22 @@ query or do an update based on it.</p>
 not directly.</p>
 <p><strong>Parameters</strong>:
 * type: A subclass of class:<cite>mongoalchemy.document.Document</cite>
-* db: The <tt class="docutils literal"><span class="pre">pymongo</span></tt> database which this query is associated with.</p>
+* db: The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</p>
+<dl class="method">
+<dt id="mongoalchemy.query.Query.get_fields">
+<tt class="descname">get_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.get_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.Query.get_limit">
+<tt class="descname">get_limit</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.get_limit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.Query.get_skip">
+<tt class="descname">get_skip</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.get_skip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mongoalchemy.query.Query.limit">
 <tt class="descname">limit</tt><big>(</big><em>limit</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.limit" title="Permalink to this definition">¶</a></dt>
@@ -237,16 +252,6 @@ can be chained to sort by multiple fields.</p>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.query.Query.not_">
-<tt class="descname">not_</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.not_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a $not expression to the query, negating the query expressions 
-given.</p>
-<p><strong>Examples</strong>: <tt class="docutils literal"><span class="pre">query.not_(SomeDocClass.f.age</span> <span class="pre">==</span> <span class="pre">18)</span></tt> becomes <tt class="docutils literal"><span class="pre">{'$not'</span> <span class="pre">:</span> <span class="pre">{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">18</span> <span class="pre">}}</span></tt></p>
-<p><strong>Parameters</strong>:
-* query_expressions: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query_expression.QueryExpression</span></tt></a></p>
 </dd></dl>
 
 <dl class="method">

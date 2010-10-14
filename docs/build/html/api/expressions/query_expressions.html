@@ -166,19 +166,6 @@ on a mongo collection.  The</p>
 can be specified to a single call of <tt class="xref py py-func docutils literal"><span class="pre">Query.filter()</span></tt></p>
 </div>
 <dl class="method">
-<dt id="mongoalchemy.query_expression.QueryExpression.not_">
-<tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt> 
-operator</p>
-<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff').not_()</span></tt></p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Another usage is via an operator, but parens are needed 
-to get past precedence issues: <tt class="docutils literal"><span class="pre">~</span> <span class="pre">(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff')</span></tt></p>
-</div>
-</dd></dl>
-
-<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryExpression.or_">
 <tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 

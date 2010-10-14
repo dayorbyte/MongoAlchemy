@@ -124,6 +124,51 @@ insertion until the _id field is actually accessed</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.session.Session.execute_query">
+<tt class="descname">execute_query</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the results of <tt class="docutils literal"><span class="pre">query</span></tt>.  This method will flush the queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.remove_query">
+<tt class="descname">remove_query</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin a remove query on the database&#8217;s collection for <cite>type</cite>.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><tt class="xref py py-class docutils literal"><span class="pre">RemoveQuery</span></tt> class</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.remove">
+<tt class="descname">remove</tt><big>(</big><em>obj</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a particular object from the database.  If the object has 
+no mongo ID set, the method just returns.  If this is a partial 
+document without the mongo ID field retrieved a <tt class="docutils literal"><span class="pre">FieldNotRetrieved</span></tt>
+will be raised</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li>obj: the object to save</li>
+<li>safe: whether to wait for the operation to complete.  Defaults                     to the session&#8217;s <tt class="docutils literal"><span class="pre">safe</span></tt> value.</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_remove">
+<tt class="descname">execute_remove</tt><big>(</big><em>remove</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a remove expression.  Should generally only be called implicitly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_update">
+<tt class="descname">execute_update</tt><big>(</big><em>update</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an update expression.  Should generally only be called implicitly.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.session.Session.get_indexes">
 <tt class="descname">get_indexes</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.get_indexes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the index information for the collection associated with 

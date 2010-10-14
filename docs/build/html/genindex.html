@@ -131,9 +131,15 @@
     <dt><a href="api/schema/document.html#mongoalchemy.document.Index.ensure">ensure() (mongoalchemy.document.Index method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.EnumField">EnumField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.eq_">eq_() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.execute">execute() (mongoalchemy.query.RemoveQuery method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.execute">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
+  </dl></dd>
+    <dt><a href="api/session.html#mongoalchemy.session.Session.execute_query">execute_query() (mongoalchemy.session.Session method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.execute">execute() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
+    <dt><a href="api/session.html#mongoalchemy.session.Session.execute_remove">execute_remove() (mongoalchemy.session.Session method)</a></dt>
+    <dt><a href="api/session.html#mongoalchemy.session.Session.execute_update">execute_update() (mongoalchemy.session.Session method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.explain">explain() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.extend">extend() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
@@ -156,6 +162,9 @@
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.filter">filter() (mongoalchemy.query.Query method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.filter">(mongoalchemy.query.RemoveQuery method)</a></dt>
+  </dl></dd>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.first">first() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.FloatField">FloatField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/session.html#mongoalchemy.session.Session.flush">flush() (mongoalchemy.session.Session method)</a></dt>
@@ -169,14 +178,21 @@
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_collection_name">get_collection_name() (mongoalchemy.document.Document class method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_extra_fields">get_extra_fields() (mongoalchemy.document.Document method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_fields">get_fields() (mongoalchemy.document.Document class method)</a></dt>
-</dl></td>
-  <td width="33%" valign="top"><dl>
+    <dd><dl>
+      <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_fields">(mongoalchemy.query.Query method)</a></dt>
+  </dl></dd>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_indexes">get_indexes() (mongoalchemy.document.Document class method)</a></dt>
     <dd><dl>
       <dt><a href="api/session.html#mongoalchemy.session.Session.get_indexes">(mongoalchemy.session.Session method)</a></dt>
   </dl></dd>
+    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_limit">get_limit() (mongoalchemy.query.Query method)</a></dt>
+</dl></td>
+  <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.get_multi">get_multi() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_name">get_name() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_skip">get_skip() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_type">get_type() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.get_upsert">get_upsert() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.gt_">gt_() (mongoalchemy.query_expression.QueryField method)</a></dt>
 </dl></td>
 </tr></table>
@@ -184,6 +200,7 @@
 <h2 id="H">H</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.has_id">has_id() (mongoalchemy.document.Document method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.hint_asc">hint_asc() (mongoalchemy.query.Query method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
@@ -196,6 +213,7 @@
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.in_">in_() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
+      <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.in_">(mongoalchemy.query.RemoveQuery method)</a></dt>
       <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.in_">(mongoalchemy.query_expression.QueryField method)</a></dt>
   </dl></dd>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.inc">inc() (mongoalchemy.query.Query method)</a></dt>
@@ -256,10 +274,6 @@
     <dt><a href="api/expressions/query.html#mongoalchemy.query.QueryResult.next">next() (mongoalchemy.query.QueryResult method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.not_">not_() (mongoalchemy.query.Query method)</a></dt>
-    <dd><dl>
-      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryExpression.not_">(mongoalchemy.query_expression.QueryExpression method)</a></dt>
-  </dl></dd>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.NumberField">NumberField (class in mongoalchemy.fields)</a></dt>
 </dl></td>
 </tr></table>
@@ -273,6 +287,7 @@
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.or_">or_() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
+      <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.or_">(mongoalchemy.query.RemoveQuery method)</a></dt>
       <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryExpression.or_">(mongoalchemy.query_expression.QueryExpression method)</a></dt>
   </dl></dd>
 </dl></td>
@@ -313,14 +328,17 @@
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.remove">remove() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
+      <dt><a href="api/session.html#mongoalchemy.session.Session.remove">(mongoalchemy.session.Session method)</a></dt>
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.remove">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
   </dl></dd>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.remove_all">remove_all() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.remove_all">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
   </dl></dd>
+    <dt><a href="api/session.html#mongoalchemy.session.Session.remove_query">remove_query() (mongoalchemy.session.Session method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery">RemoveQuery (class in mongoalchemy.query)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.QueryResult.rewind">rewind() (mongoalchemy.query.QueryResult method)</a></dt>
 </dl></td>
 </tr></table>
@@ -334,6 +352,7 @@
     <dd><dl>
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.set">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
   </dl></dd>
+    <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.set_safe">set_safe() (mongoalchemy.query.RemoveQuery method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.SetField">SetField (class in mongoalchemy.fields)</a></dt>
