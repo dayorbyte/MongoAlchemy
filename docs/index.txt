@@ -18,7 +18,7 @@ Contents:
 Introduction
 -----------------------------
 
-MongoAlchemy is a layer on top of the python mongo DB driver which adds 
+MongoAlchemy is a layer on top of the `Python` `MongoDB` driver which adds 
 client-side schema definitions, an easier to work with and programmatic query 
 language, and a Document-Object mapper which allows python objects to be saved 
 and loaded into the database in a type-safe way.
@@ -27,7 +27,7 @@ An explicit goal of this project is to be able to perform as many operations
 as possible without having to perform a load/save cycle since doing so is both
 significantly slower and more likely to cause data loss.
 
-There's more detail in the :ref:`tutorial`, but a small example is on 
+There's more detail in the :doc:`tutorial`, but a small example is on 
 this page below the contents of the documentation.
 
 
