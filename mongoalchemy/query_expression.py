@@ -93,6 +93,14 @@ class QueryField(object):
             str(self) : { '$in' : values }
         })
     
+    def nin(self, *values):
+        ''' A query to check if this query field is not one of the values 
+            in ``values``.  Produces a MongoDB ``$nin`` expression.
+        '''
+        return QueryExpression({
+            str(self) : { '$nin' : values }
+        })
+    
     def __str__(self):
         return self.__absolute_name()
     

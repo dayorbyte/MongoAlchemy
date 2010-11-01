@@ -140,11 +140,13 @@ class Document(object):
             if field.auto:
                 continue
             
-            if field.required:
-                raise MissingValueException(name)
-            
             if hasattr(field, 'default'):
                 setattr(self, name, field.default)
+                continue
+            
+            if field.required:
+                raise MissingValueException(name)
+
             
             for k in kwargs:
                 if k not in fields:
@@ -341,6 +343,14 @@ class DictDoc(object):
     def __setitem__(self, name, value):
         ''' Sets the field ``name`` on the document '''
         setattr(self, name, value)
+    
+    def setdefault(self, name, value):
+        ''' if the ``name`` is set, return its value.  Otherwse set ``name`` to
+            ``value`` and return ``value``'''
+        if name in self:
+            return self[name]
+        self[name] = value
+        return self[name]
     
     def __contains__(self, name):
         '''Return whether a field is present.  Fails if ``name`` is not a 

@@ -58,6 +58,7 @@ output types for :func:`~Field.wrap` and :func:`~Field.unwrap`.
 import itertools
 from datetime import datetime
 from pymongo.objectid import ObjectId
+from pymongo.binary import Binary
 from mongoalchemy.util import UNSET
 import functools
 from copy import deepcopy
@@ -240,6 +241,14 @@ class StringField(PrimitiveField):
             self._fail_validation(value, 'Value too long')
         if self.min != None and len(value) < self.min:
             self._fail_validation(value, 'Value too short')
+
+class BinaryField(PrimitiveField):
+    def __init__(self, **kwargs):
+        super(BinaryField, self).__init__(constructor=Binary, **kwargs)
+    
+    def validate_wrap(self, value):
+        if not isinstance(value, str) and not isinstance(value, Binary):
+            self._fail_validation_type(value, str, Binary)
 
 class BoolField(PrimitiveField):
     ''' ``True`` or ``False``.'''
@@ -576,13 +585,21 @@ class ObjectIdField(Field):
         super(ObjectIdField, self).__init__(**kwargs)
     
     def validate_wrap(self, value):
-        ''' Checks that ``value`` is a pymongo ``ObjectId``'''
-        if not isinstance(value, ObjectId):
+        ''' Checks that ``value`` is a pymongo ``ObjectId`` or a string 
+            representation of one'''
+        if not isinstance(value, ObjectId) and not isinstance(value, basestring):
             self._fail_validation_type(value, ObjectId)
+        if isinstance(value, ObjectId):
+            return
+        if len(value) != 24:
+            self._fail_validation(value, 'hex object ID is the wrong length')
     
     def wrap(self, value):
-        ''' Validates that ``value`` is an ObjectId, then returns it '''
+        ''' Validates that ``value`` is an ObjectId (or hex representation 
+            of one), then returns it '''
         self.validate_wrap(value)
+        if isinstance(value, basestring):
+            return ObjectId(value)
         return value
     
     def unwrap(self, value):
@@ -857,9 +874,10 @@ class ComputedFieldValue(property, ComputedField):
         if isinstance(instance, type(None)):
             return self.field
         # TODO: dirty cache indictor + check a field option for never caching
-        if self.__computed_value == UNSET:
-            self.__computed_value = self.compute_value(instance)
-        return self.__computed_value
+        return self.compute_value(instance)
+        # if self.__computed_value == UNSET:
+        #     self.__computed_value = self.compute_value(instance)
+        # return self.__computed_value
 
 class BadValueException(Exception):
     '''An exception which is raised when there is something wrong with a 

@@ -2,6 +2,7 @@ from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
 from datetime import datetime
+from pymongo.binary import Binary
 
 # Field Tests
 
@@ -123,11 +124,20 @@ def objectid_wrong_type_unwrap_test():
     from pymongo.objectid import ObjectId
     ObjectIdField().unwrap(1)
 
+#ObjectID Field
+@raises(BadValueException)
+def objectid_wrong_hex_length_test():
+    from pymongo.objectid import ObjectId
+    ObjectIdField().wrap('c9e2587eae7dd6064000000')
+
 def objectid_value_test():
     from pymongo.objectid import ObjectId
     o = ObjectIdField()
     oid = ObjectId('4c9e2587eae7dd6064000000')
     assert o.unwrap(o.wrap(oid)) == oid
+    
+    oid2 = '4c9e2587eae7dd6064000000'
+    assert o.unwrap(o.wrap(oid2)) == oid
 
 
 # TupleField
@@ -184,3 +194,19 @@ def enum_value_test():
     assert s.wrap([1,2]) == [1,2]
     assert s.unwrap([3,4]) == [3,4]
 
+
+# Binary Field
+
+@raises(BadValueException)
+def binary_wrong_type_test_wrap():
+    BinaryField().wrap(4)
+
+@raises(BadValueException)
+def binary_wrong_type_test_unwrap():
+    BinaryField().unwrap(4)
+
+def binary_value_test():
+    s = BinaryField()
+    assert s.wrap(Binary('foo')) == Binary('foo')
+    assert s.wrap('foo') == Binary('foo')
+    assert s.unwrap(Binary('foo')) == Binary('foo')

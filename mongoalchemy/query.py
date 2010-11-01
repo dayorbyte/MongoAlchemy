@@ -279,6 +279,18 @@ class Query(object):
         # TODO: make sure that this field represents a list
         self.filter(QueryExpression({ str(qfield) : { '$in' : values}}))
         return self
+
+    def nin(self, qfield, *values):
+        ''' Check to see that the value of ``qfield`` is not one of ``values``
+            **Parameters**:
+                * qfield: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
+                * values: Values should be python values which ``qfield`` \
+                    understands
+        '''
+        # TODO: make sure that this field represents a list
+        self.filter(QueryExpression({ str(qfield) : { '$nin' : values}}))
+        return self
+
     
     def set(self, qfield, value):
         '''Refer to: :func:`~mongoalchemy.update_expression.UpdateExpression.set`'''
@@ -397,3 +409,12 @@ class RemoveQuery(object):
         self.__query_obj.in_(qfield, *values)
         self.query = self.__query_obj.query
         return self
+
+    def nin(self, qfield, *values):
+        ''' Works the same as the query expression method ``nin_``
+        '''
+        self.__query_obj.nin(qfield, *values)
+        self.query = self.__query_obj.query
+        return self
+    
+    

@@ -171,7 +171,6 @@ def is_valid_unwrap_test_false():
 def wrong_unwrap_type_test():
     DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
 
-
 # test DictDoc
 
 def test_dictdoc_contains():
@@ -188,3 +187,9 @@ def test_dictdoc_set():
     t['i'] = 4
     assert t.i == 4
 
+def test_dictdoc_setdefault():
+    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    
+    assert t.setdefault('i', 4) == 1
+    assert t.setdefault('j', 3) == 3
+    

@@ -85,3 +85,9 @@ def test_in():
     q = Query(T, None)
     assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : (1,2,3)}}, q.in_(T.f.i, 1, 2, 3).query
     assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : (1,2,3)}}
+
+def test_nin():
+    q = Query(T, None)
+    assert q.nin(T.f.i, 1, 2, 3).query == {'i' : {'$nin' : (1,2,3)}}, q.nin(T.f.i, 1, 2, 3).query
+    assert q.filter(T.f.i.nin(1, 2, 3)).query == {'i' : {'$nin' : (1,2,3)}}
+

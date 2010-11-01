@@ -69,6 +69,11 @@ def test_remove():
     remaining.remove(1)
     remaining.remove(0)
     assert remaining == getall(), getall()
+    
+    s.remove_query(T).nin(T.f.i, 2, 3, 4).execute()
+    remaining.remove(5)
+    assert remaining == getall(), getall()
+
 
 def test_remove_obj():
     s = get_session()

@@ -12,3 +12,5 @@ def test_class_properties():
 def test_UNSET():
     # for coverage
     r = repr(UNSET)
+    assert UNSET == UNSET
+    assert UNSET != None

@@ -55,7 +55,7 @@ class UpdateExpression(object):
              .. note:: Requires server version **>= 1.3.0+**.
         '''
         # TODO: assert server version is >1.3.0
-        return self._atomic_op('$unset', qfield, True)
+        return self._atomic_generic_op('$unset', qfield, True)
         
     def inc(self, qfield, value=1):
         ''' Atomically increment ``qfield`` by ``value`` '''
