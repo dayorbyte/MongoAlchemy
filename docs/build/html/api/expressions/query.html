@@ -283,6 +283,19 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query.Query.nin">
+<tt class="descname">nin</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.nin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check to see that the value of <tt class="docutils literal"><span class="pre">qfield</span></tt> is not one of <tt class="docutils literal"><span class="pre">values</span></tt>
+<strong>Parameters</strong>:</p>
+<blockquote>
+<ul class="simple">
+<li>qfield: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query_expression.QueryExpression</span></tt></a></li>
+<li>values: Values should be python values which <tt class="docutils literal"><span class="pre">qfield</span></tt>                     understands</li>
+</ul>
+</blockquote>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query.Query.set">
 <tt class="descname">set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Refer to: <a class="reference internal" href="update_expressions.html#mongoalchemy.update_expression.UpdateExpression.set" title="mongoalchemy.update_expression.UpdateExpression.set"><tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt></a></p>

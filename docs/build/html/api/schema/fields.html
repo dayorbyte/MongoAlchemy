@@ -456,13 +456,15 @@ string version of an ObjectId should also be acceptable</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.ObjectIdField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.validate_wrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is a pymongo <tt class="docutils literal"><span class="pre">ObjectId</span></tt></p>
+<dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is a pymongo <tt class="docutils literal"><span class="pre">ObjectId</span></tt> or a string 
+representation of one</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ObjectIdField.wrap">
 <tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.wrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Validates that <tt class="docutils literal"><span class="pre">value</span></tt> is an ObjectId, then returns it</p>
+<dd><p>Validates that <tt class="docutils literal"><span class="pre">value</span></tt> is an ObjectId (or hex representation 
+of one), then returns it</p>
 </dd></dl>
 
 <dl class="method">

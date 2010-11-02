@@ -91,6 +91,13 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.nin">
+<tt class="descname">nin</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.nin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if this query field is not one of the values 
+in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$nin</span></tt> expression.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.eq_">
 <tt class="descname">eq_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.eq_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
