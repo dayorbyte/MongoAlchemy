@@ -513,7 +513,7 @@ class ListField(SequenceField):
         
         .. seealso:: :class:`SequenceField`'''
     def _validate_wrap_type(self, value):
-        if not isinstance(value, list) or isinstance(value, tuple):
+        if not isinstance(value, list) and not isinstance(value, tuple):
             self._fail_validation_type(value, list, tuple)
     _validate_unwrap_type = _validate_wrap_type
     
