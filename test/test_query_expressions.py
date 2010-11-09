@@ -5,6 +5,9 @@ from mongoalchemy.fields import *
 from mongoalchemy.query import BadQueryException, Query, BadResultException
 from test.util import known_failure
 
+
+# TODO: Test al operators to make sure wrap is called on their values
+
 class T(Document):
     i = IntField()
     j = IntField(required=False)
@@ -83,11 +86,11 @@ def test_or():
 
 def test_in():
     q = Query(T, None)
-    assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : (1,2,3)}}, q.in_(T.f.i, 1, 2, 3).query
-    assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : (1,2,3)}}
+    assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : [1,2,3]}}, q.in_(T.f.i, 1, 2, 3).query
+    assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : [1,2,3]}}
 
 def test_nin():
     q = Query(T, None)
-    assert q.nin(T.f.i, 1, 2, 3).query == {'i' : {'$nin' : (1,2,3)}}, q.nin(T.f.i, 1, 2, 3).query
-    assert q.filter(T.f.i.nin(1, 2, 3)).query == {'i' : {'$nin' : (1,2,3)}}
+    assert q.nin(T.f.i, 1, 2, 3).query == {'i' : {'$nin' : [1,2,3]}}, q.nin(T.f.i, 1, 2, 3).query
+    assert q.filter(T.f.i.nin(1, 2, 3)).query == {'i' : {'$nin' : [1,2,3]}}
 

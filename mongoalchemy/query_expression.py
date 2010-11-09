@@ -90,7 +90,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$in`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$in' : values }
+            str(self) : { '$in' : [self.__type.wrap(value) for value in values] }
         })
     
     def nin(self, *values):
@@ -98,7 +98,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$nin`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$nin' : values }
+            str(self) : { '$nin' : [self.__type.wrap(value) for value in values] }
         })
     
     def __str__(self):
@@ -113,7 +113,7 @@ class QueryField(object):
         '''
         if not self.__type.is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
-        return QueryExpression({ self.__absolute_name() : value })
+        return QueryExpression({ self.__absolute_name() : self.__type.wrap(value) })
     
     def __lt__(self, value):
         return self.lt_(value)

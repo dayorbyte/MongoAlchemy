@@ -277,7 +277,7 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$in' : values}}))
+        self.filter(QueryExpression({ str(qfield) : { '$in' : [qfield.get_type().wrap(value) for value in values]}}))
         return self
 
     def nin(self, qfield, *values):
@@ -288,7 +288,7 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$nin' : values}}))
+        self.filter(QueryExpression({ str(qfield) : { '$nin' : [qfield.get_type().wrap(value) for value in values]}}))
         return self
 
     
