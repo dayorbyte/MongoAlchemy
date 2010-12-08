@@ -70,8 +70,13 @@ the first matching document</p>
 
 <dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.set">
-<tt class="descname">set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
+<tt class="descname">set</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage is either:</p>
+<p>set(self, qfield, value): Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
+<p>OR</p>
+<p>set(key1=value1, key2=value2): Atomically set the named arguments 
+on the current object to the values given.  This form cannot 
+update a sub-document</p>
 </dd></dl>
 
 <dl class="method">
@@ -191,6 +196,13 @@ MongoDB&#8217;s getLastError command (as in pymongo&#8217;s remove).</p>
 <tt class="descname">filter</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the remove expression with <tt class="docutils literal"><span class="pre">*query_expressions</span></tt>, as in
 the <tt class="docutils literal"><span class="pre">Query</span></tt> filter method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.filter_by">
+<tt class="descname">filter_by</tt><big>(</big><em>**filters</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for the names in <tt class="docutils literal"><span class="pre">filters</span></tt> being equal to the associated 
+values.  Cannot be used for sub-objects since keys must be strings</p>
 </dd></dl>
 
 <dl class="method">

@@ -201,6 +201,13 @@ query and returns the raw explain object returned.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query.Query.filter_by">
+<tt class="descname">filter_by</tt><big>(</big><em>**filters</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.filter_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for the names in <tt class="docutils literal"><span class="pre">filters</span></tt> being equal to the associated 
+values.  Cannot be used for sub-objects since keys must be strings</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query.Query.count">
 <tt class="descname">count</tt><big>(</big><em>with_limit_and_skip=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.count" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute a count on the number of results this query would return.</p>
@@ -297,7 +304,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 
 <dl class="method">
 <dt id="mongoalchemy.query.Query.set">
-<tt class="descname">set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.set" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Refer to: <a class="reference internal" href="update_expressions.html#mongoalchemy.update_expression.UpdateExpression.set" title="mongoalchemy.update_expression.UpdateExpression.set"><tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt></a></p>
 </dd></dl>
 
