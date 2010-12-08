@@ -2,7 +2,7 @@ from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
-from mongoalchemy.update_expression import InvalidModifierException
+from mongoalchemy.update_expression import InvalidModifierException, UpdateException
 from mongoalchemy.query import BadQueryException, Query, BadResultException, RemoveQuery
 from test.util import known_failure
 
@@ -73,6 +73,10 @@ def test_remove():
     s.remove_query(T).nin(T.f.i, 2, 3, 4).execute()
     remaining.remove(5)
     assert remaining == getall(), getall()
+    
+    s.remove_query(T).filter_by(i=2).execute()
+    remaining.remove(2)
+    assert remaining == getall(), getall()
 
 
 def test_remove_obj():
@@ -93,6 +97,12 @@ def set_test():
         '$set' : { 'i' : 5, 'j' : 7 }
     }
 
+def set_test_kwargs():
+    q = update_test_setup()
+    assert q.set(i=5, j=7).update_data == {
+        '$set' : { 'i' : 5, 'j' : 7 }
+    }
+
 def set_db_test():
     q = update_test_setup()
     
@@ -103,6 +113,28 @@ def set_db_test():
     q.filter(T.f.i == 5).set(T.f.j, 7).execute()
     t = q.one()
     assert t.i == 5 and t.j == 7
+
+
+def set_db_test_kwargs():
+    q = update_test_setup()
+    
+    q.set(i=5, j=6).upsert().execute()
+    t = q.one()
+    assert t.i == 5 and t.j == 6
+    
+    q.filter_by(i=5).set(j=7).execute()
+    t = q.one()
+    assert t.i == 5 and t.j == 7
+
+@raises(UpdateException)
+def set_bad_args_test_1():
+    q = update_test_setup()
+    q.set()
+
+@raises(UpdateException)
+def set_bad_args_test_2():
+    q = update_test_setup()
+    q.set(1, 2, 3)
 
 
 # UNSET

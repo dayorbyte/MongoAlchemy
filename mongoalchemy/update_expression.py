@@ -46,9 +46,28 @@ class UpdateExpression(object):
         self.__multi = True
         return self
     
-    def set(self, qfield, value):
-        ''' Atomically set ``qfield`` to ``value``'''
-        return self._atomic_op('$set', qfield, value)
+    def set(self, *args, **kwargs):
+        ''' Usage is either:
+                
+            set(self, qfield, value): Atomically set ``qfield`` to ``value``
+            
+            OR
+            
+            set(key1=value1, key2=value2): Atomically set the named arguments 
+            on the current object to the values given.  This form cannot 
+            update a sub-document
+            '''
+        if len(args) == 2:
+            qfield, value = args
+            return self._atomic_op('$set', qfield, value)
+        elif len(kwargs) != 0:
+            ret = self
+            for key, value in kwargs.iteritems():
+                qfield = getattr(self.query.type.f, key)
+                ret = ret._atomic_op('$set', qfield, value)
+            return ret
+        else:
+            raise UpdateException('Invalid arguments for set.  Requires either two positional arguments or at least one keyword argument')
     
     def unset(self, qfield):
         ''' Atomically delete the field ``qfield``

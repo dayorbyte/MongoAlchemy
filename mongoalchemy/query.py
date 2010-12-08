@@ -179,6 +179,13 @@ class Query(object):
             self._apply(qe)
         return self
     
+    def filter_by(self, **filters):
+        ''' Filter for the names in ``filters`` being equal to the associated 
+            values.  Cannot be used for sub-objects since keys must be strings'''
+        for name, value in filters.iteritems():
+            self.filter(getattr(self.type.f, name) == value)
+        return self
+    
     def count(self, with_limit_and_skip=False):
         '''Execute a count on the number of results this query would return.
         
@@ -292,9 +299,9 @@ class Query(object):
         return self
 
     
-    def set(self, qfield, value):
+    def set(self, *args, **kwargs):
         '''Refer to: :func:`~mongoalchemy.update_expression.UpdateExpression.set`'''
-        return UpdateExpression(self).set(qfield, value)
+        return UpdateExpression(self).set(*args, **kwargs)
     
     def unset(self, qfield):
         '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.unset`'''
@@ -387,6 +394,13 @@ class RemoveQuery(object):
         ''' Filter the remove expression with ``*query_expressions``, as in
             the ``Query`` filter method.'''
         self.__query_obj.filter(*query_expressions)
+        self.query = self.__query_obj.query
+        return self
+    
+    def filter_by(self, **filters):
+        ''' Filter for the names in ``filters`` being equal to the associated 
+            values.  Cannot be used for sub-objects since keys must be strings'''
+        self.__query_obj.filter_by(**filters)
         self.query = self.__query_obj.query
         return self
     
