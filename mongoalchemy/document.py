@@ -144,16 +144,12 @@ class Document(object):
                 setattr(self, name, field.default)
                 continue
             
-            if field.required:
-                raise MissingValueException(name)
-
-            
-            for k in kwargs:
-                if k not in fields:
-                    if self.config_extra_fields == 'ignore':
-                        self.__extra_fields[k] = kwargs[k]
-                    else:
-                        raise ExtraValueException(k)
+        for k in kwargs:
+            if k not in fields:
+                if self.config_extra_fields == 'ignore':
+                    self.__extra_fields[k] = kwargs[k]
+                else:
+                    raise ExtraValueException(k)
     
     def __setattr__(self, name, value):
         cls = self.__class__
@@ -279,6 +275,8 @@ class Document(object):
             try:
                 value = getattr(self, name)
             except AttributeError:
+                if field.required:
+                    raise MissingValueException(name)
                 continue
             if isinstance(field, Field):
                 res[field.db_field] = field.wrap(value)
