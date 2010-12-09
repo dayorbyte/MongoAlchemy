@@ -41,8 +41,9 @@ programmatically.  A document can have multiple indexes by adding extra
 import pymongo
 
 from mongoalchemy.util import classproperty
-from mongoalchemy.query_expression import QueryFieldSet
+from mongoalchemy.query_expression import QueryField
 from mongoalchemy.fields import ObjectIdField, Field, BadValueException
+from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved
 
 class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
@@ -65,34 +66,16 @@ class DocumentMeta(type):
         # 2. create a dict of fields to set on the object
         new_class._fields = {}
         for name in dir(new_class):
-            if name == 'f':
-                continue
             field = getattr(new_class, name)
-            if not isinstance(field, Field):
+            if not isinstance(field, QueryField):
                 continue
-            new_class._fields[name] = field
+            new_class._fields[name] = field.get_type()
+            # field.set_owner(new_class)
         
         # Create a query field instance for use in query expressions
-        new_class.f = QueryFieldSet(new_class, new_class.get_fields())
+        # new_class.f = QueryFieldSet(new_class, new_class.get_fields())
         
         return new_class
-
-class DocumentException(Exception):
-    ''' Base for all document-related exceptions'''
-    pass
-
-class MissingValueException(DocumentException):
-    ''' Raised when a required field isn't set '''
-    pass
-
-class ExtraValueException(DocumentException):
-    ''' Raised when a value is passed in with no corresponding field '''
-    pass
-
-class FieldNotRetrieved(DocumentException):
-    '''If a partial document is loaded from the database and a field which 
-        wasn't retrieved is accessed this exception is raised'''
-    pass
 
 class Document(object):
     __metaclass__ = DocumentMeta
@@ -123,69 +106,26 @@ class Document(object):
         self.partial = retrieved_fields != None
         self.retrieved_fields = self.__normalize(retrieved_fields)
         
+        self._field_values = {}
         self.__extra_fields = {}
         
         cls = self.__class__
                 
         fields = self.get_fields()
         for name, field in fields.iteritems():
-            
             if self.partial and name not in self.retrieved_fields:
                 continue
             
             if name in kwargs:
                 setattr(self, name, kwargs[name])
                 continue
-            
-            if field.auto:
-                continue
-            
-            if hasattr(field, 'default'):
-                setattr(self, name, field.default)
-                continue
-            
+        
         for k in kwargs:
             if k not in fields:
                 if self.config_extra_fields == 'ignore':
                     self.__extra_fields[k] = kwargs[k]
                 else:
                     raise ExtraValueException(k)
-    
-    def __setattr__(self, name, value):
-        cls = self.__class__
-        try:
-            cls_value = getattr(cls, name)
-            if isinstance(cls_value, Field):
-                cls_value.validate_wrap(value)
-        except AttributeError:
-            pass
-        object.__setattr__(self, name, value)
-    
-    def __getattribute__(self, name):
-        if name[:2] == '__':
-            return object.__getattribute__(self, name)
-        value = object.__getattribute__(self, name)
-        cls_value = object.__getattribute__(self, name)
-        
-        if isinstance(cls_value, Field):
-            partial = object.__getattribute__(self, 'partial')
-            retrieved = object.__getattribute__(self, 'retrieved_fields')
-            if partial and name not in retrieved:
-                raise FieldNotRetrieved(name)
-        
-        if isinstance(value, Field):
-            raise AttributeError(name)
-        return value
-    
-    f = None
-    '''The ``f`` attribute of a document class allows the creation of
-        :class:`~mongoalchemy.query.QueryField` objects to be used in query
-        expressions, updates, loading partial documents, and a number of other 
-        places.
-        
-        .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression`, :class:`~mongoalchemy.query.Query`
-    
-    '''
     
     def get_extra_fields(self):
         ''' if :attr:`Document.config_extra_fields` is set to 'ignore', this method will return
@@ -278,7 +218,7 @@ class Document(object):
                 if field.required:
                     raise MissingValueException(name)
                 continue
-            if isinstance(field, Field):
+            if isinstance(field, QueryField):
                 res[field.db_field] = field.wrap(value)
         return res
     
@@ -315,7 +255,7 @@ class Document(object):
                 params[str(k)] = v
                 continue
             field = getattr(cls, k)
-            if fields != None and isinstance(field, DocumentField):
+            if fields != None and isinstance(field.get_type(), DocumentField):
                 normalized_fields = cls.__normalize(fields)
                 unwrapped = field.unwrap(v, fields=normalized_fields.get(k))
             else:
@@ -368,9 +308,24 @@ class DictDoc(object):
 
 class DocumentField(Field):
     ''' A field which wraps a :class:`Document`'''
+    
+    has_subfields = True
+    
     def __init__(self, document_class, **kwargs):
         super(DocumentField, self).__init__(**kwargs)
         self.type = document_class
+        self.document_class = document_class
+    
+    def subfields(self):
+        return self.document_class.get_fields()
+    
+    def sub_type(self):
+        return self.type
+    
+    # def set_owner(self, value):
+    #     self._owner = value
+    #     for name, field in self.owner().get_fields().iteritems():
+    #         field.owner_field = self
     
     def is_valid_unwrap(self, value, fields=None):
         ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_unwrap` and 

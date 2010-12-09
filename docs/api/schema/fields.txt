@@ -95,7 +95,7 @@ Computed Field Objects
    :members:
    :undoc-members:
 
-.. autoclass:: mongoalchemy.fields.ComputedFieldValue
+.. autofunction:: mongoalchemy.fields.computed_field
    :members:
    :undoc-members:
 

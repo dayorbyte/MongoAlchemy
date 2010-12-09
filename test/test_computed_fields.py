@@ -13,7 +13,7 @@ def computed_field_db_test():
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        @ComputedField(IntField(), deps=[a,b])
+        @computed_field(IntField(), deps=[a,b])
         def a_plus_b(obj):
             return obj['a'] + obj['b']
 
@@ -29,7 +29,7 @@ def computed_field_db_test():
 
 def test_no_deps_computed_field():
     class TestDoc2(Document):
-        @ComputedField(IntField())
+        @computed_field(IntField())
         def c(obj):
             return 1322
     TestDoc2().c == 1322
@@ -38,7 +38,7 @@ def computed_field_value_test():
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        @ComputedField(IntField(), deps=[a,b])
+        @computed_field(IntField(), deps=[a,b])
         def c(obj):
             return 6
     TestDoc2.c.unwrap(6)
@@ -50,7 +50,7 @@ def computed_field_unwrap_test():
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        @ComputedField(IntField(), deps=[a,b])
+        @computed_field(IntField(), deps=[a,b])
         def c(obj):
             return 'some-bad-value'
     TestDoc2.c.unwrap('bad-value')
@@ -61,12 +61,26 @@ def computed_field_wrap_test():
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        @ComputedField(IntField(), deps=[a,b])
+        @computed_field(IntField(), deps=[a,b])
         def c(obj):
             return 'some-bad-value'
 
     obj = TestDoc2(a=1, b=2)
     TestDoc2.wrap(obj)
+
+def computed_field_wrap_value_test():
+    
+    class TestDoc2(Document):
+        @computed_field(IntField())
+        def c(obj):
+            return 4
+
+    obj = TestDoc2()
+    print 'a'
+    wrapped = TestDoc2.wrap(obj)
+    print 'b'
+    assert wrapped == { 'c' : 4 }, wrapped
+
 
 @raises(BadValueException)
 def computed_field_wrap_test_wrong_type():
@@ -74,7 +88,7 @@ def computed_field_wrap_test_wrong_type():
     class TestDoc2(Document):
         a = IntField()
         b = IntField()
-        @ComputedField(IntField(), deps=[a,b])
+        @computed_field(IntField(), deps=[a,b])
         def c(obj):
             return 'some-bad-value'
 

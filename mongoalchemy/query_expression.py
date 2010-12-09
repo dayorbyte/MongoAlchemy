@@ -20,68 +20,62 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from mongoalchemy.fields import BadValueException
+from mongoalchemy.exceptions import BadValueException
 
 class BadQueryException(Exception):
     ''' Raised when a method would result in a query which is not well-formed.
     '''
     pass
 
-class QueryFieldSet(object):
-    ''' Intermediate class used to allow access to create QueryField objects 
-        from a subclass of Document.  Should generally be indirectly accessed 
-        via ``Document.f``.
-    '''
-    def __init__(self, type, fields, parent=None):
-        self.type = type
-        self.fields = fields
-        self.parent = parent
-    
-    def __getattr__(self, name):
-        if name not in self.fields:
-            raise BadQueryException('%s is not a field in %s' % (name, self.type.class_name()))
-        return QueryField(name, self.fields[name], parent=self.parent)
+# class QueryFieldSet(object):
+#     ''' Intermediate class used to allow access to create QueryField objects 
+#         from a subclass of Document.  Should generally be indirectly accessed 
+#         via ``Document.f``.
+#     '''
+#     def __init__(self, type, fields, parent=None):
+#         self.type = type
+#         self.fields = fields
+#         self.parent = parent
+#     
+#     def __getattr__(self, name):
+#         if name not in self.fields:
+#             raise BadQueryException('%s is not a field in %s' % (name, self.type.class_name()))
+#         return QueryField(name, self.fields[name], parent=self.parent)
 
 class QueryField(object):
-    def __init__(self, name, type, parent=None):
-        self.__name = name
+    def __init__(self, type, parent=None):
         self.__type = type
         self.__parent = parent
     
     def _get_parent(self):
         return self.__parent
     
-    def get_name(self):
-        ''' Gets the MongoDB field name for the :class:`mongoalchemy.fields.Field`
-            this QueryField is wrapping'''
-        return self.__type.db_field
-    
     def get_type(self):
         ''' Returns the underlying :class:`mongoalchemy.fields.Field` '''
         return self.__type
     
     def __getattr__(self, name):
-        fields = self.__type.type.get_fields()
+        print 'get', name
+        if hasattr(self.__type, name):
+            return getattr(self.__type, name)
+
+        if not self.__type.has_subfields:
+            raise AttributeError(name)
+        
+        fields = self.__type.subfields()
         if name not in fields:
-            raise BadQueryException('%s is not a field in %s' % (name, str(self)))
-        return QueryField(name, fields[name], parent=self)
+            raise BadQueryException('%s is not a field in %s' % (name, self.__type.sub_type()))
+        return QueryField(fields[name], parent=self)
     
-    @property
-    def f(self):
-        ''' ``f`` provides acces to the sub-fields of this field.  They can 
-            also be accessed directly if they do not interfere with an 
-            attribute of :class:`QueryField`.
-            
-            **Example**: ``SomeDoc.f.outer_field.f.inner_field`` is the same as ``SomeDoc.f.outer_field.inner_field``
-        '''
-        fields = self.__type.type.get_fields()
-        return QueryFieldSet(self.__type, fields, parent=self)
+    # def wrap(self, value):
+    #     return self.__type.wrap(value)
     
-    def __absolute_name(self):
+    def get_absolute_name(self):
         res = []
         current = self
-        while current:
-            res.append(current.get_name())
+        
+        while type(current) != type(None):
+            res.append(current.get_type().db_field)
             current = current._get_parent()
         return '.'.join(reversed(res))
     
@@ -90,7 +84,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$in`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$in' : [self.__type.wrap(value) for value in values] }
+            str(self) : { '$in' : [self.wrap(value) for value in values] }
         })
     
     def nin(self, *values):
@@ -98,11 +92,11 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$nin`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$nin' : [self.__type.wrap(value) for value in values] }
+            str(self) : { '$nin' : [self.wrap(value) for value in values] }
         })
     
     def __str__(self):
-        return self.__absolute_name()
+        return self.get_absolute_name()
     
     def __eq__(self, value):
         return self.eq_(value)
@@ -111,9 +105,9 @@ class QueryField(object):
         
             .. note:: The prefered usage is via an operator: ``User.f.name == value``
         '''
-        if not self.__type.is_valid_wrap(value):
+        if not self.get_type().is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
-        return QueryExpression({ self.__absolute_name() : self.__type.wrap(value) })
+        return QueryExpression({ self.get_absolute_name() : self.wrap(value) })
     
     def __lt__(self, value):
         return self.lt_(value)
@@ -163,13 +157,14 @@ class QueryField(object):
     def __comparator(self, op, value):
         try:
             return QueryExpression({
-                self.__absolute_name() : {
-                    op : self.__type.wrap(value)
+                self.get_absolute_name() : {
+                    op : self.wrap(value)
                 }
             })
         except BadValueException:
             raise BadQueryException('Invalid "value" for %s comparison against %s: %s' % (self, op, value))
 
+    
 class QueryExpression(object):
     ''' A QueryExpression wraps a dictionary representing a query to perform 
         on a mongo collection.  The 

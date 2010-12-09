@@ -163,7 +163,7 @@ class Session(object):
         for index in update.query.type.get_indexes():
             index.ensure(collection)
         collection.update(update.query.query, update.update_data, upsert=update.get_upsert(), multi=update.get_multi())
-
+    
     
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 

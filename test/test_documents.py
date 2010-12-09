@@ -56,6 +56,29 @@ def test_basic2():
     assert Doc.class_name() == 'Doc', Doc.class_name()
     assert Doc.get_collection_name() == 'DocCol'
 
+def test_delete_field():
+    class Doc(Document):
+        a = IntField()
+        b = IntField()
+    
+    d = Doc()
+    d.a = 5
+    assert d.a == 5
+    del d.a
+    try:
+        b = d.a
+        assert False, 'delete attribute a failed'
+    except AttributeError:
+        pass
+
+    try:
+        del d.b
+        assert False, 'delete attribute b failed'
+    except AttributeError:
+        pass
+        
+    
+
 @raises(DocumentException)
 def bad_extra_fields_param_test():
     class BadDoc(Document):
@@ -174,7 +197,7 @@ def wrong_unwrap_type_test():
 # test DictDoc
 
 def test_dictdoc_contains():
-    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    t = T(i=1, retrieved_fields=[T.i, T.j])
     assert 'i' in t
     assert 'j' not in t
     assert 's' not in t
@@ -182,13 +205,13 @@ def test_dictdoc_contains():
     assert t['i'] == 1
         
 def test_dictdoc_set():
-    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    t = T(i=1, retrieved_fields=[T.i, T.j])
     assert 'i' in t
     t['i'] = 4
     assert t.i == 4
 
 def test_dictdoc_setdefault():
-    t = T(i=1, retrieved_fields=[T.f.i, T.f.j])
+    t = T(i=1, retrieved_fields=[T.i, T.j])
     
     assert t.setdefault('i', 4) == 1
     assert t.setdefault('j', 3) == 3

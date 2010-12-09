@@ -28,69 +28,80 @@ def get_session():
 @raises(BadQueryException)
 def test_sort_by_same_key():
     s = get_session()
-    sorted_query = s.query(T).ascending(T.f.i).descending(T.f.i)
+    sorted_query = s.query(T).ascending(T.i).descending(T.i)
 
 def test_name_generation():
     s = get_session()
     s.clear_collection(T)
-    assert str(T.f.i) == 'i'
-
-#
-# QueryFieldSet Tests
-#
-@raises(BadQueryException)
-def test_bad_query_field_name():
-    T.f.q
+    assert str(T.i) == 'i'
 
 #
 # QueryField Tests
 #
+@raises(AttributeError)
+def test_bad_query_field_name():
+    T.q
+
+@raises(AttributeError)
+def test_subitem_of_no_subitem():
+    T.i.i
 
 def qf_parent_test():
-    assert str(T2.f.t.i._get_parent()) == 't'
+    assert str(T2.t.i._get_parent()) == 't'
 
 @raises(BadQueryException)
 def qf_bad_subfield_test():
-    assert str(T2.f.t.q) == 't.q'
+    assert str(T2.t.q) == 't.q'
 
 def qf_db_name_test():
-    assert str(T.f.a) == 'aa', str(T.f.a)
+    assert str(T.a) == 'aa', str(T.a)
     
 #
 #  Comparator Tests
 #
 @raises(BadQueryException)
 def qf_bad_value_equals_test():
-    T2.f.t.i == '3'
+    T2.t.i == '3'
 
 @raises(BadQueryException)
 def qf_bad_value_compare_test():
-    T2.f.t.i < '3'
+    T2.t.i < '3'
 
 def qf_dot_f_test():
-    assert str(T2.f.t.f.i) == 't.i'
+    
+    class T3(Document):
+        i = IntField()
+        j = IntField(required=False)
+        l = ListField(IntField(), required=False)
+        a = IntField(required=False, db_field='aa')
+        index = Index().ascending('i')
+
+    class T4(Document):
+        t = DocumentField(T3)
+    
+    assert str(T4.t.i) == 't.i'
 
 # def test_not():
 #     q = Query(T, None)
 #     
-#     assert q.filter( ~(T.f.i == 3) ).query == { '$not' : {'i' : 3} }
-#     assert q.not_(T.f.i == 3).query == { '$not' : {'i' : 3} }
+#     assert q.filter( ~(T.i == 3) ).query == { '$not' : {'i' : 3} }
+#     assert q.not_(T.i == 3).query == { '$not' : {'i' : 3} }
 
 def test_or():
     q = Query(T, None)
     
     want = { '$or' : [{'i' : 3}, {'i' : 4}, {'i' : 5}] }
-    assert q.filter((T.f.i == 3) | (T.f.i == 4) | (T.f.i == 5)).query == want
+    assert q.filter((T.i == 3) | (T.i == 4) | (T.i == 5)).query == want
     
-    assert Query(T, None).or_(T.f.i == 3, T.f.i == 4, T.f.i == 5).query == want
+    assert Query(T, None).or_(T.i == 3, T.i == 4, T.i == 5).query == want
 
 def test_in():
     q = Query(T, None)
-    assert q.in_(T.f.i, 1, 2, 3).query == {'i' : {'$in' : [1,2,3]}}, q.in_(T.f.i, 1, 2, 3).query
-    assert q.filter(T.f.i.in_(1, 2, 3)).query == {'i' : {'$in' : [1,2,3]}}
+    assert q.in_(T.i, 1, 2, 3).query == {'i' : {'$in' : [1,2,3]}}, q.in_(T.i, 1, 2, 3).query
+    assert q.filter(T.i.in_(1, 2, 3)).query == {'i' : {'$in' : [1,2,3]}}
 
 def test_nin():
     q = Query(T, None)
-    assert q.nin(T.f.i, 1, 2, 3).query == {'i' : {'$nin' : [1,2,3]}}, q.nin(T.f.i, 1, 2, 3).query
-    assert q.filter(T.f.i.nin(1, 2, 3)).query == {'i' : {'$nin' : [1,2,3]}}
+    assert q.nin(T.i, 1, 2, 3).query == {'i' : {'$nin' : [1,2,3]}}, q.nin(T.i, 1, 2, 3).query
+    assert q.filter(T.i.nin(1, 2, 3)).query == {'i' : {'$nin' : [1,2,3]}}
 

@@ -59,9 +59,12 @@ import itertools
 from datetime import datetime
 from pymongo.objectid import ObjectId
 from pymongo.binary import Binary
-from mongoalchemy.util import UNSET
 import functools
 from copy import deepcopy
+
+from mongoalchemy.util import UNSET
+from mongoalchemy.query_expression import QueryField
+from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved
 
 SCALAR_MODIFIERS = set(['$set', '$unset'])
 NUMBER_MODIFIERS = SCALAR_MODIFIERS | set(['$inc'])
@@ -90,6 +93,7 @@ class FieldMeta(type):
 
 class Field(object):
     auto = False
+    has_subfields = False
     
     __metaclass__ = FieldMeta
     
@@ -105,9 +109,34 @@ class Field(object):
         self.required = required
         self._allow_none = allow_none
         self.__db_field = db_field
-        if default != UNSET:
-            self.default = default
+        self.default = default
         self.name =  'Unbound_%s' % self.__class__.__name__
+        self.bound = False
+        self.__value = UNSET
+        self.__update_op = UNSET
+        self._owner = None
+        self.owner_field = None
+    
+    def __get__(self, instance, owner):
+        if type(instance) == type(None):
+            return QueryField(self)
+        if self.name in instance._field_values:
+            return instance._field_values[self.name]
+        if self.default != UNSET:
+            return self.default
+        if instance.partial and self.name not in instance.retrieved_fields:
+            raise FieldNotRetrieved(self.name)
+            
+        raise AttributeError(self.name)
+        
+    
+    def __set__(self, instance, value):
+        instance._field_values[self.name] = value
+    
+    def __delete__(self, instance):
+        if self.name not in instance._field_values:
+            raise AttributeError(self.name)
+        del instance._field_values[self.name]
     
     @property
     def db_field(self):
@@ -795,7 +824,7 @@ class ComputedField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     auto = True
-    def __init__(self, computed_type, deps=None, **kwargs):
+    def __init__(self, computed_type, fun, deps=None, **kwargs):
         '''
             **Parameters**:
                 * fun: the function to compute the value of the computed field
@@ -808,6 +837,25 @@ class ComputedField(Field):
         if deps == None:
             deps = set()
         self.deps = set(deps)
+        self.fun = fun
+    
+    def __get__(self, instance, owner):
+        if type(instance) == type(None):
+            return QueryField(self)
+        # TODO: dirty cache indictor + check a field option for never caching
+        return self.compute_value(instance)
+    
+    def compute_value(self, doc):
+        args = {}
+        for dep in self.deps:
+            args[dep.name] = getattr(doc, dep.name)
+        value = self.fun(args)
+        try:
+            self.computed_type.validate_wrap(value)
+        except BadValueException, bve:
+            self._fail_validation(value, 'Computed Function return a bad value', cause=bve)
+        return value
+
     
     def validate_wrap(self, value):
         '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
@@ -833,61 +881,23 @@ class ComputedField(Field):
         self.validate_unwrap(value)
         return self.computed_type.unwrap(value)
     
-    def __call__(self, fun):
-        return ComputedFieldValue(self, fun)
-
-
-class ComputedFieldValue(property, ComputedField):
-    def __init__(self, field, fun):
-        self.__computed_value = UNSET
-        self.field = field
-        self.fun = fun
-    
-    def compute_value(self, doc):
-        args = {}
-        for dep in self.field.deps:
-            args[dep.name] = getattr(doc, dep.name)
-        value = self.fun(args)
-        try:
-            self.field.computed_type.validate_wrap(value)
-        except BadValueException, bve:
-            self.field._fail_validation(value, 'Computed Function return a bad value', cause=bve)
-        return value
-    
-    def _set_name(self, name):
-        self.name = name
-        self.field.name = name
-    
-    def _set_parent(self, parent):
-        self.parent = parent
-        self.field.parent = parent
-    
     def __set__(self, instance, value):
-        if self.field.is_valid_wrap(value):
+        if self.is_valid_wrap(value):
             self.__computed_value = value
             return
         # TODO: this line should be impossible to reach, but I'd like an 
         # exception just in case, but then I can't have full coverage!
         # raise BadValueException('Tried to set a computed field to an illegal value: %s' % value)
+
+class computed_field(object):
+    def __init__(self, computed_type, deps=None, **kwargs):
+        self.computed_type = computed_type
+        self.deps = deps
+        self.kwargs = kwargs
     
-    def __get__(self, instance, owner):
-        if isinstance(instance, type(None)):
-            return self.field
-        # TODO: dirty cache indictor + check a field option for never caching
-        return self.compute_value(instance)
-        # if self.__computed_value == UNSET:
-        #     self.__computed_value = self.compute_value(instance)
-        # return self.__computed_value
-
-class BadValueException(Exception):
-    '''An exception which is raised when there is something wrong with a 
-        value'''
-    def __init__(self, name, value, reason, cause=None):
-        self.name = name
-        self.value = value
-        self.cause = cause
-        Exception.__init__(self, 'Bad value for field of type "%s".  Reason: "%s".  Bad Value: %s\n\n%s' % (name, reason, repr(value), cause))
-
+    def __call__(self, fun):
+        return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
+    
 class BadFieldSpecification(Exception):
     '''An exception that is raised when there is an error in creating a 
         field'''

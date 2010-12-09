@@ -25,7 +25,7 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 from mongoalchemy.fields import BadValueException
-from mongoalchemy.query_expression import QueryField, QueryExpression, BadQueryException
+from mongoalchemy.query_expression import QueryExpression, BadQueryException
 
 class UpdateExpression(object):
     def __init__(self, query):
@@ -63,7 +63,7 @@ class UpdateExpression(object):
         elif len(kwargs) != 0:
             ret = self
             for key, value in kwargs.iteritems():
-                qfield = getattr(self.query.type.f, key)
+                qfield = getattr(self.query.type, key)
                 ret = ret._atomic_op('$set', qfield, value)
             return ret
         else:
@@ -117,41 +117,41 @@ class UpdateExpression(object):
         return self._atomic_generic_op('$pop', qfield, -1)
     
     def _atomic_list_op_multivalue(self, op, qfield, *value):
-        if op not in qfield.get_type().valid_modifiers:
-            raise InvalidModifierException(qfield.get_type(), op)
+        if op not in qfield.valid_modifiers:
+            raise InvalidModifierException(qfield, op)
         wrapped = []
         for v in value:
             wrapped.append(qfield.get_type().item_type.wrap(v))
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = value
+        self.update_data[op][qfield.get_absolute_name()] = value
         return self
     
     def _atomic_list_op(self, op, qfield, value):
-        if op not in qfield.get_type().valid_modifiers:
-            raise InvalidModifierException(qfield.get_type(), op)
+        if op not in qfield.valid_modifiers:
+            raise InvalidModifierException(qfield, op)
         
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = qfield.get_type().child_type().wrap(value)
+        self.update_data[op][qfield.get_absolute_name()] = qfield.child_type().wrap(value)
         return self
     
     def _atomic_op(self, op, qfield, value):
-        if op not in qfield.get_type().valid_modifiers:
-            raise InvalidModifierException(qfield.get_type(), op)
+        if op not in qfield.valid_modifiers:
+            raise InvalidModifierException(qfield, op)
 
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = qfield.get_type().wrap(value)
+        self.update_data[op][qfield.get_absolute_name()] = qfield.wrap(value)
         return self
     
     def _atomic_generic_op(self, op, qfield, value):
-        if op not in qfield.get_type().valid_modifiers:
-            raise InvalidModifierException(qfield.get_type(), op)
+        if op not in qfield.valid_modifiers:
+            raise InvalidModifierException(qfield, op)
         
         if op not in self.update_data:
             self.update_data[op] = {}
-        self.update_data[op][qfield.get_name()] = value
+        self.update_data[op][qfield.get_absolute_name()] = value
         return self
     
     def get_upsert(self):

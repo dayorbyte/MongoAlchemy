@@ -65,7 +65,7 @@ Examples
     ...     bio = StringField(max_length=1000, required=False)
     ...     
     ...     # A computed field decorator allows values
-    ...     @ComputedField(SetField(StringField()), deps=[bio])
+    ...     @computed_field(SetField(StringField()), deps=[bio])
     ...     def keywords(obj):
     ...         return set(obj.get('bio','').split(' '))
     ...     

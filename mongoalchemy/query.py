@@ -25,7 +25,7 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 from mongoalchemy.fields import BadValueException
-from mongoalchemy.query_expression import QueryField, QueryExpression, BadQueryException
+from mongoalchemy.query_expression import QueryExpression, BadQueryException
 from mongoalchemy.update_expression import UpdateExpression
 
 class BadResultException(Exception):
@@ -183,7 +183,7 @@ class Query(object):
         ''' Filter for the names in ``filters`` being equal to the associated 
             values.  Cannot be used for sub-objects since keys must be strings'''
         for name, value in filters.iteritems():
-            self.filter(getattr(self.type.f, name) == value)
+            self.filter(getattr(self.type, name) == value)
         return self
     
     def count(self, with_limit_and_skip=False):
@@ -284,7 +284,7 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$in' : [qfield.get_type().wrap(value) for value in values]}}))
+        self.filter(QueryExpression({ str(qfield) : { '$in' : [qfield.wrap(value) for value in values]}}))
         return self
 
     def nin(self, qfield, *values):
@@ -295,7 +295,7 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$nin' : [qfield.get_type().wrap(value) for value in values]}}))
+        self.filter(QueryExpression({ str(qfield) : { '$nin' : [qfield.wrap(value) for value in values]}}))
         return self
 
     
@@ -347,7 +347,8 @@ class QueryResult(object):
         self.fields = fields
     
     def next(self):
-        return self.type.unwrap(self.cursor.next(), fields=self.fields)
+        value = self.cursor.next()
+        return self.type.unwrap(value, fields=self.fields)
     
     def __getitem__(self, index):
         return self.type.unwrap(self.cursor.__getitem__(index))
