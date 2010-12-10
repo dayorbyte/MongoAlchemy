@@ -55,7 +55,6 @@ class QueryField(object):
         return self.__type
     
     def __getattr__(self, name):
-        print 'get', name
         if hasattr(self.__type, name):
             return getattr(self.__type, name)
 

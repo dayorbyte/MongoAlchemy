@@ -43,6 +43,28 @@ def computed_field_value_test():
             return 6
     TestDoc2.c.unwrap(6)
 
+def computed_value_update_test():
+    # No deps
+    class UpDoc(Document):
+        @computed_field(IntField())
+        def c(obj):
+            return 3
+    assert UpDoc().get_dirty_ops() == { '$set' : { 'c' : 3 } }, UpDoc().get_dirty_ops()
+    
+    # Deps, updated
+    class UpDoc2(Document):
+        i = IntField(required=False)
+        @computed_field(IntField(), deps=[i])
+        def d(obj):
+            return obj['i']+1
+    ud2 = UpDoc2(i=3)
+    assert ud2.get_dirty_ops() == { '$set' : { 'd' : 4, 'i' : 3 } }, ud2.get_dirty_ops()
+
+    ud3 = UpDoc2()
+    assert ud3.get_dirty_ops() == {}, ud3.get_dirty_ops()
+
+
+
 @raises(BadValueException)
 def computed_field_unwrap_test():
     
@@ -76,9 +98,7 @@ def computed_field_wrap_value_test():
             return 4
 
     obj = TestDoc2()
-    print 'a'
     wrapped = TestDoc2.wrap(obj)
-    print 'b'
     assert wrapped == { 'c' : 4 }, wrapped
 
 

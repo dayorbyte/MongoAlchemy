@@ -88,6 +88,26 @@ class Session(object):
         self.queue.append(item)
         self.flush()
     
+    def update(self, item, id_expression=None, upsert=False):
+        ''' Update an item in the database.  Uses the on_update keyword to each
+            field to decide which operations to do 
+            
+            ..warning::
+                
+                This operation is **experimental** and **nowhere near fully tested**,
+                although it does have code coverage.  It also requires an _id
+                field because the system is not yet smart enough to find 
+                another key
+            '''
+        if id_expression:
+            key = Query(type(item), self).filter(id_expression).query
+        else:
+            key = {'_id' : item.mongo_id}
+        self.flush()
+        dirty_ops = item.get_dirty_ops()
+        self.db[item.get_collection_name()].update(key, dirty_ops, upsert=upsert)
+        
+    
     def query(self, type):
         ''' Begin a query on the database's collection for `type`.
         

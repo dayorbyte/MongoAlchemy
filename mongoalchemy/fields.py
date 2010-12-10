@@ -64,7 +64,7 @@ from copy import deepcopy
 
 from mongoalchemy.util import UNSET
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved
+from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved, InvalidConfigException
 
 SCALAR_MODIFIERS = set(['$set', '$unset'])
 NUMBER_MODIFIERS = SCALAR_MODIFIERS | set(['$inc'])
@@ -97,7 +97,9 @@ class Field(object):
     
     __metaclass__ = FieldMeta
     
-    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False):
+    valid_modifiers = SCALAR_MODIFIERS
+    
+    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set'):
         '''
         **Parameters**:
             * required: The field must be passed when constructing a document (optional. default: ``True``)
@@ -106,16 +108,20 @@ class Field(object):
                 (optional.  default is the name the field is assigned to on a documet)
             * allow_none: allow ``None`` as a value (optional. default: False)
         '''
-        self.required = required
-        self._allow_none = allow_none
         self.__db_field = db_field
-        self.default = default
-        self.name =  'Unbound_%s' % self.__class__.__name__
-        self.bound = False
         self.__value = UNSET
         self.__update_op = UNSET
+        
+        self._allow_none = allow_none
         self._owner = None
-        self.owner_field = None
+        
+        if on_update not in self.valid_modifiers and on_update != 'ignore':
+            raise InvalidConfigException('Unsupported update operation: %s' % on_update)
+        self.on_update = on_update
+        
+        self.required = required
+        self.default = default
+        self.name =  'Unbound_%s' % self.__class__.__name__
     
     def __get__(self, instance, owner):
         if type(instance) == type(None):
@@ -124,7 +130,7 @@ class Field(object):
             return instance._field_values[self.name]
         if self.default != UNSET:
             return self.default
-        if instance.partial and self.name not in instance.retrieved_fields:
+        if instance.partial and self.db_field not in instance.retrieved_fields:
             raise FieldNotRetrieved(self.name)
             
         raise AttributeError(self.name)
@@ -132,11 +138,24 @@ class Field(object):
     
     def __set__(self, instance, value):
         instance._field_values[self.name] = value
+        if self.on_update != 'ignore':
+            instance._dirty[self.name] = self.on_update
     
     def __delete__(self, instance):
         if self.name not in instance._field_values:
             raise AttributeError(self.name)
         del instance._field_values[self.name]
+        instance._dirty[self.name] = '$unset'
+    
+    def dirty_ops(self, instance):
+        op = instance._dirty.get(self.name)
+        if op == None:
+            return {}
+        return {
+            op : {
+                self.name : self.wrap(instance._field_values[self.name])
+            }
+        }
     
     @property
     def db_field(self):
@@ -607,8 +626,7 @@ class ObjectIdField(Field):
     '''pymongo Object ID object.  Currently this is probably too strict.  A 
         string version of an ObjectId should also be acceptable'''
     
-    # modifiers on ObjectId not allowed!
-    valid_modifiers = set() 
+    valid_modifiers = SCALAR_MODIFIERS 
     
     def __init__(self, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
@@ -844,6 +862,21 @@ class ComputedField(Field):
             return QueryField(self)
         # TODO: dirty cache indictor + check a field option for never caching
         return self.compute_value(instance)
+    
+    def dirty_ops(self, instance):
+        dirty = False
+        for dep in self.deps:
+            if dep.name in instance._dirty:
+                break
+        else:
+            if len(self.deps) > 0:
+                return {}
+        
+        return {
+            self.on_update : {
+                self.name : self.wrap(getattr(instance, self.name))
+            }
+        }
     
     def compute_value(self, doc):
         args = {}

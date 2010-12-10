@@ -51,7 +51,7 @@ def test_remove():
     assert s.query(T).count() == 15
     
     def getall():
-        return [t.i for t in s.query(T).all()]
+        return [t.i for t in s.query(T).ascending(T.i).all()]
     
     s.remove_query(T).filter(T.i > 8).execute()
     assert s.query(T).count() == 9

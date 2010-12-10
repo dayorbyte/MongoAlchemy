@@ -56,6 +56,18 @@ def test_basic2():
     assert Doc.class_name() == 'Doc', Doc.class_name()
     assert Doc.get_collection_name() == 'DocCol'
 
+def test_update_ops():
+    td = TestDoc(int1=1)
+    doca = DocA(test_doc=td)
+    assert doca.get_dirty_ops() == {
+        '$set' : { 'test_doc.int1' : 1 }
+    }, doca.get_dirty_ops()
+    
+    class DocB(Document):
+        a = DocumentField(DocA)
+        b = IntField()
+    assert DocB(a=DocA()).get_dirty_ops() == {}
+
 def test_delete_field():
     class Doc(Document):
         a = IntField()

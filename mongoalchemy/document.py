@@ -42,7 +42,7 @@ import pymongo
 
 from mongoalchemy.util import classproperty
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.fields import ObjectIdField, Field, BadValueException
+from mongoalchemy.fields import ObjectIdField, Field, BadValueException, SCALAR_MODIFIERS
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved
 
 class DocumentMeta(type):
@@ -80,7 +80,7 @@ class DocumentMeta(type):
 class Document(object):
     __metaclass__ = DocumentMeta
     
-    mongo_id = ObjectIdField(required=False, db_field='_id')
+    mongo_id = ObjectIdField(required=False, db_field='_id', on_update='ignore')
     ''' Default field for the mongo object ID (``_id`` in the database). This field
         is automatically set on objects when they are saved into the database.
         This field can be overridden in subclasses if the default ID is not
@@ -106,6 +106,8 @@ class Document(object):
         self.partial = retrieved_fields != None
         self.retrieved_fields = self.__normalize(retrieved_fields)
         
+        self._dirty = {}
+        
         self._field_values = {}
         self.__extra_fields = {}
         
@@ -113,7 +115,7 @@ class Document(object):
                 
         fields = self.get_fields()
         for name, field in fields.iteritems():
-            if self.partial and name not in self.retrieved_fields:
+            if self.partial and field.db_field not in self.retrieved_fields:
                 continue
             
             if name in kwargs:
@@ -126,6 +128,17 @@ class Document(object):
                     self.__extra_fields[k] = kwargs[k]
                 else:
                     raise ExtraValueException(k)
+    
+    def get_dirty_ops(self):
+        update_expression = {}
+        for name, field in self.get_fields().iteritems():
+            dirty_ops = field.dirty_ops(self)
+            
+            for op, values in dirty_ops.iteritems():
+                update_expression.setdefault(op, {})
+                for key, value in values.iteritems():
+                    update_expression[op][key] = value
+        return update_expression
     
     def get_extra_fields(self):
         ''' if :attr:`Document.config_extra_fields` is set to 'ignore', this method will return
@@ -316,16 +329,29 @@ class DocumentField(Field):
         self.type = document_class
         self.document_class = document_class
     
+    def dirty_ops(self, instance):
+        try:
+            document = getattr(instance, self.name)
+        except AttributeError:
+            return {}
+        if len(document._dirty) == 0:
+            return {}
+        
+        ops = document.get_dirty_ops()
+        
+        ret = {}
+        for op, values in ops.iteritems():
+            ret[op] = {}
+            for key, value in values.iteritems():
+                name = '%s.%s' % (self.name, key)
+                ret[op][name] = value
+        return ret
+    
     def subfields(self):
         return self.document_class.get_fields()
     
     def sub_type(self):
         return self.type
-    
-    # def set_owner(self, value):
-    #     self._owner = value
-    #     for name, field in self.owner().get_fields().iteritems():
-    #         field.owner_field = self
     
     def is_valid_unwrap(self, value, fields=None):
         ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_unwrap` and 

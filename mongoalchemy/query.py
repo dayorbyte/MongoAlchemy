@@ -208,6 +208,7 @@ class Query(object):
             self._fields = set()
         for f in fields:
             self._fields.add(f)
+        self._fields.add(self.type.mongo_id)
         return self
     
     def _apply(self, qe):

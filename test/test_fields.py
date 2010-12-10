@@ -32,6 +32,10 @@ def test_allow_none():
     assert IntField().is_valid_unwrap(None) == False
     assert IntField().is_valid_wrap(None) == False
 
+@raises(InvalidConfigException)
+def test_bad_on_update_value():
+    IntField(on_update='set')
+
 @raises(BadValueException)
 def test_validate_unwrap_fail():
     StringField().unwrap(4)

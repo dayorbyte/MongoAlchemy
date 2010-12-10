@@ -8,6 +8,8 @@ class BadValueException(Exception):
         self.cause = cause
         Exception.__init__(self, 'Bad value for field of type "%s".  Reason: "%s".  Cause: %s' % (name, reason, cause))
 
+class InvalidConfigException(Exception):
+    pass
 
 class DocumentException(Exception):
     ''' Base for all document-related exceptions'''
