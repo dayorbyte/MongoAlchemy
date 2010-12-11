@@ -55,7 +55,7 @@ class Session(object):
         
         **Parameters**:
             * `database`: the database to connect to.  Should be an instance of \
-                :class:`pymongo.collection.Collection`
+                :class:`pymongo.database.Database`
         
         '''
         self.db = database
