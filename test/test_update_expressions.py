@@ -167,6 +167,13 @@ def inc_test():
     assert q.inc(T.i).inc(T.j).update_data == {
         '$inc' : { 'i' : 1, 'j' : 1 }
     }
+    assert q.inc(i=1, j=1).update_data == {
+        '$inc' : { 'i' : 1, 'j' : 1 }
+    }
+
+@raises(UpdateException)
+def test_inc_bad_value():
+    update_test_setup().inc().update_data
 
 @raises(InvalidModifierException)
 def inc_invalid_test():

@@ -58,6 +58,14 @@ class Query(object):
     def __iter__(self):
         return self.__get_query_result()
     
+    def resolve_name(self, name):
+        if not isinstance(name, basestring):
+            return name
+        ret = self.type
+        for part in name.split('.'):
+            ret = getattr(ret, part)
+        return ret
+    
     def __get_query_result(self):
         return self.session.execute_query(self)
     
@@ -221,7 +229,7 @@ class Query(object):
         return self
     
     def _apply(self, qe):
-        ''' Apply a query expression, updating the query object '''
+        ''' Apply a raw mongo query to the current raw query object'''
         self._apply_dict(qe.obj)
     
     def _apply_dict(self, qe_dict):
@@ -324,9 +332,9 @@ class Query(object):
         '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.unset`'''
         return UpdateExpression(self).unset(qfield)
     
-    def inc(self, qfield, value=1):
+    def inc(self, *args, **kwargs):
         '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.inc`'''
-        return UpdateExpression(self).inc(qfield, value=value)
+        return UpdateExpression(self).inc(*args, **kwargs)
     
     def append(self, qfield, value):
         '''Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.append`'''

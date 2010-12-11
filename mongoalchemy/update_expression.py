@@ -76,9 +76,22 @@ class UpdateExpression(object):
         # TODO: assert server version is >1.3.0
         return self._atomic_generic_op('$unset', qfield, True)
         
-    def inc(self, qfield, value=1):
+    def inc(self, *args, **kwargs):
         ''' Atomically increment ``qfield`` by ``value`` '''
-        return self._atomic_op('$inc', qfield, value)
+        pairs = []
+        if len(args) == 1:
+            pairs.append((self.query.resolve_name(args[0]), 1))
+        elif len(args) == 2:
+            pairs.append(args)
+        elif len(kwargs) != 0:
+            pairs.extend([(self.query.resolve_name(k), v) for k, v in kwargs.iteritems()])
+        else:
+            raise UpdateException('Invalid arguments for set.  Requires either two positional arguments or at least one keyword argument')
+
+        ret = self
+        for qfield, value in pairs:
+            ret = self._atomic_op('$inc', qfield, value)
+        return ret
         
     def append(self, qfield, value):
         ''' Atomically append ``value`` to ``qfield``.  The operation will 
