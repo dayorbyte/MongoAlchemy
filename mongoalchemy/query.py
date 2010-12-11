@@ -48,7 +48,7 @@ class Query(object):
         '''
         self.session = session
         self.type = type
-        self.query = {}
+        self.__query = {}
         self.sort = []
         self._fields = None
         self.hints = []
@@ -59,12 +59,25 @@ class Query(object):
         return self.__get_query_result()
     
     def resolve_name(self, name):
-        if not isinstance(name, basestring):
+        if not isinstance(name, basestring) or name[0] == '$':
             return name
         ret = self.type
         for part in name.split('.'):
             ret = getattr(ret, part)
         return ret
+    
+    @property
+    def query(self):
+        def flatten(obj):
+            ret = {}
+            for k, v in obj.iteritems():
+                if not isinstance(k, basestring):
+                    k = str(k)
+                if isinstance(v, dict):
+                    v = flatten(v)
+                ret[k] = v
+            return ret
+        return flatten(self.__query)
     
     def __get_query_result(self):
         return self.session.execute_query(self)
@@ -102,7 +115,7 @@ class Query(object):
             affect each other
         '''
         qclone = Query(self.type, self.session)
-        qclone.query = deepcopy(self.query)
+        qclone.__query = deepcopy(self.__query)
         qclone.sort = deepcopy(self.sort)
         qclone._fields = deepcopy(self._fields)
         qclone._hints = deepcopy(self.hints)
@@ -153,6 +166,7 @@ class Query(object):
         return self.__hint(qfield, DESCENDING)
     
     def __hint(self, qfield, direction):
+        qfield = self.resolve_name(qfield)
         name = str(qfield)
         for n, _ in self.hints:
             if n == name:
@@ -200,7 +214,7 @@ class Query(object):
         ''' Filter for the names in ``filters`` being equal to the associated 
             values.  Cannot be used for sub-objects since keys must be strings'''
         for name, value in filters.iteritems():
-            self.filter(getattr(self.type, name) == value)
+            self.filter(self.resolve_name(name) == value)
         return self
     
     def count(self, with_limit_and_skip=False):
@@ -235,12 +249,13 @@ class Query(object):
     def _apply_dict(self, qe_dict):
         ''' Apply a query expression, updating the query object '''
         for k, v in qe_dict.iteritems():
-            if k not in self.query:
-                self.query[k] = v
+            k = self.resolve_name(k)
+            if not k in self.__query:
+                self.__query[k] = v
                 continue
-            if not isinstance(self.query[k], dict) or not isinstance(v, dict):
+            if not isinstance(self.__query[k], dict) or not isinstance(v, dict):
                 raise BadQueryException('Multiple assignments to a field must all be dicts.')
-            self.query[k].update(**v)
+            self.__query[k].update(**v)
 
     
     def ascending(self, qfield):
@@ -264,6 +279,7 @@ class Query(object):
         return self.__sort(qfield, DESCENDING)
     
     def __sort(self, qfield, direction):
+        qfield = self.resolve_name(qfield)
         name = str(qfield)
         for n, _ in self.sort:
             if n == name:
@@ -308,7 +324,8 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$in' : [qfield.wrap(value) for value in values]}}))
+        qfield = self.resolve_name(qfield)
+        self.filter(QueryExpression({ qfield : { '$in' : [qfield.wrap(value) for value in values]}}))
         return self
 
     def nin(self, qfield, *values):
@@ -320,7 +337,8 @@ class Query(object):
                     understands
         '''
         # TODO: make sure that this field represents a list
-        self.filter(QueryExpression({ str(qfield) : { '$nin' : [qfield.wrap(value) for value in values]}}))
+        qfield = self.resolve_name(qfield)
+        self.filter(QueryExpression({ qfield : { '$nin' : [qfield.wrap(value) for value in values]}}))
         return self
 
     

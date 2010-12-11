@@ -35,6 +35,11 @@ def test_name_generation():
     s.clear_collection(T)
     assert str(T.i) == 'i'
 
+def test_ne():
+    assert (T.i != T.j) == True
+    assert (T.i != T.i) == False
+
+
 #
 # QueryField Tests
 #

@@ -31,6 +31,13 @@ class QueryField(object):
     def __init__(self, type, parent=None):
         self.__type = type
         self.__parent = parent
+        self.__cached_id_value = None
+    
+    @property
+    def __cached_id(self):
+        if self.__cached_id_value == None:
+            self.__cached_id_value = str(self)
+        return self.__cached_id_value
     
     def _get_parent(self):
         return self.__parent
@@ -42,7 +49,7 @@ class QueryField(object):
     def __getattr__(self, name):
         if hasattr(self.__type, name):
             return getattr(self.__type, name)
-
+        
         if not self.__type.has_subfields:
             raise AttributeError(name)
         
@@ -50,9 +57,6 @@ class QueryField(object):
         if name not in fields:
             raise BadQueryException('%s is not a field in %s' % (name, self.__type.sub_type()))
         return QueryField(fields[name], parent=self)
-    
-    # def wrap(self, value):
-    #     return self.__type.wrap(value)
     
     def get_absolute_name(self):
         res = []
@@ -82,6 +86,9 @@ class QueryField(object):
     def __str__(self):
         return self.get_absolute_name()
     
+    def __hash__(self):
+        return hash(self.__cached_id)
+    
     def __eq__(self, value):
         return self.eq_(value)
     def eq_(self, value):
@@ -89,6 +96,8 @@ class QueryField(object):
         
             .. note:: The prefered usage is via an operator: ``User.name == value``
         '''
+        if isinstance(value, QueryField):
+            return self.__cached_id == value.__cached_id
         if not self.get_type().is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
         return QueryExpression({ self.get_absolute_name() : self.wrap(value) })
@@ -118,6 +127,8 @@ class QueryField(object):
         
             .. note:: The prefered usage is via an operator: ``User.name != value``
         '''
+        if isinstance(value, QueryField):
+            return self.__cached_id != value.__cached_id
         return self.__comparator('$ne', value)
     
     def __gt__(self, value):

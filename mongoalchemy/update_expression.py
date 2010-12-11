@@ -80,11 +80,11 @@ class UpdateExpression(object):
         ''' Atomically increment ``qfield`` by ``value`` '''
         pairs = []
         if len(args) == 1:
-            pairs.append((self.query.resolve_name(args[0]), 1))
+            pairs.append((args[0], 1))
         elif len(args) == 2:
             pairs.append(args)
         elif len(kwargs) != 0:
-            pairs.extend([(self.query.resolve_name(k), v) for k, v in kwargs.iteritems()])
+            pairs.extend([(k, v) for k, v in kwargs.iteritems()])
         else:
             raise UpdateException('Invalid arguments for set.  Requires either two positional arguments or at least one keyword argument')
 
@@ -130,6 +130,7 @@ class UpdateExpression(object):
         return self._atomic_generic_op('$pop', qfield, -1)
     
     def _atomic_list_op_multivalue(self, op, qfield, *value):
+        qfield = self.query.resolve_name(qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         wrapped = []
@@ -141,6 +142,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_list_op(self, op, qfield, value):
+        qfield = self.query.resolve_name(qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         
@@ -150,6 +152,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_op(self, op, qfield, value):
+        qfield = self.query.resolve_name(qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
 
@@ -159,6 +162,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_generic_op(self, op, qfield, value):
+        qfield = self.query.resolve_name(qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         
