@@ -158,22 +158,38 @@ class QueryExpression(object):
     '''
     def __init__(self, obj):
         self.obj = obj
-    # def not_(self):
-    #     '''Negates this instance's query expression using MongoDB's ``$not`` 
-    #         operator
-    #         
-    #         **Example**: ``(User.name == 'Jeff').not_()``
-    #         
-    #         .. note:: Another usage is via an operator, but parens are needed 
-    #             to get past precedence issues: ``~ (User.name == 'Jeff')``
-    #         '''
-    # 
-    #     return QueryExpression({
-    #             '$not' : self.obj
-    #         })
+    def not_(self):
+        '''Negates this instance's query expression using MongoDB's ``$not`` 
+            operator
+            
+            **Example**: ``(User.name == 'Jeff').not_()``
+            
+            .. note:: Another usage is via an operator, but parens are needed 
+                to get past precedence issues: ``~ (User.name == 'Jeff')``
+            '''
+        ret_obj = {}
+        for k, v in self.obj.iteritems():
+            if not isinstance(v, dict):
+                ret_obj[k] = {'$ne' : v }
+                continue
+            num_ops = len([x for x in v if x[0] == '$'])
+            if num_ops != len(v) and num_ops != 0:
+                raise BadQueryException('$ operator used in field name')
+            
+            if num_ops == 0:
+                ret_obj[k] = {'$ne' : v }
+                continue
+            
+            for op, value in v.iteritems():
+                k_dict = ret_obj.setdefault(k, {})
+                not_dict = k_dict.setdefault('$not', {})
+                not_dict[op] = value
+        
+            
+        return QueryExpression(ret_obj)
     
-    # def __invert__(self):
-    #     return self.not_()
+    def __invert__(self):
+        return self.not_()
     
     def __or__(self, expression):
         return self.or_(expression)

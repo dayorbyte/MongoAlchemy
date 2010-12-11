@@ -81,11 +81,30 @@ def qf_dot_f_test():
     
     assert str(T4.t.i) == 't.i'
 
-# def test_not():
-#     q = Query(T, None)
-#     
-#     assert q.filter( ~(T.i == 3) ).query == { '$not' : {'i' : 3} }
-#     assert q.not_(T.i == 3).query == { '$not' : {'i' : 3} }
+def test_not():
+    not_q = Query(T, None).filter( ~(T.i == 3) ).query
+    assert not_q == { 'i' : {'$ne' : 3} }, not_q
+    
+    not_q = Query(T, None).not_(T.i > 4).query
+    assert not_q == { 'i' : {'$not': { '$gt': 4}} }, not_q
+
+@raises(BadQueryException)
+def test_not_with_malformed_field():
+    class Any(DocumentField):
+        i = AnythingField()
+    not_q = Query(Any, None).not_(Any.i == { '$gt' : 4, 'garbage' : 5})
+
+def test_not_assign_dict_malformed_field():
+    class Any(Document):
+        i = AnythingField()
+    not_q = Query(Any, None).not_(Any.i == { 'a' : 4, 'b' : 5}).query
+    assert not_q == { 'i' : { '$ne' : { 'a' : 4, 'b' : 5 } } }, not_q
+
+def test_not_db_test():
+    s = get_session()
+    s.insert(T(i=5))
+    assert s.query(T).not_(T.i == 5).first() == None
+    assert s.query(T).not_(T.i > 6).one().i == 5
 
 def test_or():
     q = Query(T, None)

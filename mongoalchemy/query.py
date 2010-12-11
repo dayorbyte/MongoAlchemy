@@ -255,18 +255,18 @@ class Query(object):
         self.sort.append((name, direction))
         return self
     
-    # def not_(self, *query_expressions):
-    #     ''' Add a $not expression to the query, negating the query expressions 
-    #         given.  
-    #         
-    #         **Examples**: ``query.not_(SomeDocClass.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
-    #         
-    #         **Parameters**:
-    #           * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
-    #         '''
-    #     for qe in query_expressions:
-    #         self.filter(qe.not_())
-    #     return self
+    def not_(self, *query_expressions):
+        ''' Add a $not expression to the query, negating the query expressions 
+            given.  
+            
+            **Examples**: ``query.not_(SomeDocClass.age <= 18)`` becomes ``{'age' : { '$not' : { '$gt' : 18 } }}``
+            
+            **Parameters**:
+              * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
+            '''
+        for qe in query_expressions:
+            self.filter(qe.not_())
+        return self
     
     def or_(self, first_qe, *qes):
         ''' Add a $not expression to the query, negating the query expressions 
