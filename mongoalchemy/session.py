@@ -45,6 +45,7 @@
 from pymongo.connection import Connection
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import FieldNotRetrieved
+from itertools import chain
 
 class Session(object):
 
@@ -88,24 +89,52 @@ class Session(object):
         self.queue.append(item)
         self.flush()
     
-    def update(self, item, id_expression=None, upsert=False):
+    def update(self, item, id_expression=None, upsert=False, update_ops={}, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
-            field to decide which operations to do 
+            field to decide which operations to do, or.  
             
-            ..warning::
+            **Parameters**:
+                * `item`: An instance of a :class:`~mongoalchemy.document.Document` \
+                    subclass
+                * `id_expression`: A query expression that uniquely picks out \
+                    the item which should be updated.  If id_expression is not \
+                    passed, update uses item.mongo_id.
+                * `upsert`: Whether the update operation should be an upsert. \
+                    If the item may not be in the database yet this should be True
+                * `update_ops`: By default the operation used to update a field \
+                    is specified with the on_update argument to its constructor. \
+                    To override that value, use this dictionary, with  \
+                    :class:`~mongoalchemy.document.QueryField` objects as the keys \
+                    and the mongo operation to use as the values.
+                * `\*\*kwargs`: The kwargs are merged into update_ops dict to \
+                    decide which fields to update the operation for.  These can \
+                    only be for the top-level document since the keys \
+                    are just strings.
+            
+            .. warning::
                 
                 This operation is **experimental** and **nowhere near fully tested**,
-                although it does have code coverage.  It also requires an _id
-                field because the system is not yet smart enough to find 
-                another key
+                although it does have code coverage.  
             '''
         if id_expression:
-            key = Query(type(item), self).filter(id_expression).query
+            db_key = Query(type(item), self).filter(id_expression).query
         else:
-            key = {'_id' : item.mongo_id}
-        self.flush()
+            db_key = {'_id' : item.mongo_id}
+        
         dirty_ops = item.get_dirty_ops()
-        self.db[item.get_collection_name()].update(key, dirty_ops, upsert=upsert)
+        for key, op in chain(update_ops.items(), kwargs.items()):
+            key = str(key)
+            for current_op, keys in dirty_ops.items():
+                if key not in keys:
+                    continue
+                dirty_ops.setdefault(op,{})[key] = keys[key]
+                del dirty_ops[current_op][key]
+                if len(dirty_ops[current_op]) == 0:
+                    del dirty_ops[current_op]
+        
+        self.flush()
+        print dirty_ops
+        self.db[item.get_collection_name()].update(db_key, dirty_ops, upsert=upsert)
         
     
     def query(self, type):

@@ -30,8 +30,22 @@ def test_update():
     t.i = 7
     s.update(t)
     assert s.query(T).one().i == 7
-    
-    
+
+
+def test_update_change_ops():
+    s = Session.connect('unit-testing')
+    s.clear_collection(T)
+    t = T(i=6, l=[8])
+    s.insert(t)
+    assert s.query(T).one().i == 6
+
+    t.i = 7
+    t.l = [8]
+    s.update(t, update_ops={T.l:'$pullAll'}, i='$inc')
+    t = s.query(T).one()
+    assert t.i == 13, t.i
+    assert t.l == [], t.l
+
 def test_update_push():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
