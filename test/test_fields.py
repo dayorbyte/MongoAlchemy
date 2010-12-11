@@ -40,6 +40,22 @@ def test_bad_on_update_value():
 def test_validate_unwrap_fail():
     StringField().unwrap(4)
 
+def test_custom_validator():
+    field = IntField(validator=lambda x : x == 0)
+    assert field.is_valid_wrap(0) == True
+    assert field.is_valid_wrap(2) == False
+    assert field.is_valid_unwrap(0) == True
+    assert field.is_valid_unwrap(2) == False
+
+    field = IntField(wrap_validator=lambda x : x == 0)
+    assert field.is_valid_wrap(0) == True
+    assert field.is_valid_wrap(2) == False
+    
+    field = IntField(unwrap_validator=lambda x : x == 0)
+    assert field.is_valid_unwrap(0) == True
+    assert field.is_valid_unwrap(2) == False
+
+
 # String Tests
 @raises(BadValueException)
 def string_wrong_type_test():

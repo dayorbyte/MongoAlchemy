@@ -51,12 +51,16 @@ class Session(object):
 
     def __init__(self, database):
         '''
-        Create a session connecting to `database`
+        Create a session connecting to `database`.  
         
         **Parameters**:
             * `database`: the database to connect to.  Should be an instance of \
                 :class:`pymongo.database.Database`
         
+        **Fields**:
+            * `db`: the underlying pymongo database object
+            * `queue`: the queue of unflushed database commands (currently useless \
+                since there aren't any operations which defer flushing)
         '''
         self.db = database
         self.queue = []

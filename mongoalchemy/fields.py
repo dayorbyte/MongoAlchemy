@@ -74,19 +74,35 @@ ANY_MODIFIER = LIST_MODIFIERS | NUMBER_MODIFIERS
 class FieldMeta(type):
     def __new__(mcs, classname, bases, class_dict):
         
-        def validation_wrapper(fun):
+        def validation_wrapper(fun, kind):
             def wrapped(self, value, *args, **kwds):
+                # Handle None
                 if self._allow_none and value == None:
                     return
-                return fun(self, value, *args, **kwds)
+                # Standard Field validation
+                fun(self, value, *args, **kwds)
+                
+                # Universal user-supplied validator
+                if self.validator:
+                    if self.validator(value) == False:
+                        self._fail_validation(value, 'user-supplied validator failed')
+                
+                if kind == 'unwrap' and self.unwrap_validator:
+                    if self.unwrap_validator(value) == False:
+                        self._fail_validation(value, 'user-supplied unwrap_validator failed')
+
+                elif kind == 'wrap' and self.wrap_validator:
+                    if self.wrap_validator(value) == False:
+                        self._fail_validation(value, 'user-supplied wrap_validator failed')
+            
             functools.update_wrapper(wrapped, fun, ('__name__', '__doc__'))
             return wrapped
         
         if 'validate_wrap' in class_dict:
-            class_dict['validate_wrap'] = validation_wrapper(class_dict['validate_wrap'])
+            class_dict['validate_wrap'] = validation_wrapper(class_dict['validate_wrap'], 'wrap')
         
         if 'validate_unwrap' in class_dict:
-            class_dict['validate_unwrap'] = validation_wrapper(class_dict['validate_unwrap'])
+            class_dict['validate_unwrap'] = validation_wrapper(class_dict['validate_unwrap'], 'unwrap')
         
         # Create Class
         return type.__new__(mcs, classname, bases, class_dict)
@@ -99,7 +115,8 @@ class Field(object):
     
     valid_modifiers = SCALAR_MODIFIERS
     
-    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set'):
+    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
+            validator=None, unwrap_validator=None, wrap_validator=None):
         '''
         **Parameters**:
             * required: The field must be passed when constructing a document (optional. default: ``True``)
@@ -107,10 +124,23 @@ class Field(object):
             * db_field: name to use when saving or loading this field from the database \
                 (optional.  default is the name the field is assigned to on a documet)
             * allow_none: allow ``None`` as a value (optional. default: False)
+            * validator: a callable which will be called on objects when wrapping/unwrapping
+            * unwrap_validator: a callable which will be called on objects when unwrapping
+            * wrap_validator: a callable which will be called on objects when wrapping
+        
+        The general validator is called after the field's validator, but before 
+        either of the wrap/unwrap versions.  The validator should raise a BadValueException
+        if it fails, but if it returns False the field will raise an exception with
+        a generic message.
+        
         '''
         self.__db_field = db_field
         self.__value = UNSET
         self.__update_op = UNSET
+        
+        self.validator = validator
+        self.unwrap_validator = unwrap_validator
+        self.wrap_validator = wrap_validator
         
         self._allow_none = allow_none
         self._owner = None
