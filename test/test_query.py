@@ -168,6 +168,12 @@ def test_clone():
         pass
     assert count == 1
 
+def test_raw_query():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    assert s.query(T).filter({'i':3}).one().i == 3
+
 @raises(FieldNotRetrieved)
 def test_field_filter_non_retrieved_field():
     s = get_session()

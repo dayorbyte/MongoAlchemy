@@ -182,7 +182,10 @@ class Query(object):
             .. seealso:: :class:`~mongoalchemy.query_expression.QueryExpression` class
         '''
         for qe in query_expressions:
-            self._apply(qe)
+            if isinstance(qe, dict):
+                self._apply_dict(qe)
+            else:
+                self._apply(qe)
         return self
     
     def filter_by(self, **filters):
@@ -219,13 +222,18 @@ class Query(object):
     
     def _apply(self, qe):
         ''' Apply a query expression, updating the query object '''
-        for k, v in qe.obj.iteritems():
+        self._apply_dict(qe.obj)
+    
+    def _apply_dict(self, qe_dict):
+        ''' Apply a query expression, updating the query object '''
+        for k, v in qe_dict.iteritems():
             if k not in self.query:
                 self.query[k] = v
                 continue
             if not isinstance(self.query[k], dict) or not isinstance(v, dict):
                 raise BadQueryException('Multiple assignments to a field must all be dicts.')
             self.query[k].update(**v)
+
     
     def ascending(self, qfield):
         ''' Sort the result based on ``qfield`` in ascending order.  These calls 
