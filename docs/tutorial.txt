@@ -89,7 +89,7 @@ add some of the cast of `Community`:
 Querying
 ------------------------------
 
-    >>> for donor in session.query(BloodDonor).filter(BloodDonor.f.first_name == 'Jeff'):
+    >>> for donor in session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff'):
     >>>    print donor
     Jeff Jenkins (male; Age: 28; Type: O+)
     Jeff Winger (male; Age: 38; Type: O+)
@@ -98,30 +98,24 @@ The above code uses the :func:`~mongoalchemy.session.Session.query` method of
 the ``session`` object to start a query on the BloodDonor collection.  The 
 filter function on a query object allows constraints to be added to the 
 results returned.  In this case all donors who have the name Jeff are being 
-printed.  The :attr:`~mongoalchemy.document.Document.f` attribute of a 
-Document subclass is used to access the names of fields in such a way that 
-they generate query expressions which ``filter`` can use.  ``f`` is only 
-needed for the outermost document type, so if the name were actually a 
-sub-document it might look like ``BloodDonor.f.name.first``.
+printed.  The attributes of a Document subclass are used to access the names 
+of fields in such a way that they generate query expressions which ``filter`` 
+can use.
 
 Multiple filters can be applied by chaining calls to filter or by adding 
 comma-separated query expressions inside a single call.  The following two 
 examples return the same results:
 
-    >>> bdf = BloodDonor.f
     >>> query = session.query(BloodDonor)
-    >>> for donor in query.filter(bdf.first_name == 'Jeff', bdf.age < 30):
+    >>> for donor in query.filter(BloodDonor.first_name == 'Jeff', BloodDonor.age < 30):
     >>>    print donor
     Jeff Jenkins (male; Age: 28; Type: O+)
 
     >>> query = session.query(BloodDonor)
-    >>> for donor in query.filter(bdf.first_name == 'Jeff').filter(bdf.age < 30):
+    >>> for donor in query.filter(BloodDonor.first_name == 'Jeff').filter(BloodDonor.age < 30):
     >>>    print donor
     Jeff Jenkins (male; Age: 28; Type: O+)
     
-
-The first thing to notice is that the ``f`` field of a document can be assigned to
-a shorter name for convenience.  
 
 Instead of getting elements by iterating on the query, the :func:`~mongoalchemy.query.Query.one`
 and :func:`~mongoalchemy.query.Query.first` methods can be used.  ``one`` returns the first 
@@ -138,8 +132,8 @@ rather than updating results by loading an object and re-inserting it).
 Here's an example where my age changed and it turned out I had the wrong
 blood type:
 
->>> query = session.query(BloodDonor).filter(bdf.first_name == 'Jeff', bdf.last_name == 'Jenkins')
->>> query.inc(bdf.age, 1).set(bdf.blood_type, 'O-').execute()
+>>> query = session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff', BloodDonor.last_name == 'Jenkins')
+>>> query.inc(BloodDonor.age, 1).set(BloodDonor.blood_type, 'O-').execute()
 >>> query.one()
 Jeff Jenkins (male; Age: 29; Type: O-)
 

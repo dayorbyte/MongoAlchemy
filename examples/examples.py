@@ -47,7 +47,7 @@ def main():
     
     with Session.connect('mongoalchemy') as s:
         def print_all():
-            for u in s.query(User).filter(User.f.address.country == 'USA' ):
+            for u in s.query(User).filter(User.address.country == 'USA' ):
                 print u
 
         s.clear_collection(User)
@@ -57,11 +57,11 @@ def main():
         s.insert(u)
         print u._id
     
-        query = User.f.address.country == 'USA'
+        query = User.address.country == 'USA'
     
         print_all()
     
-        update = s.query(User).filter(User.f.name > 'ivan', User.f.name < 'katie' ).set(User.f.email, 'jeff2@qcircles.net')
+        update = s.query(User).filter(User.name > 'ivan', User.name < 'katie' ).set(User.email, 'jeff2@qcircles.net')
         update.execute()
         print_all()
 

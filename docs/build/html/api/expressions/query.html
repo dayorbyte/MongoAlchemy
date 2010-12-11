@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Query Objects &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Query Objects &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="../../index.html" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
     <link rel="next" title="Mongo Query Expression Language" href="query_expressions.html" />
     <link rel="prev" title="Expression Language — Querying and Updating" href="index.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="Expression Language — Querying and Updating"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>
@@ -64,9 +64,14 @@ generate a mongo query as well as methods to retrieve results of the
 query or do an update based on it.</p>
 <p>In general a query object should be created via <tt class="docutils literal"><span class="pre">Session.query</span></tt>, 
 not directly.</p>
-<p><strong>Parameters</strong>:
-* type: A subclass of class:<cite>mongoalchemy.document.Document</cite>
-* db: The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li>type: A subclass of class:<cite>mongoalchemy.document.Document</cite></li>
+<li>db: The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mongoalchemy.query.Query.get_fields">
 <tt class="descname">get_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.get_fields" title="Permalink to this definition">¶</a></dt>
@@ -85,25 +90,27 @@ not directly.</p>
 <dl class="method">
 <dt id="mongoalchemy.query.Query.limit">
 <tt class="descname">limit</tt><big>(</big><em>limit</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the limit on the number of documents returned
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+<dd><p>Sets the limit on the number of documents returned</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>limit: the number of documents to return</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.Query.skip">
 <tt class="descname">skip</tt><big>(</big><em>skip</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.skip" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the number of documents to skip in the result
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+<dd><p>Sets the number of documents to skip in the result</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>skip: the number of documents to skip</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -133,26 +140,28 @@ there are no documents, first returns <tt class="xref docutils literal"><span cl
 <dt id="mongoalchemy.query.Query.hint_asc">
 <tt class="descname">hint_asc</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.hint_asc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a hint for the query that it should use a 
-(<tt class="docutils literal"><span class="pre">qfield</span></tt>, ASCENDING) index when performing the query.
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+(<tt class="docutils literal"><span class="pre">qfield</span></tt>, ASCENDING) index when performing the query.</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>qfield: the instance of <tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.QueryField</span></tt> to use as the key.</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.Query.hint_desc">
 <tt class="descname">hint_desc</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.hint_desc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies a hint for the query that it should use a 
-(<tt class="docutils literal"><span class="pre">qfield</span></tt>, DESCENDING) index when performing the query.
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+(<tt class="docutils literal"><span class="pre">qfield</span></tt>, DESCENDING) index when performing the query.</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>qfield: the instance of <tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.QueryField</span></tt> to use as the key.</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -171,9 +180,9 @@ query and returns the raw explain object returned.</p>
 <dl class="method">
 <dt id="mongoalchemy.query.Query.distinct">
 <tt class="descname">distinct</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.distinct" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Execute this query and return all of the unique values of </dt>
-<dd><tt class="docutils literal"><span class="pre">key</span></tt>.</dd>
+<dd><p>Execute this query and return all of the unique values 
+of <tt class="docutils literal"><span class="pre">key</span></tt>.</p>
+<dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
 <li>key: the instance of <tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.QueryField</span></tt> to use as the distinct key.</li>
@@ -186,7 +195,7 @@ query and returns the raw explain object returned.</p>
 <dt id="mongoalchemy.query.Query.filter">
 <tt class="descname">filter</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.filter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply the given query expressions to this query object</p>
-<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">s.query(SomeObj).filter(SomeObj.f.age</span> <span class="pre">&gt;</span> <span class="pre">10,</span> <span class="pre">SomeObj.f.blood_type</span> <span class="pre">==</span> <span class="pre">'O')</span></tt></p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">s.query(SomeObj).filter(SomeObj.age</span> <span class="pre">&gt;</span> <span class="pre">10,</span> <span class="pre">SomeObj.blood_type</span> <span class="pre">==</span> <span class="pre">'O')</span></tt></p>
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
@@ -227,7 +236,7 @@ values.  Cannot be used for sub-objects since keys must be strings</p>
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
-<li>fields: Instances of :class:<tt class="docutils literal"><span class="pre">mongoalchemy.query.QueryField</span></tt> specifying                 which fields to return</li>
+<li>fields: Instances of :class:<tt class="docutils literal"><span class="pre">mongoalchemy.query.QueryField</span></tt> specifying                     which fields to return</li>
 </ul>
 </dd>
 </dl>
@@ -266,7 +275,7 @@ can be chained to sort by multiple fields.</p>
 <tt class="descname">or_</tt><big>(</big><em>first_qe</em>, <em>*qes</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.or_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a $not expression to the query, negating the query expressions 
 given.  The <tt class="docutils literal"><span class="pre">|</span> <span class="pre">operator</span></tt> on query expressions does the same thing</p>
-<p><strong>Examples</strong>: <tt class="docutils literal"><span class="pre">query.or_(SomeDocClass.f.age</span> <span class="pre">==</span> <span class="pre">18,</span> <span class="pre">SomeDocClass.f.age</span> <span class="pre">==</span> <span class="pre">17)</span></tt> becomes <tt class="docutils literal"><span class="pre">{'$or'</span> <span class="pre">:</span> <span class="pre">[{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">18</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">17</span> <span class="pre">}]}</span></tt></p>
+<p><strong>Examples</strong>: <tt class="docutils literal"><span class="pre">query.or_(SomeDocClass.age</span> <span class="pre">==</span> <span class="pre">18,</span> <span class="pre">SomeDocClass.age</span> <span class="pre">==</span> <span class="pre">17)</span></tt> becomes <tt class="docutils literal"><span class="pre">{'$or'</span> <span class="pre">:</span> <span class="pre">[{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">18</span> <span class="pre">},</span> <span class="pre">{</span> <span class="pre">'age'</span> <span class="pre">:</span> <span class="pre">17</span> <span class="pre">}]}</span></tt></p>
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
@@ -279,27 +288,29 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 <dl class="method">
 <dt id="mongoalchemy.query.Query.in_">
 <tt class="descname">in_</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.in_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check to see that the value of <tt class="docutils literal"><span class="pre">qfield</span></tt> is one of <tt class="docutils literal"><span class="pre">values</span></tt>
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+<dd><p>Check to see that the value of <tt class="docutils literal"><span class="pre">qfield</span></tt> is one of <tt class="docutils literal"><span class="pre">values</span></tt></p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>qfield: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query_expression.QueryExpression</span></tt></a></li>
 <li>values: Values should be python values which <tt class="docutils literal"><span class="pre">qfield</span></tt>                     understands</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.Query.nin">
 <tt class="descname">nin</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.nin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check to see that the value of <tt class="docutils literal"><span class="pre">qfield</span></tt> is not one of <tt class="docutils literal"><span class="pre">values</span></tt>
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+<dd><p>Check to see that the value of <tt class="docutils literal"><span class="pre">qfield</span></tt> is not one of <tt class="docutils literal"><span class="pre">values</span></tt></p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>qfield: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query_expression.QueryExpression</span></tt></a></li>
 <li>values: Values should be python values which <tt class="docutils literal"><span class="pre">qfield</span></tt>                     understands</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -435,7 +446,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
         <li class="right" >
           <a href="index.html" title="Expression Language — Querying and Updating"
              >previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" >Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>

@@ -64,7 +64,7 @@ from copy import deepcopy
 
 from mongoalchemy.util import UNSET
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved, InvalidConfigException
+from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved, InvalidConfigException, BadFieldSpecification
 
 SCALAR_MODIFIERS = set(['$set', '$unset'])
 NUMBER_MODIFIERS = SCALAR_MODIFIERS | set(['$inc'])
@@ -225,7 +225,7 @@ class Field(object):
         raise BadValueException(self.name, value, 'Value is not an instance of %s (got: %s)' % (types, got))
     
     def is_valid_wrap(self, value):
-        '''Returns whether ``value`` is a valid value to wrap.
+        ''' Returns whether ``value`` is a valid value to wrap.
             Raises ``NotImplementedError`` in the base class.
         
             **Parameters**: 
@@ -251,7 +251,7 @@ class Field(object):
         return True
 
 class PrimitiveField(Field):
-    '''Primitive fields are fields where a single constructor can be used
+    ''' Primitive fields are fields where a single constructor can be used
         for wrapping and unwrapping an object.'''
     
     valid_modifiers = SCALAR_MODIFIERS
@@ -425,6 +425,7 @@ class TupleField(Field):
     
     def wrap(self, value):
         ''' Validate and then wrap ``value`` for insertion.
+            
             **Parameters**
                 * value: the tuple (or list) to wrap
         '''
@@ -436,6 +437,7 @@ class TupleField(Field):
     
     def unwrap(self, value):
         ''' Validate and then unwrap ``value`` for object creation.
+            
             **Parameters**
                 * value: list returned from the database.  
         '''
@@ -477,8 +479,7 @@ class EnumField(Field):
             self._fail_validation(value, 'Value was not in the enum values')
     
     def validate_unwrap(self, value):
-        ''' 
-            Checks that value is valid for `EnumField.item_type`.  
+        ''' Checks that value is valid for `EnumField.item_type`.  
             
             .. note ::
                 Since checking the value itself is not possible until is is 
@@ -486,7 +487,8 @@ class EnumField(Field):
         self.item_type.validate_unwrap(value)
     
     def wrap(self, value):
-        '''Validate and wrap value using the wrapping function from ``EnumField.item_type``
+        ''' Validate and wrap value using the wrapping function from 
+            ``EnumField.item_type``
         '''
         self.validate_wrap(value)
         return self.item_type.wrap(value)
@@ -557,7 +559,7 @@ class SequenceField(Field):
             self._validate_child_unwrap(v)
 
 class ListField(SequenceField):
-    '''Field representing a python list.
+    ''' Field representing a python list.
         
         .. seealso:: :class:`SequenceField`'''
     def _validate_wrap_type(self, value):
@@ -577,7 +579,7 @@ class ListField(SequenceField):
         return [self.item_type.unwrap(v) for v in value]
 
 class SetField(SequenceField):
-    '''Field representing a python set.
+    ''' Field representing a python set.
         
         .. seealso:: :class:`SequenceField`'''
     def _validate_wrap_type(self, value):
@@ -623,7 +625,7 @@ class AnythingField(Field):
         pass
 
 class ObjectIdField(Field):
-    '''pymongo Object ID object.  Currently this is probably too strict.  A 
+    ''' pymongo Object ID object.  Currently this is probably too strict.  A 
         string version of an ObjectId should also be acceptable'''
     
     valid_modifiers = SCALAR_MODIFIERS 
@@ -930,9 +932,3 @@ class computed_field(object):
     
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
-    
-class BadFieldSpecification(Exception):
-    '''An exception that is raised when there is an error in creating a 
-        field'''
-    pass
-

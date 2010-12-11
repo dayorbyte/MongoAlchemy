@@ -10,6 +10,7 @@ Contents:
    session   
    schema/index
    expressions/index
+   exceptions
 
 .. automodule:: mongoalchemy
    :members:

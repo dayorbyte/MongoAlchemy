@@ -33,22 +33,21 @@ session.insert(BloodDonor(first_name='Shirley', last_name='Bennett', age=39, blo
 
 # Querying
 
-for donor in session.query(BloodDonor).filter(BloodDonor.f.first_name == 'Jeff'):
+for donor in session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff'):
     print donor
 
-bdf = BloodDonor.f
 for donor in session.query(BloodDonor).filter(
-    bdf.first_name == 'Jeff', 
-    bdf.age < 30):
+    BloodDonor.first_name == 'Jeff', 
+    BloodDonor.age < 30):
    print donor
 
 for donor in session.query(BloodDonor).filter(
-    bdf.first_name == 'Jeff').filter( 
-    bdf.age < 30):
+    BloodDonor.first_name == 'Jeff').filter( 
+    BloodDonor.age < 30):
    print donor
 
-query = session.query(BloodDonor).filter(bdf.first_name == 'Jeff', bdf.last_name == 'Jenkins')
-query.inc(bdf.age, 1).set(bdf.blood_type, 'O-').execute()
+query = session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff', BloodDonor.last_name == 'Jenkins')
+query.inc(BloodDonor.age, 1).set(BloodDonor.blood_type, 'O-').execute()
 print query.one()
 
 

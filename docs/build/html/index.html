@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to MongoAlchemy’s documentation! &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Welcome to MongoAlchemy’s documentation! &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="#" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="#" />
     <link rel="next" title="MongoAlchemy Tutorial" href="tutorial.html" /> 
   </head>
   <body>
@@ -38,7 +38,7 @@
         <li class="right" >
           <a href="tutorial.html" title="MongoAlchemy Tutorial"
              accesskey="N">next</a> |</li>
-        <li><a href="#">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="#">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -76,8 +76,12 @@
 <li class="toctree-l3"><a class="reference internal" href="api/expressions/update_expressions.html#remove-queries">Remove Queries</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="api/exceptions.html">Exceptions</a><ul class="simple">
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
 </ul>
 </div>
 </div>
@@ -120,7 +124,7 @@ this page below the contents of the documentation.</p>
 <span class="gp">... </span>    <span class="n">bio</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
 <span class="gp">...</span>
 <span class="gp">... </span>    <span class="c"># A computed field decorator allows values</span>
-<span class="gp">... </span>    <span class="nd">@ComputedField</span><span class="p">(</span><span class="n">SetField</span><span class="p">(</span><span class="n">StringField</span><span class="p">()),</span> <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">bio</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="nd">@computed_field</span><span class="p">(</span><span class="n">SetField</span><span class="p">(</span><span class="n">StringField</span><span class="p">()),</span> <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">bio</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;bio&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">))</span>
 <span class="gp">...</span>
@@ -148,12 +152,8 @@ this page below the contents of the documentation.</p>
 <span class="gp">... </span><span class="c"># into the database</span>
 <span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">me</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># this is a QueryField object which can be used to construct queries,</span>
-<span class="gp">... </span><span class="c"># as below.  It can be used directly, but this is shorter</span>
-<span class="gp">... </span><span class="n">f</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">f</span>
-<span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Get a user with me&#39;s email address and MongoAlchemy in their bio (via keywords)</span>
-<span class="gp">... </span><span class="n">db_user</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="gp">... </span><span class="n">db_user</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">db_user</span> <span class="o">==</span> <span class="n">me</span>
 <span class="go">True</span>
@@ -228,7 +228,7 @@ this page below the contents of the documentation.</p>
         <li class="right" >
           <a href="tutorial.html" title="MongoAlchemy Tutorial"
              >next</a> |</li>
-        <li><a href="#">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="#">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

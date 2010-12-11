@@ -14,6 +14,7 @@ Contents:
    
     tutorial
     api/index
+    examples/index
 
 Introduction
 -----------------------------
@@ -65,7 +66,7 @@ Examples
     ...     bio = StringField(max_length=1000, required=False)
     ...     
     ...     # A computed field decorator allows values
-    ...     @ComputedField(SetField(StringField()), deps=[bio])
+    ...     @computed_field(SetField(StringField()), deps=[bio])
     ...     def keywords(obj):
     ...         return set(obj.get('bio','').split(' '))
     ...     
@@ -93,12 +94,8 @@ Examples
     ... # into the database
     ... session.insert(me)
     >>> 
-    >>> # this is a QueryField object which can be used to construct queries, 
-    ... # as below.  It can be used directly, but this is shorter
-    ... f = User.f 
-    >>> 
     >>> # Get a user with me's email address and MongoAlchemy in their bio (via keywords)
-    ... db_user = session.query(User).filter(f.email == 'jeff@qcircles.net').in_(f.keywords, 'MongoAlchemy').one()
+    ... db_user = session.query(User).filter(User.email == 'jeff@qcircles.net').in_(User.keywords, 'MongoAlchemy').one()
     >>> 
     >>> db_user == me
     True

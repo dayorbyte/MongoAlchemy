@@ -33,7 +33,7 @@ class BadResultException(Exception):
     pass
 
 class Query(object):
-    '''A query object has all of the methods necessary to programmatically 
+    ''' A query object has all of the methods necessary to programmatically 
         generate a mongo query as well as methods to retrieve results of the 
         query or do an update based on it.
         
@@ -41,7 +41,8 @@ class Query(object):
         not directly.
     '''
     def __init__(self, type, session):
-        '''**Parameters**:
+        ''' 
+            **Parameters**:
                 * type: A subclass of class:`mongoalchemy.document.Document`
                 * db: The :class:`~mongoalchemy.session.Session` which this query is associated with.
         '''
@@ -70,17 +71,19 @@ class Query(object):
         return self._skip
     
     def limit(self, limit):
-        '''Sets the limit on the number of documents returned
-        **Parameters**:
-            * limit: the number of documents to return
+        ''' Sets the limit on the number of documents returned
+            
+            **Parameters**:
+                * limit: the number of documents to return
         '''
         self._limit = limit
         return self
     
     def skip(self, skip):
-        '''Sets the number of documents to skip in the result
-        **Parameters**:
-            * skip: the number of documents to skip
+        ''' Sets the number of documents to skip in the result
+        
+            **Parameters**:
+                * skip: the number of documents to skip
         '''
         self._skip = skip
         return self
@@ -124,16 +127,18 @@ class Query(object):
         return self.__get_query_result().__getitem__(index)
     
     def hint_asc(self, qfield):
-        '''Applies a hint for the query that it should use a 
+        ''' Applies a hint for the query that it should use a 
             (``qfield``, ASCENDING) index when performing the query.
+            
             **Parameters**:
                 * qfield: the instance of :class:`mongoalchemy.QueryField` to use as the key.
         '''
         return self.__hint(qfield, ASCENDING)
     
     def hint_desc(self, qfield):
-        '''Applies a hint for the query that it should use a 
+        ''' Applies a hint for the query that it should use a 
             (``qfield``, DESCENDING) index when performing the query.
+            
             **Parameters**:
                 * qfield: the instance of :class:`mongoalchemy.QueryField` to use as the key.
         '''
@@ -148,27 +153,28 @@ class Query(object):
         return self
     
     def explain(self):
-        '''Executes an explain operation on the database for the current 
+        ''' Executes an explain operation on the database for the current 
             query and returns the raw explain object returned.
         '''
         return self.__get_query_result().cursor.explain()
     
     def all(self):
-        '''Return all of the results of a query in a list'''
+        ''' Return all of the results of a query in a list'''
         return [obj for obj in self]
     
     def distinct(self, key):
-        '''Execute this query and return all of the unique values of 
-            ``key``.
-        **Parameters**:
-            * key: the instance of :class:`mongoalchemy.QueryField` to use as the distinct key.
+        ''' Execute this query and return all of the unique values 
+            of ``key``.
+            
+            **Parameters**:
+                * key: the instance of :class:`mongoalchemy.QueryField` to use as the distinct key.
         '''
         return self.__get_query_result().cursor.distinct(str(key))
     
     def filter(self, *query_expressions):
         '''Apply the given query expressions to this query object
             
-            **Example**: ``s.query(SomeObj).filter(SomeObj.f.age > 10, SomeObj.f.blood_type == 'O')``
+            **Example**: ``s.query(SomeObj).filter(SomeObj.age > 10, SomeObj.blood_type == 'O')``
             
             **Parameters**:
                 * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
@@ -195,14 +201,14 @@ class Query(object):
         return self.__get_query_result().cursor.count(with_limit_and_skip=with_limit_and_skip)
     
     def fields(self, *fields):
-        '''Only return the specified fields from the object.  Accessing a \
+        ''' Only return the specified fields from the object.  Accessing a \
             field that was not specified in ``fields`` will result in a \
             :class:``mongoalchemy.document.FieldNotRetrieved`` exception being \
             raised
-        
-        **Parameters**:
-            * fields: Instances of :class:``mongoalchemy.query.QueryField`` specifying \
-                which fields to return
+            
+            **Parameters**:
+                * fields: Instances of :class:``mongoalchemy.query.QueryField`` specifying \
+                    which fields to return
         '''
         if self._fields == None:
             self._fields = set()
@@ -253,10 +259,10 @@ class Query(object):
     #     ''' Add a $not expression to the query, negating the query expressions 
     #         given.  
     #         
-    #         **Examples**: ``query.not_(SomeDocClass.f.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
+    #         **Examples**: ``query.not_(SomeDocClass.age == 18)`` becomes ``{'$not' : { 'age' : 18 }}``
     #         
     #         **Parameters**:
-    #         * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
+    #           * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
     #         '''
     #     for qe in query_expressions:
     #         self.filter(qe.not_())
@@ -266,7 +272,7 @@ class Query(object):
         ''' Add a $not expression to the query, negating the query expressions 
             given.  The ``| operator`` on query expressions does the same thing
             
-            **Examples**: ``query.or_(SomeDocClass.f.age == 18, SomeDocClass.f.age == 17)`` becomes ``{'$or' : [{ 'age' : 18 }, { 'age' : 17 }]}``
+            **Examples**: ``query.or_(SomeDocClass.age == 18, SomeDocClass.age == 17)`` becomes ``{'$or' : [{ 'age' : 18 }, { 'age' : 17 }]}``
             
             **Parameters**:
                 * query_expressions: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
@@ -279,6 +285,7 @@ class Query(object):
     
     def in_(self, qfield, *values):
         ''' Check to see that the value of ``qfield`` is one of ``values``
+            
             **Parameters**:
                 * qfield: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
                 * values: Values should be python values which ``qfield`` \
@@ -290,6 +297,7 @@ class Query(object):
 
     def nin(self, qfield, *values):
         ''' Check to see that the value of ``qfield`` is not one of ``values``
+            
             **Parameters**:
                 * qfield: Instances of :class:`mongoalchemy.query_expression.QueryExpression`
                 * values: Values should be python values which ``qfield`` \
@@ -367,6 +375,7 @@ class QueryResult(object):
 class RemoveQuery(object):
     def __init__(self, type, session):
         ''' Execute a remove query to remove the matched objects from the database
+            
             **Parameters**:
                 * type: A subclass of class:`mongoalchemy.document.Document`
                 * db: The :class:`~mongoalchemy.session.Session` which this query is associated with.

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Mongo Query Expression Language &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Mongo Query Expression Language &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="../../index.html" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
     <link rel="next" title="Update Expressions" href="update_expressions.html" />
     <link rel="prev" title="Query Objects" href="query.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="query.html" title="Query Objects"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>
@@ -60,28 +60,17 @@
 <h2>Query Fields<a class="headerlink" href="#query-fields" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="mongoalchemy.query_expression.QueryField">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryField</tt><big>(</big><em>name</em>, <em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryField</tt><big>(</big><em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="mongoalchemy.query_expression.QueryField.get_name">
-<tt class="descname">get_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the MongoDB field name for the <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a>
-this QueryField is wrapping</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.get_type">
 <tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the underlying <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a></p>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="mongoalchemy.query_expression.QueryField.f">
-<tt class="descname">f</tt><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.f" title="Permalink to this definition">¶</a></dt>
-<dd><p><tt class="docutils literal"><span class="pre">f</span></tt> provides acces to the sub-fields of this field.  They can 
-also be accessed directly if they do not interfere with an 
-attribute of <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt>.</p>
-<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">SomeDoc.f.outer_field.f.inner_field</span></tt> is the same as <tt class="docutils literal"><span class="pre">SomeDoc.f.outer_field.inner_field</span></tt></p>
-</dd></dl>
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.get_absolute_name">
+<tt class="descname">get_absolute_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_absolute_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.in_">
@@ -103,7 +92,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -113,7 +102,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -123,7 +112,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -133,7 +122,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -143,7 +132,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -153,7 +142,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
 </div>
 </dd></dl>
 
@@ -177,10 +166,10 @@ can be specified to a single call of <tt class="xref py py-func docutils literal
 <tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 
 expression, starting a new one if one does not exst</p>
-<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff').or_(User.f.name</span> <span class="pre">==</span> <span class="pre">'Jack')</span></tt></p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff').or_(User.name</span> <span class="pre">==</span> <span class="pre">'Jack')</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The prefered usageis via an operator: <tt class="docutils literal"><span class="pre">User.f.name</span> <span class="pre">==</span> <span class="pre">'Jeff'</span> <span class="pre">|</span> <span class="pre">User.f.name</span> <span class="pre">==</span> <span class="pre">'Jack'</span></tt></p>
+<p class="last">The prefered usageis via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">'Jeff'</span> <span class="pre">|</span> <span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">'Jack'</span></tt></p>
 </div>
 </dd></dl>
 
@@ -247,7 +236,7 @@ expression, starting a new one if one does not exst</p>
         <li class="right" >
           <a href="query.html" title="Query Objects"
              >previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" >Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>

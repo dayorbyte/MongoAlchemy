@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Session &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Session &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="../index.html" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="../index.html" />
     <link rel="up" title="API documentation" href="index.html" />
     <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
     <link rel="prev" title="API documentation" href="index.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="API documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -111,6 +111,19 @@ database connection that the session will use.</p>
 <tt class="descname">insert</tt><big>(</big><em>item</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert an item into the queue and flushes.  Later this function should be smart and delay 
 insertion until the _id field is actually accessed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.update">
+<tt class="descname">update</tt><big>(</big><em>item</em>, <em>id_expression=None</em>, <em>upsert=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update an item in the database.  Uses the on_update keyword to each
+field to decide which operations to do</p>
+<p>..warning:</p>
+<div class="highlight-python"><pre>This operation is **experimental** and **nowhere near fully tested**,
+although it does have code coverage.  It also requires an _id
+field because the system is not yet smart enough to find 
+another key</pre>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -248,7 +261,7 @@ objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
         <li class="right" >
           <a href="index.html" title="API documentation"
              >previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="index.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>

@@ -27,21 +27,6 @@ class BadQueryException(Exception):
     '''
     pass
 
-# class QueryFieldSet(object):
-#     ''' Intermediate class used to allow access to create QueryField objects 
-#         from a subclass of Document.  Should generally be indirectly accessed 
-#         via ``Document.f``.
-#     '''
-#     def __init__(self, type, fields, parent=None):
-#         self.type = type
-#         self.fields = fields
-#         self.parent = parent
-#     
-#     def __getattr__(self, name):
-#         if name not in self.fields:
-#             raise BadQueryException('%s is not a field in %s' % (name, self.type.class_name()))
-#         return QueryField(name, self.fields[name], parent=self.parent)
-
 class QueryField(object):
     def __init__(self, type, parent=None):
         self.__type = type
@@ -102,7 +87,7 @@ class QueryField(object):
     def eq_(self, value):
         ''' Creates a query expression where ``this field == value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name == value``
+            .. note:: The prefered usage is via an operator: ``User.name == value``
         '''
         if not self.get_type().is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
@@ -113,7 +98,7 @@ class QueryField(object):
     def lt_(self, value):
         ''' Creates a query expression where ``this field < value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name < value``
+            .. note:: The prefered usage is via an operator: ``User.name < value``
         '''
         return self.__comparator('$lt', value)
     
@@ -122,7 +107,7 @@ class QueryField(object):
     def le_(self, value):
         ''' Creates a query expression where ``this field <= value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name <= value``
+            .. note:: The prefered usage is via an operator: ``User.name <= value``
         '''
         return self.__comparator('$lte', value)
     
@@ -131,7 +116,7 @@ class QueryField(object):
     def ne_(self, value):
         ''' Creates a query expression where ``this field != value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name != value``
+            .. note:: The prefered usage is via an operator: ``User.name != value``
         '''
         return self.__comparator('$ne', value)
     
@@ -140,7 +125,7 @@ class QueryField(object):
     def gt_(self, value):
         ''' Creates a query expression where ``this field > value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name > value``
+            .. note:: The prefered usage is via an operator: ``User.name > value``
         '''
         return self.__comparator('$gt', value)
     
@@ -149,7 +134,7 @@ class QueryField(object):
     def ge_(self, value):
         ''' Creates a query expression where ``this field >= value`` 
         
-            .. note:: The prefered usage is via an operator: ``User.f.name >= value``
+            .. note:: The prefered usage is via an operator: ``User.name >= value``
         '''
         return self.__comparator('$gte', value)
     
@@ -177,10 +162,10 @@ class QueryExpression(object):
     #     '''Negates this instance's query expression using MongoDB's ``$not`` 
     #         operator
     #         
-    #         **Example**: ``(User.f.name == 'Jeff').not_()``
+    #         **Example**: ``(User.name == 'Jeff').not_()``
     #         
     #         .. note:: Another usage is via an operator, but parens are needed 
-    #             to get past precedence issues: ``~ (User.f.name == 'Jeff')``
+    #             to get past precedence issues: ``~ (User.name == 'Jeff')``
     #         '''
     # 
     #     return QueryExpression({
@@ -197,9 +182,9 @@ class QueryExpression(object):
         ''' Adds the given expression to this instance's MongoDB ``$or`` 
             expression, starting a new one if one does not exst
             
-            **Example**: ``(User.f.name == 'Jeff').or_(User.f.name == 'Jack')``
+            **Example**: ``(User.name == 'Jeff').or_(User.name == 'Jack')``
             
-            .. note:: The prefered usageis via an operator: ``User.f.name == 'Jeff' | User.f.name == 'Jack'``
+            .. note:: The prefered usageis via an operator: ``User.name == 'Jeff' | User.name == 'Jack'``
             
             '''
         

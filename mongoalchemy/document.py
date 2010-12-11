@@ -70,11 +70,6 @@ class DocumentMeta(type):
             if not isinstance(field, QueryField):
                 continue
             new_class._fields[name] = field.get_type()
-            # field.set_owner(new_class)
-        
-        # Create a query field instance for use in query expressions
-        # new_class.f = QueryFieldSet(new_class, new_class.get_fields())
-        
         return new_class
 
 class Document(object):

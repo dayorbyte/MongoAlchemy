@@ -17,10 +17,3 @@
    :members:
    :undoc-members:
 
-Exceptions
-----------------------------------------------------------
-.. autoexception:: mongoalchemy.document.DocumentException
-.. autoexception:: mongoalchemy.document.MissingValueException
-.. autoexception:: mongoalchemy.document.ExtraValueException
-.. autoexception:: mongoalchemy.document.FieldNotRetrieved
-

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Index &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Index &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="index.html" /> 
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="index.html" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +34,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -74,8 +74,8 @@
 <h2 id="B">B</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/fields.html#mongoalchemy.fields.BadFieldSpecification">BadFieldSpecification (class in mongoalchemy.fields)</a></dt>
-    <dt><a href="api/schema/fields.html#mongoalchemy.fields.BadValueException">BadValueException (class in mongoalchemy.fields)</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.exceptions.BadFieldSpecification">BadFieldSpecification (class in mongoalchemy.exceptions)</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.exceptions.BadValueException">BadValueException (class in mongoalchemy.exceptions)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.BoolField">BoolField (class in mongoalchemy.fields)</a></dt>
@@ -96,9 +96,9 @@
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.commit">commit() (mongoalchemy.document.Document method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedFieldValue.compute_value">compute_value() (mongoalchemy.fields.ComputedFieldValue method)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.compute_value">compute_value() (mongoalchemy.fields.ComputedField method)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.fields.computed_field">computed_field() (in module mongoalchemy.fields)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField">ComputedField (class in mongoalchemy.fields)</a></dt>
-    <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedFieldValue">ComputedFieldValue (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.config_extra_fields">config_extra_fields (mongoalchemy.document.Document attribute)</a></dt>
     <dt><a href="api/session.html#mongoalchemy.session.Session.connect">connect() (mongoalchemy.session.Session class method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.count">count() (mongoalchemy.query.Query method)</a></dt>
@@ -115,11 +115,16 @@
       <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.descending">(mongoalchemy.query.Query method)</a></dt>
   </dl></dd>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.DictField">DictField (class in mongoalchemy.fields)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.dirty_ops">dirty_ops() (mongoalchemy.document.DocumentField method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.dirty_ops">(mongoalchemy.fields.ComputedField method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.dirty_ops">(mongoalchemy.fields.Field method)</a></dt>
+  </dl></dd>
 </dl></td>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.distinct">distinct() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document">Document (class in mongoalchemy.document)</a></dt>
-    <dt><a href="api/schema/document.html#mongoalchemy.document.DocumentException">DocumentException</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.document.DocumentException">DocumentException</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField">DocumentField (class in mongoalchemy.document)</a></dt>
 </dl></td>
 </tr></table>
@@ -145,19 +150,15 @@
     <dd><dl>
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.extend">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
   </dl></dd>
-    <dt><a href="api/schema/document.html#mongoalchemy.document.ExtraValueException">ExtraValueException</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.document.ExtraValueException">ExtraValueException</a></dt>
 </dl></td>
 </tr></table>
 
 <h2 id="F">F</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.f">f (mongoalchemy.document.Document attribute)</a></dt>
-    <dd><dl>
-      <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.f">(mongoalchemy.query_expression.QueryField attribute)</a></dt>
-  </dl></dd>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field">Field (class in mongoalchemy.fields)</a></dt>
-    <dt><a href="api/schema/document.html#mongoalchemy.document.FieldNotRetrieved">FieldNotRetrieved</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.document.FieldNotRetrieved">FieldNotRetrieved</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.fields">fields() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.filter">filter() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
@@ -179,7 +180,9 @@
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.ge_">ge_() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_absolute_name">get_absolute_name() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_collection_name">get_collection_name() (mongoalchemy.document.Document class method)</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_dirty_ops">get_dirty_ops() (mongoalchemy.document.Document method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_extra_fields">get_extra_fields() (mongoalchemy.document.Document method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_fields">get_fields() (mongoalchemy.document.Document class method)</a></dt>
     <dd><dl>
@@ -189,11 +192,10 @@
     <dd><dl>
       <dt><a href="api/session.html#mongoalchemy.session.Session.get_indexes">(mongoalchemy.session.Session method)</a></dt>
   </dl></dd>
-    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_limit">get_limit() (mongoalchemy.query.Query method)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_limit">get_limit() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.get_multi">get_multi() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
-    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_name">get_name() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_skip">get_skip() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_type">get_type() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.get_upsert">get_upsert() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
@@ -259,7 +261,7 @@
 <h2 id="M">M</h2>
 <table width="100%" class="indextable genindextable"><tr>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/document.html#mongoalchemy.document.MissingValueException">MissingValueException</a></dt>
+    <dt><a href="api/exceptions.html#mongoalchemy.document.MissingValueException">MissingValueException</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.mongo_id">mongo_id (mongoalchemy.document.Document attribute)</a></dt>
     <dt><a href="api/index.html#module-mongoalchemy">mongoalchemy (module)</a></dt>
     <dt><a href="api/schema/document.html#module-mongoalchemy.document">mongoalchemy.document (module)</a></dt>
@@ -362,11 +364,13 @@
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.set">(mongoalchemy.update_expression.UpdateExpression method)</a></dt>
   </dl></dd>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.set_safe">set_safe() (mongoalchemy.query.RemoveQuery method)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.fields.SetField">SetField (class in mongoalchemy.fields)</a></dt>
 </dl></td>
   <td width="33%" valign="top"><dl>
-    <dt><a href="api/schema/fields.html#mongoalchemy.fields.SetField">SetField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.skip">skip() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.StringField">StringField (class in mongoalchemy.fields)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.sub_type">sub_type() (mongoalchemy.document.DocumentField method)</a></dt>
+    <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.subfields">subfields() (mongoalchemy.document.DocumentField method)</a></dt>
 </dl></td>
 </tr></table>
 
@@ -402,6 +406,7 @@
   </dl></dd>
 </dl></td>
   <td width="33%" valign="top"><dl>
+    <dt><a href="api/session.html#mongoalchemy.session.Session.update">update() (mongoalchemy.session.Session method)</a></dt>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression">UpdateExpression (class in mongoalchemy.update_expression)</a></dt>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.upsert">upsert() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
 </dl></td>
@@ -501,7 +506,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

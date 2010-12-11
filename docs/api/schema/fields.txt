@@ -96,17 +96,3 @@ Computed Field Objects
    :undoc-members:
 
 .. autofunction:: mongoalchemy.fields.computed_field
-   :members:
-   :undoc-members:
-
-Exceptions
-------------------------------------------------------------
-
-.. autoclass:: mongoalchemy.fields.BadValueException
-   :members:
-   :undoc-members:
-
-.. autoclass:: mongoalchemy.fields.BadFieldSpecification
-   :members:
-   :undoc-members:
-

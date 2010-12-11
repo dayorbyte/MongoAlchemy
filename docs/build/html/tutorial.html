@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>MongoAlchemy Tutorial &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>MongoAlchemy Tutorial &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="index.html" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="index.html" />
     <link rel="next" title="API documentation" href="api/index.html" />
     <link rel="prev" title="Welcome to MongoAlchemy’s documentation!" href="index.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -142,7 +142,7 @@ add some of the cast of <cite>Community</cite>:</p>
 </div>
 <div class="section" id="querying">
 <h2>Querying<a class="headerlink" href="#querying" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">f</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
 <span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
 <span class="go">Jeff Winger (male; Age: 38; Type: O+)</span>
@@ -152,29 +152,24 @@ add some of the cast of <cite>Community</cite>:</p>
 the <tt class="docutils literal"><span class="pre">session</span></tt> object to start a query on the BloodDonor collection.  The
 filter function on a query object allows constraints to be added to the
 results returned.  In this case all donors who have the name Jeff are being
-printed.  The <a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Document.f" title="mongoalchemy.document.Document.f"><tt class="xref py py-attr docutils literal"><span class="pre">f</span></tt></a> attribute of a
-Document subclass is used to access the names of fields in such a way that
-they generate query expressions which <tt class="docutils literal"><span class="pre">filter</span></tt> can use.  <tt class="docutils literal"><span class="pre">f</span></tt> is only
-needed for the outermost document type, so if the name were actually a
-sub-document it might look like <tt class="docutils literal"><span class="pre">BloodDonor.f.name.first</span></tt>.</p>
+printed.  The attributes of a Document subclass are used to access the names
+of fields in such a way that they generate query expressions which <tt class="docutils literal"><span class="pre">filter</span></tt>
+can use.</p>
 <p>Multiple filters can be applied by chaining calls to filter or by adding
 comma-separated query expressions inside a single call.  The following two
 examples return the same results:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">bdf</span> <span class="o">=</span> <span class="n">BloodDonor</span><span class="o">.</span><span class="n">f</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">bdf</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
 <span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
 </pre></div>
 </div>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
 <span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
 </pre></div>
 </div>
-<p>The first thing to notice is that the <tt class="docutils literal"><span class="pre">f</span></tt> field of a document can be assigned to
-a shorter name for convenience.</p>
 <p>Instead of getting elements by iterating on the query, the <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.one" title="mongoalchemy.query.Query.one"><tt class="xref py py-func docutils literal"><span class="pre">one()</span></tt></a>
 and <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.first" title="mongoalchemy.query.Query.first"><tt class="xref py py-func docutils literal"><span class="pre">first()</span></tt></a> methods can be used.  <tt class="docutils literal"><span class="pre">one</span></tt> returns the first
 result and raises an exception if there is not exactly one returned result.  <tt class="docutils literal"><span class="pre">first</span></tt> returns
@@ -190,8 +185,8 @@ the first result if there is one, and <tt class="xref docutils literal"><span cl
 rather than updating results by loading an object and re-inserting it).
 Here&#8217;s an example where my age changed and it turned out I had the wrong
 blood type:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">bdf</span><span class="o">.</span><span class="n">last_name</span> <span class="o">==</span> <span class="s">&#39;Jenkins&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">bdf</span><span class="o">.</span><span class="n">blood_type</span><span class="p">,</span> <span class="s">&#39;O-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">BloodDonor</span><span class="o">.</span><span class="n">last_name</span> <span class="o">==</span> <span class="s">&#39;Jenkins&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">blood_type</span><span class="p">,</span> <span class="s">&#39;O-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">query</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
 <span class="go">Jeff Jenkins (male; Age: 29; Type: O-)</span>
 </pre></div>
@@ -286,7 +281,7 @@ method causes the update to actually happen in the database.</p>
         <li class="right" >
           <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

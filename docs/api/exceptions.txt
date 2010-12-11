@@ -1,0 +1,23 @@
+Exceptions
+========================================================
+
+Field Exceptions
+--------------------------------
+
+.. autoclass:: mongoalchemy.exceptions.BadValueException
+   :members:
+   :undoc-members:
+
+.. autoclass:: mongoalchemy.exceptions.BadFieldSpecification
+   :members:
+   :undoc-members:
+
+
+Document Exceptions
+------------------------------------
+
+.. autoexception:: mongoalchemy.document.DocumentException
+.. autoexception:: mongoalchemy.document.MissingValueException
+.. autoexception:: mongoalchemy.document.ExtraValueException
+.. autoexception:: mongoalchemy.document.FieldNotRetrieved
+

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Update Expressions &mdash; MongoAlchemy v0.5 documentation</title>
+    <title>Update Expressions &mdash; MongoAlchemy v0.6 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.5',
+        VERSION:     '0.6',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,8 +22,9 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.5 documentation" href="../../index.html" />
+    <link rel="top" title="MongoAlchemy v0.6 documentation" href="../../index.html" />
     <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
+    <link rel="next" title="Exceptions" href="../exceptions.html" />
     <link rel="prev" title="Mongo Query Expression Language" href="query_expressions.html" /> 
   </head>
   <body>
@@ -37,9 +38,12 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="../exceptions.html" title="Exceptions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="query_expressions.html" title="Mongo Query Expression Language"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>
@@ -168,14 +172,15 @@ They have the same filtering methods as querying.</p>
 <dl class="class">
 <dt id="mongoalchemy.query.RemoveQuery">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">RemoveQuery</tt><big>(</big><em>type</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute a remove query to remove the matched objects from the database
-<strong>Parameters</strong>:</p>
-<blockquote>
-<ul class="simple">
+<dd><p>Execute a remove query to remove the matched objects from the database</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
 <li>type: A subclass of class:<cite>mongoalchemy.document.Document</cite></li>
 <li>db: The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</li>
 </ul>
-</blockquote>
+</dd>
+</dl>
 <dl class="method">
 <dt id="mongoalchemy.query.RemoveQuery.set_safe">
 <tt class="descname">set_safe</tt><big>(</big><em>is_safe</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.set_safe" title="Permalink to this definition">¶</a></dt>
@@ -242,6 +247,9 @@ values.  Cannot be used for sub-objects since keys must be strings</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="query_expressions.html"
                         title="previous chapter">Mongo Query Expression Language</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../exceptions.html"
+                        title="next chapter">Exceptions</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/api/expressions/update_expressions.txt"
@@ -274,9 +282,12 @@ values.  Cannot be used for sub-objects since keys must be strings</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
+          <a href="../exceptions.html" title="Exceptions"
+             >next</a> |</li>
+        <li class="right" >
           <a href="query_expressions.html" title="Mongo Query Expression Language"
              >previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.5 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.6 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" >Expression Language — Querying and Updating</a> &raquo;</li> 
       </ul>

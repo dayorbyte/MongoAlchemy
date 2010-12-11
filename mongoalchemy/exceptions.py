@@ -27,3 +27,10 @@ class FieldNotRetrieved(DocumentException):
     '''If a partial document is loaded from the database and a field which 
         wasn't retrieved is accessed this exception is raised'''
     pass
+
+    
+class BadFieldSpecification(Exception):
+    '''An exception that is raised when there is an error in creating a 
+        field'''
+    pass
+
