@@ -159,11 +159,11 @@ class Document(object):
     
     @classmethod
     def get_collection_name(cls):
-        ''' Returns the collection name used by the class.  If the ``_collection_name``
+        ''' Returns the collection name used by the class.  If the ``config_collection_name``
             attribute is set it is used, otherwise the name of the class is used.'''
-        if not hasattr(cls, '_collection_name'):
+        if not hasattr(cls, 'config_collection_name'):
             return cls.__name__
-        return cls._collection_name
+        return cls.config_collection_name
     
     @classmethod
     def get_indexes(cls):

@@ -50,7 +50,7 @@ def test_basic():
 
 def test_basic2():
     class Doc(Document):
-        _collection_name = 'DocCol'
+        config_collection_name = 'DocCol'
         count = IntField()
     
     assert Doc.class_name() == 'Doc', Doc.class_name()
