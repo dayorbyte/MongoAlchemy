@@ -115,14 +115,24 @@ insertion until the _id field is actually accessed</p>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.update">
-<tt class="descname">update</tt><big>(</big><em>item</em>, <em>id_expression=None</em>, <em>upsert=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.update" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">update</tt><big>(</big><em>item</em>, <em>id_expression=None</em>, <em>upsert=False</em>, <em>update_ops={}</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update an item in the database.  Uses the on_update keyword to each
-field to decide which operations to do</p>
-<p>..warning:</p>
-<div class="highlight-python"><pre>This operation is **experimental** and **nowhere near fully tested**,
-although it does have code coverage.  It also requires an _id
-field because the system is not yet smart enough to find 
-another key</pre>
+field to decide which operations to do, or.</p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li><cite>item</cite>: An instance of a <a class="reference internal" href="schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>                     subclass</li>
+<li><cite>id_expression</cite>: A query expression that uniquely picks out                     the item which should be updated.  If id_expression is not                     passed, update uses item.mongo_id.</li>
+<li><cite>upsert</cite>: Whether the update operation should be an upsert.                     If the item may not be in the database yet this should be True</li>
+<li><cite>update_ops</cite>: By default the operation used to update a field                     is specified with the on_update argument to its constructor.                     To override that value, use this dictionary, with                      <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt> objects as the keys                     and the mongo operation to use as the values.</li>
+<li><cite>**kwargs</cite>: The kwargs are merged into update_ops dict to                     decide which fields to update the operation for.  These can                     only be for the top-level document since the keys                     are just strings.</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This operation is <strong>experimental</strong> and <strong>nowhere near fully tested</strong>,
+although it does have code coverage.</p>
 </div>
 </dd></dl>
 
