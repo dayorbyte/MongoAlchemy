@@ -229,12 +229,11 @@ class Session(object):
              the pending operations'''
         self.queue = []
     
-    def clear_collection(self, *cls):
+    def clear_collection(self, *classes):
         ''' Clear all objects from the collections associated with the 
             objects in `*cls`. **use with caution!**'''
-        
-        for c in cls:
-            return self.db[c.get_collection_name()].remove()
+        for c in classes:
+            self.db[c.get_collection_name()].remove()
     
     def flush(self, safe=True):
         ''' Perform all database operations currently in the queue'''

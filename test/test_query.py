@@ -210,7 +210,7 @@ def repeated_field_query_test2():
 def nested_field_query_test():
     s = get_session()
     s.clear_collection(T, T2)
-    s.query(T2).filter(T2.t.i==3, T2.t.j==2)
+    assert s.query(T2).filter(T2.t.i==3, T2.t.j==2).query == {'t.i':3, 't.j':2}
 
 @known_failure
 @raises(Exception)

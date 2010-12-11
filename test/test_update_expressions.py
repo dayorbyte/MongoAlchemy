@@ -40,6 +40,15 @@ def test_multi():
     for t in q:
         assert t.j == 9
 
+# Test Nested object
+def nested_field_set_test():
+    s = get_session()
+    s.clear_collection(T, T2)
+    print s.query(T2).count()
+    s.query(T2).set('t.i', 3).upsert().execute()
+    print s.query(T2).count()
+    assert s.query(T2).one().t.i == 3
+
 # Test Remove
 
 def test_remove():
@@ -230,7 +239,7 @@ def extend_db_test():
     t = q.one()
     assert t.i == 5 and t.l == [6, 5]
     
-    q.extend(T.l, 4, 3).execute()
+    q.extend('l', 4, 3).execute()
     t = q.one()
     assert t.i == 5 and t.l == [6, 5, 4, 3]
 
