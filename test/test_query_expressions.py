@@ -3,6 +3,7 @@ from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.query import BadQueryException, Query, BadResultException
+from mongoalchemy.query_expression import Q
 from test.util import known_failure
 
 
@@ -19,8 +20,9 @@ class T2(Document):
     t = DocumentField(T)
 
 def get_session():
-    return Session.connect('unit-testing')
-
+    s = Session.connect('unit-testing')
+    s.clear_collection(T, T2)
+    return s
 #
 #   Test Query Fields
 #
@@ -32,13 +34,14 @@ def test_sort_by_same_key():
 
 def test_name_generation():
     s = get_session()
-    s.clear_collection(T)
     assert str(T.i) == 'i'
 
 def test_ne():
     assert (T.i != T.j) == True
     assert (T.i != T.i) == False
 
+def query_field_repr_test():
+    assert repr(T.i) == 'QueryField(i)'
 
 #
 # QueryField Tests
@@ -129,3 +132,19 @@ def test_nin():
     assert q.nin(T.i, 1, 2, 3).query == {'i' : {'$nin' : [1,2,3]}}, q.nin(T.i, 1, 2, 3).query
     assert q.filter(T.i.nin(1, 2, 3)).query == {'i' : {'$nin' : [1,2,3]}}
 
+
+# free-form queries
+
+def test_ffq():
+    s = get_session()
+    q = s.query('T')
+    print type(Q.name), type(Q.name.first)
+    assert q.filter(Q.name == 3).query == {'name' : 3}
+    
+    q = s.query('T').filter(Q.name.first == 'jeff').query
+    assert q == {'name.first' : 'jeff'}, q
+
+    s.insert(T(i=4))
+    assert s.query('T').count() == 1
+    
+    assert s.query('T').filter(Q.i == 4).one()['i'] == 4

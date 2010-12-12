@@ -45,6 +45,7 @@
 from pymongo.connection import Connection
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import FieldNotRetrieved
+from mongoalchemy.query_expression import FreeFormDoc
 from itertools import chain
 
 class Session(object):
@@ -137,17 +138,21 @@ class Session(object):
                     del dirty_ops[current_op]
         
         self.flush()
-        print dirty_ops
         self.db[item.get_collection_name()].update(db_key, dirty_ops, upsert=upsert)
         
     
     def query(self, type):
-        ''' Begin a query on the database's collection for `type`.
+        ''' Begin a query on the database's collection for `type`.  If `type`
+            is an instance of basesting, the query will be in raw query mode
+            which will not check field values or transform returned results
+            into python objects.
         
          .. seealso:: :class:`~mongoalchemy.query.Query` class'''
         # This really should be adding a query operation to the 
         # queue which is then forced to execute when the results are being
         # read
+        if isinstance(type, basestring):
+            type = FreeFormDoc(type)
         return Query(type, self)
     
     def execute_query(self, query):

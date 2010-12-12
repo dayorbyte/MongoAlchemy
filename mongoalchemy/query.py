@@ -69,12 +69,16 @@ class Query(object):
     @property
     def query(self):
         def flatten(obj):
+            if not isinstance(obj, dict):
+                return obj
             ret = {}
             for k, v in obj.iteritems():
                 if not isinstance(k, basestring):
                     k = str(k)
                 if isinstance(v, dict):
                     v = flatten(v)
+                if isinstance(v, list):
+                    v = [flatten(x) for x in v]
                 ret[k] = v
             return ret
         return flatten(self.__query)
@@ -394,7 +398,8 @@ class QueryResult(object):
         return self.type.unwrap(value, fields=self.fields)
     
     def __getitem__(self, index):
-        return self.type.unwrap(self.cursor.__getitem__(index))
+        value = self.cursor.__getitem__(index)
+        return self.type.unwrap(value)
     
     def rewind(self):
         return self.cursor.rewind()
@@ -418,8 +423,11 @@ class RemoveQuery(object):
         self.type = type
         self.safe = None
         self.get_last_args = {}
-        self.query = {}
         self.__query_obj = Query(type, session)
+    
+    @property
+    def query(self):
+        return self.__query_obj.query
     
     def set_safe(self, is_safe, **kwargs):
         ''' Set this remove to be safe.  It will call getLastError after the 
@@ -439,14 +447,12 @@ class RemoveQuery(object):
         ''' Filter the remove expression with ``*query_expressions``, as in
             the ``Query`` filter method.'''
         self.__query_obj.filter(*query_expressions)
-        self.query = self.__query_obj.query
         return self
     
     def filter_by(self, **filters):
         ''' Filter for the names in ``filters`` being equal to the associated 
             values.  Cannot be used for sub-objects since keys must be strings'''
         self.__query_obj.filter_by(**filters)
-        self.query = self.__query_obj.query
         return self
     
     # def not_(self, *query_expressions):
@@ -458,7 +464,6 @@ class RemoveQuery(object):
         ''' Works the same as the query expression method ``or_``
         '''
         self.__query_obj.or_(first_qe, *qes)
-        self.query = self.__query_obj.query
         return self
     
     def in_(self, qfield, *values):
@@ -466,14 +471,12 @@ class RemoveQuery(object):
         '''
 
         self.__query_obj.in_(qfield, *values)
-        self.query = self.__query_obj.query
         return self
 
     def nin(self, qfield, *values):
         ''' Works the same as the query expression method ``nin_``
         '''
         self.__query_obj.nin(qfield, *values)
-        self.query = self.__query_obj.query
         return self
     
     

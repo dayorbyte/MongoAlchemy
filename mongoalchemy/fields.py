@@ -110,6 +110,7 @@ class FieldMeta(type):
 class Field(object):
     auto = False
     has_subfields = False
+    no_real_attributes = False
     
     __metaclass__ = FieldMeta
     

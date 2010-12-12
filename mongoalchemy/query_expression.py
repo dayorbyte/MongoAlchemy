@@ -27,6 +27,42 @@ class BadQueryException(Exception):
     '''
     pass
 
+class FreeFormField(object):
+    has_subfields = True
+    no_real_attributes = True
+    def __init__(self, name=None):
+        self.__name = name
+        self.db_field = name
+    def __getattr__(self, name):
+        return FreeFormField(name=name)
+    def __getitem__(self, name):
+        return getattr(self, name)
+    @classmethod
+    def wrap(self, value):
+        return value
+    def subfields(self):
+        return FreeFormField(name=None)
+    def is_valid_wrap(*args): 
+        return True
+    is_valid_unwrap = is_valid_wrap
+    __contains__ = is_valid_wrap
+
+class FreeFormDoc(object):
+    def __init__(self, name):
+        self.__name = name
+    def __getattr__(self, name):
+        return QueryField(FreeFormField(name))
+    @classmethod
+    def unwrap(cls, value, *args, **kwargs):
+        return value
+    def get_collection_name(self):
+        return self.__name
+    def get_indexes(self):
+        return []        
+    mongo_id = FreeFormField(name='_id')
+
+Q = FreeFormDoc('')
+
 class QueryField(object):
     def __init__(self, type, parent=None):
         self.__type = type
@@ -47,7 +83,7 @@ class QueryField(object):
         return self.__type
     
     def __getattr__(self, name):
-        if hasattr(self.__type, name):
+        if not self.__type.no_real_attributes and hasattr(self.__type, name):
             return getattr(self.__type, name)
         
         if not self.__type.has_subfields:
@@ -72,7 +108,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$in`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$in' : [self.wrap(value) for value in values] }
+            str(self) : { '$in' : [self.get_type().wrap(value) for value in values] }
         })
     
     def nin(self, *values):
@@ -80,11 +116,14 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$nin`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$nin' : [self.wrap(value) for value in values] }
+            str(self) : { '$nin' : [self.get_type().wrap(value) for value in values] }
         })
     
     def __str__(self):
         return self.get_absolute_name()
+    
+    def __repr__(self):
+        return 'QueryField(%s)' % str(self)
     
     def __hash__(self):
         return hash(self.__cached_id)
@@ -100,7 +139,7 @@ class QueryField(object):
             return self.__cached_id == value.__cached_id
         if not self.get_type().is_valid_wrap(value):
             raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
-        return QueryExpression({ self.get_absolute_name() : self.wrap(value) })
+        return QueryExpression({ self : self.get_type().wrap(value) })
     
     def __lt__(self, value):
         return self.lt_(value)
@@ -153,7 +192,7 @@ class QueryField(object):
         try:
             return QueryExpression({
                 self.get_absolute_name() : {
-                    op : self.wrap(value)
+                    op : self.get_type().wrap(value)
                 }
             })
         except BadValueException:
