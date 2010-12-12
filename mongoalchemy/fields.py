@@ -110,7 +110,7 @@ class FieldMeta(type):
 class Field(object):
     auto = False
     has_subfields = False
-    no_real_attributes = False
+    no_real_attributes = False  # used for free-form queries.  
     
     __metaclass__ = FieldMeta
     
@@ -198,6 +198,11 @@ class Field(object):
         if self.__db_field != None:
             return self.__db_field
         return self.name
+    
+    def wrap_value(self, value):
+        ''' Wrap ``value`` for use as the value in a Mongo query, for example 
+            in $in'''
+        return self.wrap(value)
     
     def _set_name(self, name):
         self.name = name
@@ -557,6 +562,20 @@ class SequenceField(Field):
         if not isinstance(item_type, Field):
             raise BadFieldSpecification("List item_type is not a field!")
     
+    def wrap_value(self, value):
+        ''' A function used to wrap a value used in a comparison.  It will 
+            first try to wrap as the sequence's sub-type, and then as the 
+            sequence itself'''
+        try:
+            return self.item_type.wrap_value(value)
+        except BadValueException:
+            pass
+        try:
+            return self.wrap(value)
+        except BadValueException:
+            pass
+        self._fail_validation(value, 'Could not wrap value as the correct type.  Tried %s and %s' % (self.item_type, self))
+    
     def child_type(self):
         ''' Returns the :class:`Field` instance used for items in the sequence'''
         return self.item_type
@@ -767,6 +786,9 @@ class KVField(DictField):
         a ``KVField`` is ``[ { 'k' : key, 'v' : value }, ...]``.  This will eventually
         makes it possible to have an index on the keys and values.
     '''
+    
+    has_subfields = True
+    
     def __init__(self, key_type, value_type, **kwargs):
         '''
             **Parameters**:
@@ -774,12 +796,22 @@ class KVField(DictField):
                 * value_type: the Field type to use for the values
         '''
         super(DictField, self).__init__(**kwargs)
-        self.key_type = key_type
-        self.value_type = value_type
+        
         if not isinstance(key_type, Field):
             raise BadFieldSpecification("KVField key type is not a field!")
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("KVField value type is not a field!")
+        self.key_type = key_type
+        self.key_type.name = 'k'
+        
+        self.value_type = value_type
+        self.value_type.name = 'v'
+        
+    def subfields(self):
+        return {
+            'k' : self.key_type,
+            'v' : self.value_type,
+        }
     
     def _validate_key_wrap(self, key):
         try:
@@ -812,22 +844,6 @@ class KVField(DictField):
                 self.value_type.validate_unwrap(v)
             except BadValueException, bve:
                 self._fail_validation(value, 'Bad value for KFVield value %s' % k, cause=bve)
-            
-            # try:
-            #     self.key_type.validate_unwrap(v)
-            # except BadValueException, bve:
-            #     self._fail_validation(value, 'Bad value for key %s' % k, cause=bve)
-            # 
-            # try:
-            #     self.value_type.validate_unwrap(v)
-            # except BadValueException, bve:
-            #     self._fail_validation(value, 'Bad value for KVField valye key %s' % k, cause=bve)
-            # 
-            # 
-            # if not self.key_type.is_valid_unwrap(k):
-            #     return False
-            # if not self.value_type.is_valid_unwrap(v):
-            #     return False
         return True
     
     def wrap(self, value):
@@ -921,7 +937,12 @@ class ComputedField(Field):
         except BadValueException, bve:
             self._fail_validation(value, 'Computed Function return a bad value', cause=bve)
         return value
-
+    
+    def wrap_value(self, value):
+        ''' A function used to wrap a value used in a comparison.  It will 
+            first try to wrap as the sequence's sub-type, and then as the 
+            sequence itself'''
+        return self.computed_type.wrap_value(value)
     
     def validate_wrap(self, value):
         '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''

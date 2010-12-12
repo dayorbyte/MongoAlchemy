@@ -3,6 +3,7 @@ from mongoalchemy.fields import *
 from test.util import known_failure
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.query import Query
 
 def get_session():
     return Session.connect('unit-testing')
@@ -63,8 +64,6 @@ def computed_value_update_test():
     ud3 = UpDoc2()
     assert ud3.get_dirty_ops() == {}, ud3.get_dirty_ops()
 
-
-
 @raises(BadValueException)
 def computed_field_unwrap_test():
     
@@ -76,6 +75,14 @@ def computed_field_unwrap_test():
         def c(obj):
             return 'some-bad-value'
     TestDoc2.c.unwrap('bad-value')
+
+def computed_field_wrap_value_func_test():
+    class TestDoc2(Document):
+        @computed_field(StringField())
+        def c(obj):
+            return 'foo'
+    Query(TestDoc2, None).in_(TestDoc2.c, 'bar').query == {'c' : { '$in' : 'bar' }}
+
 
 @raises(BadValueException)
 def computed_field_wrap_test():

@@ -55,7 +55,6 @@ def test_custom_validator():
     assert field.is_valid_unwrap(0) == True
     assert field.is_valid_unwrap(2) == False
 
-
 # String Tests
 @raises(BadValueException)
 def string_wrong_type_test():

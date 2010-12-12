@@ -52,8 +52,9 @@ Examples
     >>> from mongoalchemy.document import Document, Index, DocumentField
     >>> from mongoalchemy.fields import *
     >>> # Subclasses of Document both provide the mapping needed for 
-    >>> # queries as well as the classes for loading/saving objects.
-    >>> class User(Document):
+    ... # queries as well as the classes for loading/saving objects.
+    ... class User(Document):
+    ...     config_collection_name = 'users'
     ...     
     ...     # Setting the possible values by using fields
     ...     first_name = StringField()
@@ -93,6 +94,7 @@ Examples
     >>> # Insert on a session will infer the correct collection and push the object
     ... # into the database
     ... session.insert(me)
+    >>> set(['author', 'of', 'is', 'Jeff', 'MongoAlchemy', 'the'])
     >>> 
     >>> # Get a user with me's email address and MongoAlchemy in their bio (via keywords)
     ... db_user = session.query(User).filter(User.email == 'jeff@qcircles.net').in_(User.keywords, 'MongoAlchemy').one()
@@ -100,7 +102,14 @@ Examples
     >>> db_user == me
     True
     >>> 
-
+    >>> # Using filter_by for simple equality checking is easier
+    ... session.query(User).filter_by(email='jeff@qcircles.net').in_(User.keywords, 'MongoAlchemy').one()
+    User(email="jeff@qcircles.net")
+    >>> 
+    >>> # It's also possible to do raw mongo filtering
+    ... session.query(User).filter({'email':'jeff@qcircles.net', 'keywords':{'$in':['MongoAlchemy']}}).one()
+    User(email="jeff@qcircles.net")
+    >>> 
 
 Indices and tables
 ==================

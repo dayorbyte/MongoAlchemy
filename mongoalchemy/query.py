@@ -329,7 +329,7 @@ class Query(object):
         '''
         # TODO: make sure that this field represents a list
         qfield = self.resolve_name(qfield)
-        self.filter(QueryExpression({ qfield : { '$in' : [qfield.wrap(value) for value in values]}}))
+        self.filter(QueryExpression({ qfield : { '$in' : [qfield.wrap_value(value) for value in values]}}))
         return self
 
     def nin(self, qfield, *values):
@@ -342,7 +342,7 @@ class Query(object):
         '''
         # TODO: make sure that this field represents a list
         qfield = self.resolve_name(qfield)
-        self.filter(QueryExpression({ qfield : { '$nin' : [qfield.wrap(value) for value in values]}}))
+        self.filter(QueryExpression({ qfield : { '$nin' : [qfield.wrap_value(value) for value in values]}}))
         return self
 
     

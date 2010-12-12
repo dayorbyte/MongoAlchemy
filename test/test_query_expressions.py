@@ -63,15 +63,63 @@ def qf_bad_subfield_test():
 
 def qf_db_name_test():
     assert str(T.a) == 'aa', str(T.a)
+
+#
+# Value Encoding Type tests
+#
+def test_value_type_wrapping():
+    class User(Document):
+        bio = SetField(StringField())
+    s = get_session()
+    s.clear_collection(User)
     
+    q = s.query(User).in_(User.bio, 'MongoAlchemy').query
+    assert q == { 'bio' : { '$in' : ['MongoAlchemy'] } }, q
+    
+    q = s.query(User).in_(User.bio, set(['MongoAlchemy'])).query
+    assert q == { 'bio' : { '$in' : [['MongoAlchemy']] } }, q
+
+def test_value_type_wrapping_2():
+    class User(Document):
+        bio = KVField(StringField(), IntField())
+    s = get_session()
+    s.clear_collection(User)
+    q = s.query(User).in_(User.bio.k, 'MongoAlchemy').query
+    assert q == { 'bio.k' : { '$in' : ['MongoAlchemy'] } }, q
+    
+    q = s.query(User).in_(User.bio, { 'MongoAlchemy' : 5}).query    
+    assert q == { 'bio' : { '$in' : [[{'k': 'MongoAlchemy', 'v': 5}]] } }, q
+
+@raises(BadValueException)
+def test_value_type_wrapping_wrong_twice():
+    class User(Document):
+        bio = SetField(StringField())
+    s = get_session()
+    s.query(User).in_(User.bio, 1).query == { 'bio' : { '$in' : ['MongoAlchemy'] } }
+
+def list_in_operator_test():
+    class User(Document):
+        ints = ListField(IntField())
+    s = get_session()
+    s.clear_collection(User)
+    
+    q = s.query(User).filter_by(ints=3).query
+    assert q == { 'ints' : 3 }, q
+    
+    q = s.query(User).filter(User.ints == 3).query
+    assert q == { 'ints' : 3 }, q
+    
+    q = s.query(User).filter(User.ints == [3]).query
+    assert q == { 'ints' : [3] }, q
+
 #
 #  Comparator Tests
 #
-@raises(BadQueryException)
+@raises(BadValueException)
 def qf_bad_value_equals_test():
     T2.t.i == '3'
 
-@raises(BadQueryException)
+@raises(BadValueException)
 def qf_bad_value_compare_test():
     T2.t.i < '3'
 
@@ -138,7 +186,6 @@ def test_nin():
 def test_ffq():
     s = get_session()
     q = s.query('T')
-    print type(Q.name), type(Q.name.first)
     assert q.filter(Q.name == 3).query == {'name' : 3}
     
     q = s.query('T').filter(Q.name.first == 'jeff').query

@@ -39,6 +39,7 @@ def list_value_test():
     foo = [x for x in '12345']
     assert s.unwrap(s.wrap(foo)) == foo
 
+
 # Set Field
 @raises(BadValueException)
 def set_wrong_type_test_wrap():

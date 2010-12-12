@@ -38,7 +38,7 @@ class FreeFormField(object):
     def __getitem__(self, name):
         return getattr(self, name)
     @classmethod
-    def wrap(self, value):
+    def wrap_value(self, value):
         return value
     def subfields(self):
         return FreeFormField(name=None)
@@ -108,7 +108,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$in`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$in' : [self.get_type().wrap(value) for value in values] }
+            str(self) : { '$in' : [self.get_type().wrap_value(value) for value in values] }
         })
     
     def nin(self, *values):
@@ -116,7 +116,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$nin`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$nin' : [self.get_type().wrap(value) for value in values] }
+            str(self) : { '$nin' : [self.get_type().wrap_value(value) for value in values] }
         })
     
     def __str__(self):
@@ -137,9 +137,7 @@ class QueryField(object):
         '''
         if isinstance(value, QueryField):
             return self.__cached_id == value.__cached_id
-        if not self.get_type().is_valid_wrap(value):
-            raise BadQueryException('Invalid "value" for comparison against %s: %s' % (str(self), value))
-        return QueryExpression({ self : self.get_type().wrap(value) })
+        return QueryExpression({ self : self.get_type().wrap_value(value) })
     
     def __lt__(self, value):
         return self.lt_(value)
@@ -189,14 +187,11 @@ class QueryField(object):
         return self.__comparator('$gte', value)
     
     def __comparator(self, op, value):
-        try:
-            return QueryExpression({
-                self.get_absolute_name() : {
-                    op : self.get_type().wrap(value)
-                }
-            })
-        except BadValueException:
-            raise BadQueryException('Invalid "value" for %s comparison against %s: %s' % (self, op, value))
+        return QueryExpression({
+            self.get_absolute_name() : {
+                op : self.get_type().wrap(value)
+            }
+        })
 
     
 class QueryExpression(object):

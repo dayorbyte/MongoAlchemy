@@ -44,9 +44,7 @@ def test_multi():
 def nested_field_set_test():
     s = get_session()
     s.clear_collection(T, T2)
-    print s.query(T2).count()
     s.query(T2).set('t.i', 3).upsert().execute()
-    print s.query(T2).count()
     assert s.query(T2).one().t.i == 3
 
 # Test Remove
