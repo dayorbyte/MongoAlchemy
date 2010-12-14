@@ -144,7 +144,7 @@ class Query(object):
             there are multiple documents it simply returns the first one.  If
             there are no documents, first returns ``None``
         '''
-        for doc in self:
+        for doc in iter(self):
             return doc
         return None
     
@@ -186,7 +186,7 @@ class Query(object):
     
     def all(self):
         ''' Return all of the results of a query in a list'''
-        return [obj for obj in self]
+        return [obj for obj in iter(self)]
     
     def distinct(self, key):
         ''' Execute this query and return all of the unique values 
