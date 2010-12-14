@@ -125,6 +125,11 @@ class Document(object):
                     raise ExtraValueException(k)
     
     def get_dirty_ops(self):
+        ''' Returns a dict with the update operations necessary to make the 
+            changes to this object to the database version.  It is mainly used
+            internally for :func:`~mongoalchemy.session.Session.update` but
+            may be useful for diagnostic purposes as well.
+        '''
         update_expression = {}
         for name, field in self.get_fields().iteritems():
             dirty_ops = field.dirty_ops(self)
@@ -211,7 +216,7 @@ class Document(object):
         self.mongo_id = id
     
     def wrap(self):
-        '''Returns a transformation of this document into a form suitable to 
+        ''' Returns a transformation of this document into a form suitable to 
             be saved into a mongo database.  This is done by using the ``wrap()``
             methods of the underlying fields to set values.'''
         res = {}
@@ -232,6 +237,10 @@ class Document(object):
     
     @classmethod
     def validate_unwrap(cls, obj, fields=None):
+        ''' Attempts to unwrap the document, and raises a BadValueException if
+            the operation fails. A TODO is to make this function do the checks
+            without actually doing the (potentially expensive) 
+            deserialization'''
         try:
             cls.unwrap(obj, fields=fields)
         except Exception, e:
@@ -325,6 +334,8 @@ class DocumentField(Field):
         self.document_class = document_class
     
     def dirty_ops(self, instance):
+        ''' Returns a dict of the operations needed to update this object.  
+            See :func:`Document.get_dirty_ops` for more details.'''
         try:
             document = getattr(instance, self.name)
         except AttributeError:
@@ -343,6 +354,8 @@ class DocumentField(Field):
         return ret
     
     def subfields(self):
+        ''' Returns the fields that can be retrieved from the enclosed 
+            document.  This function is mainly used internally'''
         return self.document_class.get_fields()
     
     def sub_type(self):
