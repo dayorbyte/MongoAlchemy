@@ -68,6 +68,7 @@ class QueryField(object):
         self.__type = type
         self.__parent = parent
         self.__cached_id_value = None
+        self.__matched_index = False
     
     @property
     def __cached_id(self):
@@ -81,6 +82,13 @@ class QueryField(object):
     def get_type(self):
         ''' Returns the underlying :class:`mongoalchemy.fields.Field` '''
         return self.__type
+    
+    @property
+    def matched_index(self):
+        ''' Represents the matched array index on a query with objects inside
+            of a list.  In the MongoDB docs, this is the ``$`` operator '''
+        self.__matched_index = True
+        return self
     
     def __getattr__(self, name):
         if not self.__type.no_real_attributes and hasattr(self.__type, name):
@@ -99,6 +107,8 @@ class QueryField(object):
         current = self
         
         while type(current) != type(None):
+            if current.__matched_index:
+                res.append('$')
             res.append(current.get_type().db_field)
             current = current._get_parent()
         return '.'.join(reversed(res))

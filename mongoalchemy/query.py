@@ -242,6 +242,7 @@ class Query(object):
         if self._fields == None:
             self._fields = set()
         for f in fields:
+            f = self.resolve_name(f)
             self._fields.add(f)
         self._fields.add(self.type.mongo_id)
         return self

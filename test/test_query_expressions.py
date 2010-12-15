@@ -19,6 +19,12 @@ class T(Document):
 class T2(Document):
     t = DocumentField(T)
 
+class NestedChild(Document):
+    i = IntField()
+class NestedParent(Document):
+    l = ListField(DocumentField(NestedChild))
+
+
 def get_session():
     s = Session.connect('unit-testing')
     s.clear_collection(T, T2)
@@ -42,6 +48,9 @@ def test_ne():
 
 def query_field_repr_test():
     assert repr(T.i) == 'QueryField(i)'
+
+def test_nested_matching():
+    assert str(NestedParent.l.i) == 'l.i'
 
 #
 # QueryField Tests
@@ -195,3 +204,10 @@ def test_ffq():
     assert s.query('T').count() == 1
     
     assert s.query('T').filter(Q.i == 4).one()['i'] == 4
+
+# Array Index Operator
+def test_array_index_operator():
+    
+    assert str(NestedParent.l.matched_index.i) == 'l.$.i', NestedParent.l.matched_index.i
+
+

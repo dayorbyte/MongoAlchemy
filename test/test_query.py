@@ -307,4 +307,4 @@ def test_resolve_fields():
     s.clear_collection(Resolver)
     
     q = s.query(Resolver).filter(Resolver.i.in_(6))
-
+    q = s.query(Resolver).set(Resolver.i, 6)

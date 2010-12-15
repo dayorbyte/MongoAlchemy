@@ -562,6 +562,13 @@ class SequenceField(Field):
         if not isinstance(item_type, Field):
             raise BadFieldSpecification("List item_type is not a field!")
     
+    @property
+    def has_subfields(self):
+        return self.item_type.has_subfields
+    
+    def subfields(self):
+        return self.item_type.subfields()
+    
     def wrap_value(self, value):
         ''' A function used to wrap a value used in a comparison.  It will 
             first try to wrap as the sequence's sub-type, and then as the 
