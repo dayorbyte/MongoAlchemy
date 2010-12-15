@@ -891,7 +891,7 @@ class ComputedField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     auto = True
-    def __init__(self, computed_type, fun, deps=None, **kwargs):
+    def __init__(self, computed_type, fun, one_time=False, deps=None, **kwargs):
         '''
             **Parameters**:
                 * fun: the function to compute the value of the computed field
@@ -905,13 +905,26 @@ class ComputedField(Field):
             deps = set()
         self.deps = set(deps)
         self.fun = fun
+        self.one_time = one_time
+        self.__cached_value = UNSET
     
     def __get__(self, instance, owner):
+        # class method
         if type(instance) == type(None):
             return QueryField(self)
-        # TODO: dirty cache indictor + check a field option for never caching
-        return self.compute_value(instance)
+        
+        if self.name in instance._field_values and self.one_time:
+            return instance._field_values[self.name]
+        computed_value = self.compute_value(instance)
+        if self.one_time:
+            instance._field_values[self.name] = computed_value
+        return computed_value
     
+    def __set__(self, instance, value):
+        if self.name in instance._field_values and self.one_time:
+            raise BadValueException(self.name, value, 'Cannot set a one-time field once it has been set')
+        super(ComputedField, self).__set__(instance, value)
+
     def dirty_ops(self, instance):
         dirty = False
         for dep in self.deps:
@@ -967,14 +980,6 @@ class ComputedField(Field):
         ''' Validates ``value`` and unwraps it with ``ComputedField.computed_type``'''
         self.validate_unwrap(value)
         return self.computed_type.unwrap(value)
-    
-    def __set__(self, instance, value):
-        if self.is_valid_wrap(value):
-            self.__computed_value = value
-            return
-        # TODO: this line should be impossible to reach, but I'd like an 
-        # exception just in case, but then I can't have full coverage!
-        # raise BadValueException('Tried to set a computed field to an illegal value: %s' % value)
 
 class computed_field(object):
     def __init__(self, computed_type, deps=None, **kwargs):

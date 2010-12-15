@@ -121,3 +121,41 @@ def computed_field_wrap_test_wrong_type():
 
     TestDoc2.c.wrap('bad-value')
 
+# Caching Values and one-time fields
+
+def computed_field_cached_value_test():
+    from datetime import datetime, timedelta
+    class CDoc(Document):
+        offset = 0
+        @computed_field(DateTimeField(), one_time=True)
+        def created(obj):
+            return datetime(2010, 11, 1) + timedelta(minutes=CDoc.offset)
+        
+        @computed_field(DateTimeField())
+        def modified(obj):
+            return datetime(2010, 11, 1) + timedelta(minutes=CDoc.offset)
+    
+    c = CDoc()
+    created_before = c.created
+    modified_before = c.modified
+    CDoc.offset = 10
+    created_after = c.created
+    modified_after = c.modified
+    
+    assert created_before == created_after
+    assert modified_before != modified_after
+    
+    c.modified = datetime(1970, 10, 10)
+    assert c.modified == modified_after
+
+@raises(BadValueException)
+def computed_field_one_time_assignment_test():
+    class CDoc(Document):
+        @computed_field(IntField(), one_time=True)
+        def created(obj):
+            return 1
+    
+    c = CDoc()
+    assert c.created == 1
+    c.created = 2
+

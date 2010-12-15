@@ -54,7 +54,6 @@ class DocumentMeta(type):
         
         if new_class.config_extra_fields not in ['error', 'ignore']:
             raise DocumentException("config_extra_fields must be one of: 'error', 'ignore'")
-
         
         # 1. Set up links between fields and the document class
         for name, value in class_dict.iteritems():
