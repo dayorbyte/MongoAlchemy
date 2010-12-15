@@ -298,4 +298,13 @@ def qr_test_clone():
         it2.next()
     except StopIteration:
         pass
+
+def test_resolve_fields():
+    class Resolver(Document):
+        i = IntField(db_field='j')
+        k = IntField()
+    s = get_session()
+    s.clear_collection(Resolver)
     
+    q = s.query(Resolver).filter(Resolver.i.in_(6))
+

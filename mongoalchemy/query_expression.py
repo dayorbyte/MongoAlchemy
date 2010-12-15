@@ -108,7 +108,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$in`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$in' : [self.get_type().wrap_value(value) for value in values] }
+            self : { '$in' : [self.get_type().wrap_value(value) for value in values] }
         })
     
     def nin(self, *values):
@@ -116,7 +116,7 @@ class QueryField(object):
             in ``values``.  Produces a MongoDB ``$nin`` expression.
         '''
         return QueryExpression({
-            str(self) : { '$nin' : [self.get_type().wrap_value(value) for value in values] }
+            self : { '$nin' : [self.get_type().wrap_value(value) for value in values] }
         })
     
     def __str__(self):
