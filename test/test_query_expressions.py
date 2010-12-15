@@ -208,6 +208,6 @@ def test_ffq():
 # Array Index Operator
 def test_array_index_operator():
     
-    assert str(NestedParent.l.matched_index.i) == 'l.$.i', NestedParent.l.matched_index.i
+    assert str(NestedParent.l.matched_index().i) == 'l.$.i', NestedParent.l.matched_index().i
 
 

@@ -83,7 +83,6 @@ class QueryField(object):
         ''' Returns the underlying :class:`mongoalchemy.fields.Field` '''
         return self.__type
     
-    @property
     def matched_index(self):
         ''' Represents the matched array index on a query with objects inside
             of a list.  In the MongoDB docs, this is the ``$`` operator '''
