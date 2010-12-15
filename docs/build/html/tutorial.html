@@ -196,14 +196,22 @@ are two of the methods which can be used to do updates on a query.  Once an upda
 method has been called on a query any further chaining is on a  <a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression" title="mongoalchemy.update_expression.UpdateExpression"><tt class="xref py py-class docutils literal"><span class="pre">UpdateExpression</span></tt></a>,
 so no further filtering of results will be possible.  The <a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.execute" title="mongoalchemy.update_expression.UpdateExpression.execute"><tt class="xref py py-func docutils literal"><span class="pre">execute()</span></tt></a>
 method causes the update to actually happen in the database.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">At present there is no validation of which update methods work on which types of files, so it is possible to accidentally call <tt class="docutils literal"><span class="pre">add_to_set</span></tt> on an
-<tt class="docutils literal"><span class="pre">IntField</span></tt>.</p>
-</div>
+<p>It is also possible to call <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> on the session
+to automatically update a particular object with an update command instead of either
+saving the object again (which is synchronous) or constructing the update expression
+yourself as above.</p>
+<p>By default all fields use the set operation to update their
+values, but that can be overriden by passing the on_update operator to the field constructor,
+or a keyword argument to update.  The value of these arguments is currently a string with
+the mongo operation you want to do instead.  For example, <tt class="docutils literal"><span class="pre">IntField(on_update='$inc')</span></tt>
+is an IntField which will increment when update is called.  <tt class="docutils literal"><span class="pre">Session.update</span></tt> <em>is still experimental,
+so watch out for side-effects</em></p>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><a class="reference internal" href="api/expressions/update_expressions.html"><em>Update Expressions</em></a> for all available types of update expressions</p>
+<ul class="last simple">
+<li><a class="reference internal" href="api/expressions/update_expressions.html"><em>Update Expressions</em></a> for all available types of update expressions</li>
+<li><a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">mongoalchemy.session.Session.update()</span></tt></a> for details of automatic updates</li>
+</ul>
 </div>
 </div>
 <div class="section" id="performance">

@@ -143,11 +143,22 @@ method has been called on a query any further chaining is on a  :class:`~mongoal
 so no further filtering of results will be possible.  The :func:`~mongoalchemy.update_expression.UpdateExpression.execute`
 method causes the update to actually happen in the database.
 
-.. note:: At present there is no validation of which update methods work on which \
-    types of files, so it is possible to accidentally call ``add_to_set`` on an 
-    ``IntField``.
+It is also possible to call :func:`~mongoalchemy.session.Session.update` on the session
+to automatically update a particular object with an update command instead of either 
+saving the object again (which is synchronous) or constructing the update expression 
+yourself as above.  
 
-.. seealso:: :doc:`api/expressions/update_expressions` for all available types of update expressions
+By default all fields use the set operation to update their 
+values, but that can be overriden by passing the on_update operator to the field constructor,
+or a keyword argument to update.  The value of these arguments is currently a string with
+the mongo operation you want to do instead.  For example, ``IntField(on_update='$inc')``
+is an IntField which will increment when update is called.  ``Session.update`` *is still experimental,
+so watch out for side-effects*
+
+.. seealso:: 
+    
+    * :doc:`api/expressions/update_expressions` for all available types of update expressions
+    * :func:`mongoalchemy.session.Session.update` for details of automatic updates
 
 Performance
 -----------------------------

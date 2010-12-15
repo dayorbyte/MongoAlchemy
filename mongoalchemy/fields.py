@@ -109,7 +109,10 @@ class FieldMeta(type):
 
 class Field(object):
     auto = False
+    
+    #: If this kind of field can have sub-fields, this attribute should be True
     has_subfields = False
+    
     no_real_attributes = False  # used for free-form queries.  
     
     __metaclass__ = FieldMeta
@@ -564,9 +567,11 @@ class SequenceField(Field):
     
     @property
     def has_subfields(self):
+        ''' Returns True if the sequence's value type has subfields. '''
         return self.item_type.has_subfields
     
     def subfields(self):
+        ''' Returns the names of the value type's sub-fields'''
         return self.item_type.subfields()
     
     def wrap_value(self, value):
@@ -790,10 +795,9 @@ class DictField(Field):
 
 class KVField(DictField):
     ''' Like a DictField, except it allows arbitrary keys.  The DB Format for 
-        a ``KVField`` is ``[ { 'k' : key, 'v' : value }, ...]``.  This will eventually
-        makes it possible to have an index on the keys and values.
-    '''
-    
+        a ``KVField`` is ``[ { 'k' : key, 'v' : value }, ...]``.  Queries on 
+        keys and values. can be done with ``.k`` and ``.v`` '''
+    #: If this kind of field can have sub-fields, this attribute should be True
     has_subfields = True
     
     def __init__(self, key_type, value_type, **kwargs):
@@ -815,6 +819,9 @@ class KVField(DictField):
         self.value_type.name = 'v'
         
     def subfields(self):
+        '''Returns the k and v subfields, which can be accessed to do queries
+            based on either of them
+        '''
         return {
             'k' : self.key_type,
             'v' : self.value_type,
@@ -882,17 +889,27 @@ class KVField(DictField):
         return ret
 
 class ComputedField(Field):
-    ''' A computed field is generated based on an object's other values.  
+    ''' A computed field is generated based on an object's other values.  It
+        will generally be created with the @computed_field decorator, but
+        can be passed an arbitrary function.
         
-        the unwrap function takes a dictionary of K/V pairs of the 
-        dependencies.  Since dependencies are declared in the class 
-        definition all of the dependencies for a computed field should be
-        in the class definition before the computed field itself.
+        The function should take a dict which will contains keys with the names
+        of the dependencies mapped to their values.
+        
+        The computed value is recalculated every the field is accessed unless 
+        the one_time field is set to True.
+        
+        Example::
+        
+            >>> class SomeDoc(Document):
+            ...     @computed_field
+            ...     def last_modified(obj):
+            ...         return datetime.datetime.utcnow()
+        
         
         .. warning::
-            The computed field interacts weirdly with documents right now, 
-            especially with respect to partial loading.  If using this class
-            watch out for strange behaviour
+            The computed field interacts in an undefined way with partially loaded 
+            documents right now.  If using this class watch out for strange behaviour.
     '''
     
     valid_modifiers = SCALAR_MODIFIERS

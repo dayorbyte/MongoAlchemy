@@ -108,7 +108,11 @@ fields which couldn&#8217;t be mapped can be retrieved (and edited) using
 <dl class="method">
 <dt id="mongoalchemy.document.Document.get_dirty_ops">
 <tt class="descname">get_dirty_ops</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_dirty_ops" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a dict with the update operations necessary to make the 
+changes to this object to the database version.  It is mainly used
+internally for <a class="reference internal" href="../session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> but
+may be useful for diagnostic purposes as well.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Document.get_extra_fields">
@@ -138,7 +142,7 @@ default collection name.</p>
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.get_collection_name">
 <em class="property">classmethod </em><tt class="descname">get_collection_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_collection_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the collection name used by the class.  If the <tt class="docutils literal"><span class="pre">_collection_name</span></tt>
+<dd><p>Returns the collection name used by the class.  If the <tt class="docutils literal"><span class="pre">config_collection_name</span></tt>
 attribute is set it is used, otherwise the name of the class is used.</p>
 </dd></dl>
 
@@ -179,7 +183,11 @@ methods of the underlying fields to set values.</p>
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.validate_unwrap">
 <em class="property">classmethod </em><tt class="descname">validate_unwrap</tt><big>(</big><em>obj</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.validate_unwrap" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Attempts to unwrap the document, and raises a BadValueException if
+the operation fails. A TODO is to make this function do the checks
+without actually doing the (potentially expensive) 
+deserialization</p>
+</dd></dl>
 
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.unwrap">

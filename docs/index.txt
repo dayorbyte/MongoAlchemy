@@ -31,6 +31,40 @@ significantly slower and more likely to cause data loss.
 There's more detail in the :doc:`tutorial`, but a small example is on 
 this page below the contents of the documentation.
 
+Interesting Features
+-----------------------------
+
+* **Object-Document-Mapping**: Turn MongoDB documents into Python objects and vice-versa.
+* **A rich expression language**: which can be used to do queries for loading documents \
+  as well as updating documents without loading them.
+* **Use Any Collection and Field Names** — Configuration allows collection names and \
+  field names to be different from their python names.
+* **Computed Fields** :class:`~mongoalchemy.fields.ComputedField` fields allow a function \
+  to be used to generate the value for a field.  Extremely useful for fields \
+  where the value is a function (like a last-updated field), or where the \
+  field is generated from other fields (like a set of keywords generated \
+  or the components of a URL)
+* **User-defined validation** — for values being wrapped for the database or unwrapped \
+  into a python object, as well as validators which happen for both.  See :class:`~mongoalchemy.fields.Field` \
+* **Arbitrary Value Fields** — A field that can hold arbitrary values: :class:`~mongoalchemy.fields.AnythingField`
+* **More Flexible Mapping Type** A dict-like field which can have arbitrary key and value types as well as allowing \
+  indexing on the keys — not normally possible in Mongo — by storing them in \
+  a different format than how they appear when accessed in python a plain dict. :class:`~mongoalchemy.fields.KVField`
+* **Automatically Calculated Updates** — The session object has an :func:`mongoalchemy.session.Session.update` function which \
+  determines which fields are dirty and will execute the appropriate update operations to update the object in the database. \
+  The operations used for updating can be overriden at the field definition level as well as in the ``update`` call.
+* **Drop into raw Mongo** — Most functions will accept raw pymongo instead of the mongoalchemy objects.  \
+  For example:: 
+    
+        session.query('SomeClass').filter(SomeClass.name == foo).limit(5)`` 
+        
+  is perfectly valid, as is:: 
+    
+        session.query(SomeClass).filter({'name':'foo'})
+  
+  
+
+
 
 Installation
 -----------------------------
@@ -42,7 +76,6 @@ You can also download the source code from the Python Package index or GitHub:
 The source code is available at: http://github.com/jeffjenkins/MongoAlchemy
 
 The PyPi page is located here: http://pypi.python.org/pypi/MongoAlchemy/
-
 
 
 Examples

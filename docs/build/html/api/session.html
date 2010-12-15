@@ -75,11 +75,17 @@ anything intelligent for ordering.</p>
 <dl class="class">
 <dt id="mongoalchemy.session.Session">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.session.</tt><tt class="descname">Session</tt><big>(</big><em>database</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a session connecting to <cite>database</cite></p>
+<dd><p>Create a session connecting to <cite>database</cite>.</p>
 <dl class="docutils">
 <dt><strong>Parameters</strong>:</dt>
 <dd><ul class="first last simple">
-<li><cite>database</cite>: the database to connect to.  Should be an instance of                 <tt class="xref py py-class docutils literal"><span class="pre">pymongo.collection.Collection</span></tt></li>
+<li><cite>database</cite>: the database to connect to.  Should be an instance of                 <tt class="xref py py-class docutils literal"><span class="pre">pymongo.database.Database</span></tt></li>
+</ul>
+</dd>
+<dt><strong>Fields</strong>:</dt>
+<dd><ul class="first last simple">
+<li><cite>db</cite>: the underlying pymongo database object</li>
+<li><cite>queue</cite>: the queue of unflushed database commands (currently useless                 since there aren&#8217;t any operations which defer flushing)</li>
 </ul>
 </dd>
 </dl>
@@ -131,7 +137,7 @@ field to decide which operations to do, or.</p>
 </dl>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">This operation is <strong>experimental</strong> and <strong>nowhere near fully tested</strong>,
+<p class="last">This operation is <strong>experimental</strong> and <strong>not fully tested</strong>,
 although it does have code coverage.</p>
 </div>
 </dd></dl>
@@ -139,7 +145,12 @@ although it does have code coverage.</p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.query">
 <tt class="descname">query</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Begin a query on the database&#8217;s collection for <cite>type</cite>.</p>
+<dd><dl class="docutils">
+<dt>Begin a query on the database&#8217;s collection for <cite>type</cite>.  If <cite>type</cite></dt>
+<dd>is an instance of basesting, the query will be in raw query mode
+which will not check field values or transform returned results
+into python objects.</dd>
+</dl>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="expressions/query.html#mongoalchemy.query.Query" title="mongoalchemy.query.Query"><tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt></a> class</p>
@@ -207,7 +218,7 @@ the pending operations</p>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.clear_collection">
-<tt class="descname">clear_collection</tt><big>(</big><em>*cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">clear_collection</tt><big>(</big><em>*classes</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clear all objects from the collections associated with the 
 objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
 </dd></dl>

@@ -118,7 +118,7 @@ class Session(object):
             
             .. warning::
                 
-                This operation is **experimental** and **nowhere near fully tested**,
+                This operation is **experimental** and **not fully tested**,
                 although it does have code coverage.  
             '''
         if id_expression:

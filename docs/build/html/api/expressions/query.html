@@ -73,6 +73,16 @@ not directly.</p>
 </dd>
 </dl>
 <dl class="method">
+<dt id="mongoalchemy.query.Query.resolve_name">
+<tt class="descname">resolve_name</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.resolve_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.query.Query.query">
+<tt class="descname">query</tt><a class="headerlink" href="#mongoalchemy.query.Query.query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query.Query.get_fields">
 <tt class="descname">get_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.get_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -271,6 +281,21 @@ can be chained to sort by multiple fields.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query.Query.not_">
+<tt class="descname">not_</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.not_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a $not expression to the query, negating the query expressions 
+given.</p>
+<p><strong>Examples</strong>: <tt class="docutils literal"><span class="pre">query.not_(SomeDocClass.age</span> <span class="pre">&lt;=</span> <span class="pre">18)</span></tt> becomes <tt class="docutils literal"><span class="pre">{'age'</span> <span class="pre">:</span> <span class="pre">{</span> <span class="pre">'$not'</span> <span class="pre">:</span> <span class="pre">{</span> <span class="pre">'$gt'</span> <span class="pre">:</span> <span class="pre">18</span> <span class="pre">}</span> <span class="pre">}}</span></tt></p>
+<dl class="docutils">
+<dt><strong>Parameters</strong>:</dt>
+<dd><ul class="first last simple">
+<li>query_expressions: Instances of <a class="reference internal" href="query_expressions.html#mongoalchemy.query_expression.QueryExpression" title="mongoalchemy.query_expression.QueryExpression"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query_expression.QueryExpression</span></tt></a></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query.Query.or_">
 <tt class="descname">or_</tt><big>(</big><em>first_qe</em>, <em>*qes</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.or_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a $not expression to the query, negating the query expressions 
@@ -327,7 +352,7 @@ given.  The <tt class="docutils literal"><span class="pre">|</span> <span class=
 
 <dl class="method">
 <dt id="mongoalchemy.query.Query.inc">
-<tt class="descname">inc</tt><big>(</big><em>qfield</em>, <em>value=1</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.inc" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">inc</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.Query.inc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Refer to:  <a class="reference internal" href="update_expressions.html#mongoalchemy.update_expression.UpdateExpression.inc" title="mongoalchemy.update_expression.UpdateExpression.inc"><tt class="xref py py-func docutils literal"><span class="pre">inc()</span></tt></a></p>
 </dd></dl>
 
