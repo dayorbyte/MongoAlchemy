@@ -197,7 +197,7 @@ class QueryField(object):
     
     def __comparator(self, op, value):
         return QueryExpression({
-            self.get_absolute_name() : {
+            self : {
                 op : self.get_type().wrap(value)
             }
         })
