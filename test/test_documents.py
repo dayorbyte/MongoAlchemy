@@ -165,6 +165,22 @@ def docfield_test():
     assert sd.int1 == sup.int1
     assert sd.sub.int1 == doc.int1
 
+def test_non_ma_property_attribute_error():
+    ''' At the time of writing, it was possble for a normal class field to be 
+        treated as a MA one.  If the instance's field raised an attribute 
+        error we would try to access the "required" attribute of the class 
+        level field.  This attribute only exists on MA Field instances, 
+        though '''
+    class Doc(Document):
+        i = IntField()
+        
+        @property
+        def foo(self):
+            raise AttributeError()
+        
+    x = Doc(i=2)
+    assert Doc.unwrap(x.wrap()).i == x.i
+
 def test_doc_field_with_alternate_name():
     class Doc(Document):
         i = IntField(db_field='ii')

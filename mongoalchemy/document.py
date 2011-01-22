@@ -224,14 +224,15 @@ class Document(object):
         cls = self.__class__
         for name in dir(cls):
             field = getattr(cls, name)
+            if not isinstance(field, QueryField):
+                continue
             try:
                 value = getattr(self, name)
             except AttributeError:
                 if field.required:
                     raise MissingValueException(name)
                 continue
-            if isinstance(field, QueryField):
-                res[field.db_field] = field.wrap(value)
+            res[field.db_field] = field.wrap(value)
         return res
     
     @classmethod
