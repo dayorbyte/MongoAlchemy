@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Session &mdash; MongoAlchemy v0.7 documentation</title>
+    <title>Session &mdash; MongoAlchemy v0.8 documentation</title>
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.7 documentation" href="../index.html" />
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../index.html" />
     <link rel="up" title="API documentation" href="index.html" />
     <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
     <link rel="prev" title="API documentation" href="index.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="API documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -76,16 +76,22 @@ anything intelligent for ordering.</p>
 <dt id="mongoalchemy.session.Session">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.session.</tt><tt class="descname">Session</tt><big>(</big><em>database</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a session connecting to <cite>database</cite>.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li><cite>database</cite>: the database to connect to.  Should be an instance of                 <tt class="xref py py-class docutils literal"><span class="pre">pymongo.database.Database</span></tt></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>database</strong> &#8211; the database to connect to.  Should be an instance of             <tt class="xref py py-class docutils literal"><span class="pre">pymongo.database.Database</span></tt></li>
 </ul>
-</dd>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
 <dt><strong>Fields</strong>:</dt>
 <dd><ul class="first last simple">
-<li><cite>db</cite>: the underlying pymongo database object</li>
-<li><cite>queue</cite>: the queue of unflushed database commands (currently useless                 since there aren&#8217;t any operations which defer flushing)</li>
+<li>db: the underlying pymongo database object</li>
+<li>queue: the queue of unflushed database commands (currently useless                 since there aren&#8217;t any operations which defer flushing)</li>
 </ul>
 </dd>
 </dl>
@@ -94,15 +100,19 @@ anything intelligent for ordering.</p>
 <em class="property">classmethod </em><tt class="descname">connect</tt><big>(</big><em>database</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.connect" title="Permalink to this definition">¶</a></dt>
 <dd><p><cite>connect</cite> is a thin wrapper around __init__ which creates the 
 database connection that the session will use.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li><cite>database</cite>: the database name to use.  Should be an instance of                     <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></li>
-<li><cite>*args</cite>: arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
-<li><cite>**kwds</cite>: keyword arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>database</strong> &#8211; the database name to use.  Should be an instance of                     <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></li>
+<li><strong>args</strong> &#8211; arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
+<li><strong>kwds</strong> &#8211; keyword arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -124,17 +134,21 @@ insertion until the _id field is actually accessed</p>
 <tt class="descname">update</tt><big>(</big><em>item</em>, <em>id_expression=None</em>, <em>upsert=False</em>, <em>update_ops={}</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update an item in the database.  Uses the on_update keyword to each
 field to decide which operations to do, or.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li><cite>item</cite>: An instance of a <a class="reference internal" href="schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>                     subclass</li>
-<li><cite>id_expression</cite>: A query expression that uniquely picks out                     the item which should be updated.  If id_expression is not                     passed, update uses item.mongo_id.</li>
-<li><cite>upsert</cite>: Whether the update operation should be an upsert.                     If the item may not be in the database yet this should be True</li>
-<li><cite>update_ops</cite>: By default the operation used to update a field                     is specified with the on_update argument to its constructor.                     To override that value, use this dictionary, with                      <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt> objects as the keys                     and the mongo operation to use as the values.</li>
-<li><cite>**kwargs</cite>: The kwargs are merged into update_ops dict to                     decide which fields to update the operation for.  These can                     only be for the top-level document since the keys                     are just strings.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> &#8211; An instance of a <a class="reference internal" href="schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>                 subclass</li>
+<li><strong>id_expression</strong> &#8211; A query expression that uniquely picks out                 the item which should be updated.  If id_expression is not                 passed, update uses item.mongo_id.</li>
+<li><strong>upsert</strong> &#8211; Whether the update operation should be an upsert.                 If the item may not be in the database yet this should be True</li>
+<li><strong>update_ops</strong> &#8211; By default the operation used to update a field                 is specified with the on_update argument to its constructor.                 To override that value, use this dictionary, with                  <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt> objects as the keys                 and the mongo operation to use as the values.</li>
+<li><strong>kwargs</strong> &#8211; The kwargs are merged into update_ops dict to                 decide which fields to update the operation for.  These can                 only be for the top-level document since the keys                 are just strings.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
 <p class="last">This operation is <strong>experimental</strong> and <strong>not fully tested</strong>,
@@ -180,14 +194,18 @@ into python objects.</dd>
 no mongo ID set, the method just returns.  If this is a partial 
 document without the mongo ID field retrieved a <tt class="docutils literal"><span class="pre">FieldNotRetrieved</span></tt>
 will be raised</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>obj: the object to save</li>
-<li>safe: whether to wait for the operation to complete.  Defaults                     to the session&#8217;s <tt class="docutils literal"><span class="pre">safe</span></tt> value.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> &#8211; the object to save</li>
+<li><strong>safe</strong> &#8211; whether to wait for the operation to complete.  Defaults                 to the session&#8217;s <tt class="docutils literal"><span class="pre">safe</span></tt> value.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -282,7 +300,7 @@ objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
         <li class="right" >
           <a href="index.html" title="API documentation"
              >previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="index.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>

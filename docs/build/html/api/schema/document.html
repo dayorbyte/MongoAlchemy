@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>document &mdash; MongoAlchemy v0.7 documentation</title>
+    <title>document &mdash; MongoAlchemy v0.8 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.7 documentation" href="../../index.html" />
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../../index.html" />
     <link rel="up" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" />
     <link rel="next" title="fields" href="fields.html" />
     <link rel="prev" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="index.html" title="Schema — Document-Object Mapper and Schema Definitions"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
       </ul>
@@ -73,20 +73,19 @@ programmatically.  A document can have multiple indexes by adding extra
 <dl class="class">
 <dt id="mongoalchemy.document.Document">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">Document</tt><big>(</big><em>retrieved_fields=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last">
-<li><p class="first">retrieved_fields: The names of the fields returned when loading                 a partial object.  This argument should not be explicitly set                 by subclasses</p>
-</li>
-<li><dl class="first docutils">
-<dt>**kwargs:  The values for all of the fields in the document.                 Any additional fields will raise a <a class="reference internal" href="../exceptions.html#mongoalchemy.document.ExtraValueException" title="mongoalchemy.document.ExtraValueException"><tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt></a> and </dt>
-<dd><p class="first last">any missing (but required) fields will raise a <a class="reference internal" href="../exceptions.html#mongoalchemy.document.MissingValueException" title="mongoalchemy.document.MissingValueException"><tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt></a>.                 Both types of exceptions are subclasses of <a class="reference internal" href="../exceptions.html#mongoalchemy.document.DocumentException" title="mongoalchemy.document.DocumentException"><tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt></a>.</p>
-</dd>
-</dl>
-</li>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>retrieved_fields</strong> &#8211; The names of the fields returned when loading                 a partial object.  This argument should not be explicitly set                 by subclasses</li>
+<li><strong>**kwargs</strong> &#8211; The values for all of the fields in the document.                 Any additional fields will raise a <a class="reference internal" href="../exceptions.html#mongoalchemy.document.ExtraValueException" title="mongoalchemy.document.ExtraValueException"><tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt></a> and 
+any missing (but required) fields will raise a <a class="reference internal" href="../exceptions.html#mongoalchemy.document.MissingValueException" title="mongoalchemy.document.MissingValueException"><tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt></a>.                 Both types of exceptions are subclasses of <a class="reference internal" href="../exceptions.html#mongoalchemy.document.DocumentException" title="mongoalchemy.document.DocumentException"><tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt></a>.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="mongoalchemy.document.Document.mongo_id">
 <tt class="descname">mongo_id</tt><a class="headerlink" href="#mongoalchemy.document.Document.mongo_id" title="Permalink to this definition">¶</a></dt>
@@ -94,6 +93,30 @@ programmatically.  A document can have multiple indexes by adding extra
 is automatically set on objects when they are saved into the database.
 This field can be overridden in subclasses if the default ID is not
 acceptable</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.document.Document.config_namespace">
+<tt class="descname">config_namespace</tt><a class="headerlink" href="#mongoalchemy.document.Document.config_namespace" title="Permalink to this definition">¶</a></dt>
+<dd><p>The namespace is used to determine how string class names should be
+looked up.  If an instance of DocumentField is created using a string,
+it will be looked up using the value of this variable and the string.
+To have more than one namespace create a subclass of Document
+overriding this class variable.  To turn off caching all together,
+create a subclass where namespace is set to None.  Doing this will
+disable using strings to look up document names, which will make
+creating self-referencing documents impossible.  The default value is
+&#8220;global&#8221;</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.document.Document.config_full_name">
+<tt class="descname">config_full_name</tt><a class="headerlink" href="#mongoalchemy.document.Document.config_full_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>If namespaces are being used, the key for a class is normally
+the class name.  In some cases the same class name may be used in
+different modules.  This field allows a longer unambiguous name
+to be given.  It may also be used in error messages or string
+representations of the class</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -107,11 +130,22 @@ fields which couldn&#8217;t be mapped can be retrieved (and edited) using
 
 <dl class="method">
 <dt id="mongoalchemy.document.Document.get_dirty_ops">
-<tt class="descname">get_dirty_ops</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_dirty_ops" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_dirty_ops</tt><big>(</big><em>with_required=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_dirty_ops" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict with the update operations necessary to make the 
 changes to this object to the database version.  It is mainly used
 internally for <a class="reference internal" href="../session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> but
 may be useful for diagnostic purposes as well.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>with_required</strong> &#8211; Also include any field which is required.  This                 is useful if the method is being called for the purposes of                 an upsert where all required fields must always be sent.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -163,13 +197,17 @@ for the current class.</p>
 <tt class="descname">commit</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.commit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save this object to the database and set the <tt class="docutils literal"><span class="pre">_id</span></tt> field of this
 document to the returned id.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>db: The pymongo database to write to</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>db</strong> &#8211; The pymongo database to write to</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -195,14 +233,18 @@ deserialization</p>
 <dd><p>Returns an instance of this document class based on the mongo object 
 <tt class="docutils literal"><span class="pre">obj</span></tt>.  This is done by using the <tt class="docutils literal"><span class="pre">unwrap()</span></tt> methods of the 
 underlying fields to set values.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>obj: a <tt class="docutils literal"><span class="pre">SON</span></tt> object returned from a mongo database</li>
-<li>fields: A list of <tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryField</span></tt> objects                     for the fields to load.  If <tt class="xref docutils literal"><span class="pre">None</span></tt> is passed all fields                      are loaded</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> &#8211; a <tt class="docutils literal"><span class="pre">SON</span></tt> object returned from a mongo database</li>
+<li><strong>fields</strong> &#8211; A list of <tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.query.QueryField</span></tt> objects                     for the fields to load.  If <tt class="xref docutils literal"><span class="pre">None</span></tt> is passed all fields                      are loaded</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -231,52 +273,68 @@ on the owner document class.</p>
 <dt id="mongoalchemy.document.Index.ascending">
 <tt class="descname">ascending</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.ascending" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a descending index for <tt class="docutils literal"><span class="pre">name</span></tt> to this index.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>name: Name to be used in the index</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name to be used in the index</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Index.descending">
 <tt class="descname">descending</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.descending" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a descending index for <tt class="docutils literal"><span class="pre">name</span></tt> to this index.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>name: Name to be used in the index</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name to be used in the index</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Index.unique">
 <tt class="descname">unique</tt><big>(</big><em>drop_dups=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make this index unique, optionally dropping duplicate entries.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>drop_dups: Drop duplicate objects while creating the unique                 index?  Default to <tt class="xref docutils literal"><span class="pre">False</span></tt></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>drop_dups</strong> &#8211; Drop duplicate objects while creating the unique                 index?  Default to <tt class="xref docutils literal"><span class="pre">False</span></tt></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Index.ensure">
 <tt class="descname">ensure</tt><big>(</big><em>collection</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.ensure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the pymongo method <tt class="docutils literal"><span class="pre">ensure_index</span></tt> on the passed collection.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>collection: the <tt class="docutils literal"><span class="pre">pymongo</span></tt> collection to ensure this index                     is on</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>collection</strong> &#8211; the <tt class="docutils literal"><span class="pre">pymongo</span></tt> collection to ensure this index                     is on</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -342,7 +400,7 @@ on the owner document class.</p>
         <li class="right" >
           <a href="index.html" title="Schema — Document-Object Mapper and Schema Definitions"
              >previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" >Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
       </ul>

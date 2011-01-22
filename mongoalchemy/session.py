@@ -54,13 +54,12 @@ class Session(object):
         '''
         Create a session connecting to `database`.  
         
-        **Parameters**:
-            * `database`: the database to connect to.  Should be an instance of \
-                :class:`pymongo.database.Database`
+        :param database: the database to connect to.  Should be an instance of \
+            :class:`pymongo.database.Database`
         
         **Fields**:
-            * `db`: the underlying pymongo database object
-            * `queue`: the queue of unflushed database commands (currently useless \
+            * db: the underlying pymongo database object
+            * queue: the queue of unflushed database commands (currently useless \
                 since there aren't any operations which defer flushing)
         '''
         self.db = database
@@ -72,11 +71,10 @@ class Session(object):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
-            **Parameters**:
-                * `database`: the database name to use.  Should be an instance of \
+            :param database: the database name to use.  Should be an instance of \
                     :class:`basestring`
-                * `*args`: arguments for :class:`pymongo.connection.Connection`
-                * `**kwds`: keyword arguments for :class:`pymongo.connection.Connection`
+            :param args: arguments for :class:`pymongo.connection.Connection`
+            :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
         '''
         conn = Connection(*args, **kwds)
         db = conn[database]
@@ -84,7 +82,7 @@ class Session(object):
     
     def end(self):
         ''' End the session.  Flush all pending operations and ending the 
-        *pymongo* request'''
+            *pymongo* request'''
         self.flush()
         self.db.connection.end_request()
     
@@ -98,23 +96,22 @@ class Session(object):
         ''' Update an item in the database.  Uses the on_update keyword to each
             field to decide which operations to do, or.  
             
-            **Parameters**:
-                * `item`: An instance of a :class:`~mongoalchemy.document.Document` \
-                    subclass
-                * `id_expression`: A query expression that uniquely picks out \
-                    the item which should be updated.  If id_expression is not \
-                    passed, update uses item.mongo_id.
-                * `upsert`: Whether the update operation should be an upsert. \
-                    If the item may not be in the database yet this should be True
-                * `update_ops`: By default the operation used to update a field \
-                    is specified with the on_update argument to its constructor. \
-                    To override that value, use this dictionary, with  \
-                    :class:`~mongoalchemy.document.QueryField` objects as the keys \
-                    and the mongo operation to use as the values.
-                * `\*\*kwargs`: The kwargs are merged into update_ops dict to \
-                    decide which fields to update the operation for.  These can \
-                    only be for the top-level document since the keys \
-                    are just strings.
+            :param item: An instance of a :class:`~mongoalchemy.document.Document` \
+                subclass
+            :param id_expression: A query expression that uniquely picks out \
+                the item which should be updated.  If id_expression is not \
+                passed, update uses item.mongo_id.
+            :param upsert: Whether the update operation should be an upsert. \
+                If the item may not be in the database yet this should be True
+            :param update_ops: By default the operation used to update a field \
+                is specified with the on_update argument to its constructor. \
+                To override that value, use this dictionary, with  \
+                :class:`~mongoalchemy.document.QueryField` objects as the keys \
+                and the mongo operation to use as the values.
+            :param kwargs: The kwargs are merged into update_ops dict to \
+                decide which fields to update the operation for.  These can \
+                only be for the top-level document since the keys \
+                are just strings.
             
             .. warning::
                 
@@ -190,10 +187,9 @@ class Session(object):
             document without the mongo ID field retrieved a ``FieldNotRetrieved``
             will be raised
             
-            **Parameters**:
-                * obj: the object to save
-                * safe: whether to wait for the operation to complete.  Defaults \
-                    to the session's ``safe`` value.
+            :param obj: the object to save
+            :param safe: whether to wait for the operation to complete.  Defaults \
+                to the session's ``safe`` value.
         '''
         self.flush()
         if safe == None:

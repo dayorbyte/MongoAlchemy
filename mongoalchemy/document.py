@@ -117,12 +117,10 @@ class Document(object):
         :func:`~Document.get_extra_fields` '''
     
     def __init__(self, retrieved_fields=None, **kwargs):
-        '''
-        **Parameters**:
-            * retrieved_fields: The names of the fields returned when loading \
+        ''' :param retrieved_fields: The names of the fields returned when loading \
                 a partial object.  This argument should not be explicitly set \
                 by subclasses
-            * \*\*kwargs:  The values for all of the fields in the document. \
+            :param \*\*kwargs:  The values for all of the fields in the document. \
                 Any additional fields will raise a :class:`~mongoalchemy.document.ExtraValueException` and \ 
                 any missing (but required) fields will raise a :class:`~mongoalchemy.document.MissingValueException`. \
                 Both types of exceptions are subclasses of :class:`~mongoalchemy.document.DocumentException`.
@@ -185,14 +183,14 @@ class Document(object):
     
     @classmethod
     def get_fields(cls):
-        '''Returns a dict mapping the names of the fields in a document 
+        ''' Returns a dict mapping the names of the fields in a document 
             or subclass to the associated :class:`~mongoalchemy.fields.Field`
         '''
         return cls._fields
     
     @classmethod
     def class_name(cls):
-        '''Returns the name of the class. The name of the class is also the 
+        ''' Returns the name of the class. The name of the class is also the 
             default collection name.  
             
             .. seealso:: :func:`~Document.get_collection_name`
@@ -243,8 +241,7 @@ class Document(object):
         ''' Save this object to the database and set the ``_id`` field of this
             document to the returned id.
             
-            **Parameters**:
-                * db: The pymongo database to write to
+            :param db: The pymongo database to write to
         '''
         collection = db[self.get_collection_name()]
         for index in self.get_indexes():
@@ -286,13 +283,12 @@ class Document(object):
     
     @classmethod
     def unwrap(cls, obj, fields=None):
-        '''Returns an instance of this document class based on the mongo object 
+        ''' Returns an instance of this document class based on the mongo object 
             ``obj``.  This is done by using the ``unwrap()`` methods of the 
             underlying fields to set values.
             
-            **Parameters**:
-                * obj: a ``SON`` object returned from a mongo database
-                * fields: A list of :class:`mongoalchemy.query.QueryField` objects \
+            :param obj: a ``SON`` object returned from a mongo database
+            :param fields: A list of :class:`mongoalchemy.query.QueryField` objects \
                     for the fields to load.  If ``None`` is passed all fields  \
                     are loaded
             '''
@@ -352,7 +348,7 @@ class DictDoc(object):
         return self[name]
     
     def __contains__(self, name):
-        '''Return whether a field is present.  Fails if ``name`` is not a 
+        ''' Return whether a field is present.  Fails if ``name`` is not a 
             field or ``name`` is not set on the document or if ``name`` was 
             not a field retrieved from the database
         '''
@@ -419,11 +415,10 @@ class DocumentField(Field):
         ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_unwrap` and 
             raises a :class:`BadValueException` if validation fails            
             
-            **Parameters**: 
-                * value: The value to validate
-                * fields: The fields being returned if this is a partial \
-                    document. They will be ignored when validating the fields \
-                    of ``value``
+            :param value: The value to validate
+            :param fields: The fields being returned if this is a partial \
+                document. They will be ignored when validating the fields \
+                of ``value``
         '''
         try:
             self.validate_unwrap(value, fields=fields)
@@ -432,13 +427,13 @@ class DocumentField(Field):
         return True
     
     def wrap(self, value):
-        '''Validate ``value`` and then use the document's class to wrap the 
+        ''' Validate ``value`` and then use the document's class to wrap the 
             value'''
         self.validate_wrap(value)
         return self.type.wrap(value)
     
     def unwrap(self, value, fields=None):
-        '''Validate ``value`` and then use the document's class to unwrap the 
+        ''' Validate ``value`` and then use the document's class to unwrap the 
             value'''
         self.validate_unwrap(value, fields=fields)
         return self.type.unwrap(value, fields=fields)
@@ -452,7 +447,7 @@ class DocumentField(Field):
             self._fail_validation_type(value, self.type)
     
     def validate_unwrap(self, value, fields=None):
-        '''Validates every field in the underlying document type.  If ``fields`` 
+        ''' Validates every field in the underlying document type.  If ``fields`` 
             is not ``None``, only the fields in ``fields`` will be checked.
         '''
         try:
@@ -464,7 +459,7 @@ class BadIndexException(Exception):
     pass
 
 class Index(object):
-    '''This class is  used in the class definition of a :class:`~Document` to 
+    ''' This class is  used in the class definition of a :class:`~Document` to 
         specify a single, possibly compound, index.  ``pymongo``'s ``ensure_index``
         will be called on each index before a database operation is executed 
         on the owner document class.
@@ -488,28 +483,25 @@ class Index(object):
         self.__drop_dups = False
     
     def ascending(self, name):
-        '''Add a descending index for ``name`` to this index.
+        ''' Add a descending index for ``name`` to this index.
         
-        **Parameters**:
-            * name: Name to be used in the index
+            :param name: Name to be used in the index
         '''
         self.components.append((name, Index.ASCENDING))
         return self
 
     def descending(self, name):
-        '''Add a descending index for ``name`` to this index.
-        
-        **Parameters**:
-            * name: Name to be used in the index
+        ''' Add a descending index for ``name`` to this index.
+            
+            :param name: Name to be used in the index
         '''
         self.components.append((name, Index.DESCENDING))
         return self
     
     def unique(self, drop_dups=False):
-        '''Make this index unique, optionally dropping duplicate entries.
+        ''' Make this index unique, optionally dropping duplicate entries.
                 
-        **Parameters**:
-            * drop_dups: Drop duplicate objects while creating the unique \
+            :param drop_dups: Drop duplicate objects while creating the unique \
                 index?  Default to ``False``
         '''
         self.__unique = True
@@ -519,8 +511,7 @@ class Index(object):
     def ensure(self, collection):
         ''' Call the pymongo method ``ensure_index`` on the passed collection.
             
-            **Parameters**:
-                * collection: the ``pymongo`` collection to ensure this index \
+            :param collection: the ``pymongo`` collection to ensure this index \
                     is on
         '''
         collection.ensure_index(self.components, unique=self.__unique, 

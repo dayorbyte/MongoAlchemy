@@ -13,6 +13,7 @@ Contents:
     :titlesonly:
    
     tutorial
+    advanced_modeling
     api/index
     examples/index
 

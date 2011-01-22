@@ -135,20 +135,19 @@ class Field(object):
     def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
             validator=None, unwrap_validator=None, wrap_validator=None):
         '''
-        **Parameters**:
-            * required: The field must be passed when constructing a document (optional. default: ``True``)
-            * default:  Default value to use if one is not given (optional.)
-            * db_field: name to use when saving or loading this field from the database \
+            :param required: The field must be passed when constructing a document (optional. default: ``True``)
+            :param default:  Default value to use if one is not given (optional.)
+            :param db_field: name to use when saving or loading this field from the database \
                 (optional.  default is the name the field is assigned to on a documet)
-            * allow_none: allow ``None`` as a value (optional. default: False)
-            * validator: a callable which will be called on objects when wrapping/unwrapping
-            * unwrap_validator: a callable which will be called on objects when unwrapping
-            * wrap_validator: a callable which will be called on objects when wrapping
+            :param allow_none: allow ``None`` as a value (optional. default: False)
+            :param validator: a callable which will be called on objects when wrapping/unwrapping
+            :param unwrap_validator: a callable which will be called on objects when unwrapping
+            :param wrap_validator: a callable which will be called on objects when wrapping
         
-        The general validator is called after the field's validator, but before 
-        either of the wrap/unwrap versions.  The validator should raise a BadValueException
-        if it fails, but if it returns False the field will raise an exception with
-        a generic message.
+            The general validator is called after the field's validator, but before 
+            either of the wrap/unwrap versions.  The validator should raise a BadValueException
+            if it fails, but if it returns False the field will raise an exception with
+            a generic message.
         
         '''
         self.__db_field = db_field
@@ -241,8 +240,7 @@ class Field(object):
         ''' Returns an object suitable for setting as a value on a MongoDB object.  
             Raises ``NotImplementedError`` in the base class.
             
-            **Parameters**: 
-                * value: The value to convert.
+            :param value: The value to convert.
         '''
         raise NotImplementedError()
     
@@ -251,8 +249,7 @@ class Field(object):
             :class:`~mongoalchemy.document.Document`.  
             Raises ``NotImplementedError`` in the base class.
             
-            **Parameters**: 
-                * value: The value to convert.
+            :param value: The value to convert.
             '''
         raise NotImplementedError()
     
@@ -260,8 +257,7 @@ class Field(object):
         ''' Called before wrapping.  Calls :func:`~Field.is_valid_wrap` and 
             raises a :class:`BadValueException` if validation fails            
             
-            **Parameters**: 
-                * value: The value to validate
+            :param value: The value to validate
         '''
         raise NotImplementedError()
     
@@ -273,8 +269,7 @@ class Field(object):
                 ``is_valid_unwrap`` calls ``is_valid_wrap``, so any class without
                 a is_valid_unwrap function is inheriting that behaviour.
         
-            **Parameters**: 
-                * value: The value to check
+            :param value: The value to check
         '''
         
         self.validate_wrap(value)
@@ -291,8 +286,7 @@ class Field(object):
         ''' Returns whether ``value`` is a valid value to wrap.
             Raises ``NotImplementedError`` in the base class.
         
-            **Parameters**: 
-                * value: The value to check
+            :param value: The value to check
         '''
         try:
             self.validate_wrap(value)
@@ -304,8 +298,7 @@ class Field(object):
         ''' Returns whether ``value`` is a valid value to unwrap.
             Raises ``NotImplementedError`` in the base class.
         
-            **Parameters**: 
-                * value: The value to check
+            :param value: The value to check
         '''
         try:
             self.validate_unwrap(value)
@@ -334,11 +327,9 @@ class StringField(PrimitiveField):
     ''' Unicode Strings.  ``unicode`` is used to wrap and unwrap values, 
         and any subclass of basestring is an acceptable input'''
     def __init__(self, max_length=None, min_length=None, **kwargs):
-        '''
-        **Parameters**:
-            * max_length: maximum string length
-            * min_length: minimum string length
-            * \*\*kwargs: arguments for :class:`Field`
+        ''' :param max_length: maximum string length
+            :param min_length: minimum string length
+            :param kwargs: arguments for :class:`Field`
         '''
         self.max = max_length
         self.min = min_length
@@ -375,11 +366,9 @@ class NumberField(PrimitiveField):
     valid_modifiers = NUMBER_MODIFIERS
     
     def __init__(self, constructor, min_value=None, max_value=None, **kwargs):
-        '''
-        **Parameters**:
-            * max_value: maximum value
-            * min_value: minimum value
-            * \*\*kwargs: arguments for :class:`Field`
+        ''' :param max_value: maximum value
+            :param min_value: minimum value
+            :param kwargs: arguments for :class:`Field`
         '''
         super(NumberField, self).__init__(constructor=constructor, **kwargs)
         self.min = min_value
@@ -397,11 +386,9 @@ class NumberField(PrimitiveField):
 class IntField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``int``'''
     def __init__(self, **kwargs):
-        '''
-        **Parameters**:
-            * max_length: maximum value
-            * min_length: minimum value
-            * \*\*kwargs: arguments for :class:`Field`
+        ''' :param max_length: maximum value
+            :param min_length: minimum value
+            :param kwargs: arguments for :class:`Field`
         '''
         super(IntField, self).__init__(constructor=int, **kwargs)
     def validate_wrap(self, value):
@@ -411,11 +398,9 @@ class IntField(NumberField):
 class FloatField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``float`` '''
     def __init__(self, **kwargs):
-        '''
-        **Parameters**:
-            * max_value: maximum value
-            * min_value: minimum value
-            * \*\*kwargs: arguments for :class:`Field`
+        ''' :param max_value: maximum value
+            :param min_value: minimum value
+            :param kwargs: arguments for :class:`Field`
         '''
         super(FloatField, self).__init__(constructor=float, **kwargs)
     def validate_wrap(self, value):
@@ -425,11 +410,9 @@ class FloatField(NumberField):
 class DateTimeField(PrimitiveField):
     ''' Field for datetime objects. '''
     def __init__(self, min_date=None, max_date=None, **kwargs):
-        '''
-        **Parameters**:
-            * max_date: maximum date
-            * min_date: minimum date
-            * \*\*kwargs: arguments for :class:`Field`
+        ''' :param max_date: maximum date
+            :param min_date: minimum date
+            :param kwargs: arguments for :class:`Field`
         '''
         super(DateTimeField, self).__init__(lambda dt : dt, **kwargs)
         self.min = min_date
@@ -456,11 +439,9 @@ class TupleField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     def __init__(self, *item_types, **kwargs):
-        '''
-            **Parameters**:
-                * \*item_types: instances of :class:`Field`, in the order they \
+        ''' :param item_types: instances of :class:`Field`, in the order they \
                     will appear in the tuples.
-                * \*\*kwargs: arguments for :class:`Field`
+            :param kwargs: arguments for :class:`Field`
         '''
         super(TupleField, self).__init__(**kwargs)
         self.size = len(item_types)
@@ -489,8 +470,7 @@ class TupleField(Field):
     def wrap(self, value):
         ''' Validate and then wrap ``value`` for insertion.
             
-            **Parameters**
-                * value: the tuple (or list) to wrap
+            :param value: the tuple (or list) to wrap
         '''
         self.validate_wrap(value)
         ret = []
@@ -501,8 +481,7 @@ class TupleField(Field):
     def unwrap(self, value):
         ''' Validate and then unwrap ``value`` for object creation.
             
-            **Parameters**
-                * value: list returned from the database.  
+            :param value: list returned from the database.  
         '''
         self.validate_unwrap(value)
         ret = []
@@ -521,10 +500,8 @@ class EnumField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     def __init__(self, item_type, *values, **kwargs):
-        '''
-        **Parameters**:
-            * item_type: Instance of :class:`Field` to use for validation, and (un)wrapping
-            * values: Possible values.  ``item_type.is_valid_wrap(value)`` should be ``True``
+        ''' :param item_type: Instance of :class:`Field` to use for validation, and (un)wrapping
+            :param values: Possible values.  ``item_type.is_valid_wrap(value)`` should be ``True``
         '''
         super(EnumField, self).__init__(**kwargs)
         self.item_type = item_type
@@ -576,11 +553,9 @@ class SequenceField(Field):
     
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 
             **kwargs):
-        '''
-            **Parameters**:
-                * item_type: :class:`Field` instance used for validation and (un)wrapping
-                * min_capacity: minimum number of items contained in values
-                * max_capacity: maximum number of items contained in values 
+        ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
+            :param min_capacity: minimum number of items contained in values
+            :param max_capacity: maximum number of items contained in values 
         '''
         super(SequenceField, self).__init__(**kwargs)
         self.item_type = item_type
@@ -696,18 +671,18 @@ class AnythingField(Field):
     valid_modifiers = ANY_MODIFIER
     
     def wrap(self, value):
-        '''Always returns the value passed in'''
+        ''' Always returns the value passed in'''
         return value
 
     def unwrap(self, value):
-        '''Always returns the value passed in'''
+        ''' Always returns the value passed in'''
         return value
     
     def validate_unwrap(self, value):
-        '''Always passes'''
+        ''' Always passes'''
         pass
     def validate_wrap(self, value):
-        '''Always passes'''
+        ''' Always passes'''
         pass
 
 class ObjectIdField(Field):
@@ -752,9 +727,7 @@ class DictField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     def __init__(self, value_type, **kwargs):
-        '''
-            **Parameters**:
-                * value_type: the Field type to use for the values
+        ''' :param value_type: the Field type to use for the values
         '''
         super(DictField, self).__init__(**kwargs)
         self.value_type = value_type
@@ -825,10 +798,8 @@ class KVField(DictField):
     has_subfields = True
     
     def __init__(self, key_type, value_type, **kwargs):
-        '''
-            **Parameters**:
-                * key_type: the Field type to use for the keys
-                * value_type: the Field type to use for the values
+        ''' :param key_type: the Field type to use for the keys
+            :param value_type: the Field type to use for the values
         '''
         super(DictField, self).__init__(**kwargs)
         
@@ -843,7 +814,7 @@ class KVField(DictField):
         self.value_type.name = 'v'
         
     def subfields(self):
-        '''Returns the k and v subfields, which can be accessed to do queries
+        ''' Returns the k and v subfields, which can be accessed to do queries
             based on either of them
         '''
         return {
@@ -940,12 +911,10 @@ class ComputedField(Field):
     
     auto = True
     def __init__(self, computed_type, fun, one_time=False, deps=None, **kwargs):
-        '''
-            **Parameters**:
-                * fun: the function to compute the value of the computed field
-                * computed_type: the type to use when wrapping the computed field
-                * deps: the names of fields on the current object which should be \
-                    passed in to compute the value
+        ''' :param fun: the function to compute the value of the computed field
+            :param computed_type: the type to use when wrapping the computed field
+            :param deps: the names of fields on the current object which should be \
+                passed in to compute the value
         '''
         super(ComputedField, self).__init__(**kwargs)
         self.computed_type = computed_type
@@ -1006,14 +975,14 @@ class ComputedField(Field):
         return self.computed_type.wrap_value(value)
     
     def validate_wrap(self, value):
-        '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
+        ''' Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         try:
             self.computed_type.validate_wrap(value)
         except BadValueException, bve:
             self._fail_validation(value, 'Bad value for computed field', cause=bve)
     
     def validate_unwrap(self, value):
-        '''Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
+        ''' Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         try:
             self.computed_type.validate_unwrap(value)
         except BadValueException, bve:

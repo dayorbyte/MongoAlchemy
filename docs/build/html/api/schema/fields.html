@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>fields &mdash; MongoAlchemy v0.7 documentation</title>
+    <title>fields &mdash; MongoAlchemy v0.8 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.7',
+        VERSION:     '0.8',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.7 documentation" href="../../index.html" />
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../../index.html" />
     <link rel="up" title="Schema — Document-Object Mapper and Schema Definitions" href="index.html" />
     <link rel="next" title="Expression Language — Querying and Updating" href="../expressions/index.html" />
     <link rel="prev" title="document" href="document.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="document.html" title="document"
              accesskey="P">previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
       </ul>
@@ -94,19 +94,23 @@ output types for <a class="reference internal" href="#mongoalchemy.fields.Field.
 <dl class="class">
 <dt id="mongoalchemy.fields.Field">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">Field</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>required: The field must be passed when constructing a document (optional. default: <tt class="xref docutils literal"><span class="pre">True</span></tt>)</li>
-<li>default:  Default value to use if one is not given (optional.)</li>
-<li>db_field: name to use when saving or loading this field from the database                 (optional.  default is the name the field is assigned to on a documet)</li>
-<li>allow_none: allow <tt class="xref docutils literal"><span class="pre">None</span></tt> as a value (optional. default: False)</li>
-<li>validator: a callable which will be called on objects when wrapping/unwrapping</li>
-<li>unwrap_validator: a callable which will be called on objects when unwrapping</li>
-<li>wrap_validator: a callable which will be called on objects when wrapping</li>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>required</strong> &#8211; The field must be passed when constructing a document (optional. default: <tt class="xref docutils literal"><span class="pre">True</span></tt>)</li>
+<li><strong>default</strong> &#8211; Default value to use if one is not given (optional.)</li>
+<li><strong>db_field</strong> &#8211; name to use when saving or loading this field from the database                 (optional.  default is the name the field is assigned to on a documet)</li>
+<li><strong>allow_none</strong> &#8211; allow <tt class="xref docutils literal"><span class="pre">None</span></tt> as a value (optional. default: False)</li>
+<li><strong>validator</strong> &#8211; a callable which will be called on objects when wrapping/unwrapping</li>
+<li><strong>unwrap_validator</strong> &#8211; a callable which will be called on objects when unwrapping</li>
+<li><strong>wrap_validator</strong> &#8211; a callable which will be called on objects when wrapping</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p>The general validator is called after the field&#8217;s validator, but before 
 either of the wrap/unwrap versions.  The validator should raise a BadValueException
 if it fails, but if it returns False the field will raise an exception with
@@ -120,6 +124,11 @@ a generic message.</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.Field.dirty_ops">
 <tt class="descname">dirty_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.dirty_ops" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.update_ops">
+<tt class="descname">update_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.update_ops" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -140,31 +149,39 @@ in $in</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.Field.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an object suitable for setting as a value on a MongoDB object.  
 Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> in the base class.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to convert.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to convert.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.Field.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an object suitable for setting as a value on a subclass of
 <a class="reference internal" href="document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>.  
 Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> in the base class.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to convert.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to convert.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -172,13 +189,17 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called before wrapping.  Calls <a class="reference internal" href="#mongoalchemy.fields.Field.is_valid_wrap" title="mongoalchemy.fields.Field.is_valid_wrap"><tt class="xref py py-func docutils literal"><span class="pre">is_valid_wrap()</span></tt></a> and 
 raises a <tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt> if validation fails</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to validate</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to validate</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -191,13 +212,17 @@ a <tt class="xref py py-class docutils literal"><span class="pre">BadValueExcept
 <p class="last"><tt class="docutils literal"><span class="pre">is_valid_unwrap</span></tt> calls <tt class="docutils literal"><span class="pre">is_valid_wrap</span></tt>, so any class without
 a is_valid_unwrap function is inheriting that behaviour.</p>
 </div>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to check</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to check</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -205,13 +230,17 @@ a is_valid_unwrap function is inheriting that behaviour.</p>
 <tt class="descname">is_valid_wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.is_valid_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns whether <tt class="docutils literal"><span class="pre">value</span></tt> is a valid value to wrap.
 Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> in the base class.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to check</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to check</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -219,13 +248,17 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns whether <tt class="docutils literal"><span class="pre">value</span></tt> is a valid value to unwrap.
 Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span></tt> in the base class.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to check</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to check</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -240,12 +273,12 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 for wrapping and unwrapping an object.</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.PrimitiveField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.PrimitiveField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.PrimitiveField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -255,15 +288,19 @@ for wrapping and unwrapping an object.</p>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">StringField</tt><big>(</big><em>max_length=None</em>, <em>min_length=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unicode Strings.  <tt class="docutils literal"><span class="pre">unicode</span></tt> is used to wrap and unwrap values, 
 and any subclass of basestring is an acceptable input</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>max_length: maximum string length</li>
-<li>min_length: minimum string length</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_length</strong> &#8211; maximum string length</li>
+<li><strong>min_length</strong> &#8211; minimum string length</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.StringField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -287,15 +324,19 @@ and any subclass of basestring is an acceptable input</p>
 <dt id="mongoalchemy.fields.NumberField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">NumberField</tt><big>(</big><em>constructor</em>, <em>min_value=None</em>, <em>max_value=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for numeric fields</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>max_value: maximum value</li>
-<li>min_value: minimum value</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_value</strong> &#8211; maximum value</li>
+<li><strong>min_value</strong> &#8211; minimum value</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.NumberField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.NumberField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -308,15 +349,19 @@ and any subclass of basestring is an acceptable input</p>
 <dt id="mongoalchemy.fields.IntField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">IntField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subclass of <a class="reference internal" href="#mongoalchemy.fields.NumberField" title="mongoalchemy.fields.NumberField"><tt class="xref py py-class docutils literal"><span class="pre">NumberField</span></tt></a> for <tt class="docutils literal"><span class="pre">int</span></tt></p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>max_length: maximum value</li>
-<li>min_length: minimum value</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_length</strong> &#8211; maximum value</li>
+<li><strong>min_length</strong> &#8211; minimum value</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.IntField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.IntField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -329,15 +374,19 @@ and any subclass of basestring is an acceptable input</p>
 <dt id="mongoalchemy.fields.FloatField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">FloatField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subclass of <a class="reference internal" href="#mongoalchemy.fields.NumberField" title="mongoalchemy.fields.NumberField"><tt class="xref py py-class docutils literal"><span class="pre">NumberField</span></tt></a> for <tt class="docutils literal"><span class="pre">float</span></tt></p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>max_value: maximum value</li>
-<li>min_value: minimum value</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_value</strong> &#8211; maximum value</li>
+<li><strong>min_value</strong> &#8211; minimum value</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.FloatField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.FloatField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -350,15 +399,19 @@ and any subclass of basestring is an acceptable input</p>
 <dt id="mongoalchemy.fields.DateTimeField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">DateTimeField</tt><big>(</big><em>min_date=None</em>, <em>max_date=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Field for datetime objects.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>max_date: maximum date</li>
-<li>min_date: minimum date</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>max_date</strong> &#8211; maximum date</li>
+<li><strong>min_date</strong> &#8211; minimum date</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.DateTimeField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -375,14 +428,18 @@ date range</p>
 types for each element in the field.</p>
 <p><strong>Examples</strong> <tt class="docutils literal"><span class="pre">TupleField(IntField(),</span> <span class="pre">BoolField())</span></tt> would accept
 <tt class="docutils literal"><span class="pre">[19,</span> <span class="pre">False]</span></tt> as a value for both wrapping and unwrapping.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>*item_types: instances of <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a>, in the order they                     will appear in the tuples.</li>
-<li>**kwargs: arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item_types</strong> &#8211; instances of <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a>, in the order they                     will appear in the tuples.</li>
+<li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.TupleField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -399,28 +456,36 @@ each element validates agains the associated Field class</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.TupleField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate and then wrap <tt class="docutils literal"><span class="pre">value</span></tt> for insertion.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="first last simple">
-<li>value: the tuple (or list) to wrap</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; the tuple (or list) to wrap</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.TupleField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate and then unwrap <tt class="docutils literal"><span class="pre">value</span></tt> for object creation.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong></dt>
-<dd><ul class="first last simple">
-<li>value: list returned from the database.</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; list returned from the database.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -432,14 +497,18 @@ each element validates agains the associated Field class</p>
 of the same type. == is used for comparison</p>
 <p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">EnumField(IntField(),</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">7)</span></tt> would accept anything 
 in <tt class="docutils literal"><span class="pre">(4,</span> <span class="pre">6,</span> <span class="pre">7)</span></tt> as a value.  It would not accept <tt class="docutils literal"><span class="pre">5</span></tt>.</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>item_type: Instance of <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> to use for validation, and (un)wrapping</li>
-<li>values: Possible values.  <tt class="docutils literal"><span class="pre">item_type.is_valid_wrap(value)</span></tt> should be <tt class="xref docutils literal"><span class="pre">True</span></tt></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item_type</strong> &#8211; Instance of <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> to use for validation, and (un)wrapping</li>
+<li><strong>values</strong> &#8211; Possible values.  <tt class="docutils literal"><span class="pre">item_type.is_valid_wrap(value)</span></tt> should be <tt class="xref docutils literal"><span class="pre">True</span></tt></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.EnumField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -461,14 +530,14 @@ actually unwrapped, that check is done in <a class="reference internal" href="#m
 
 <dl class="method">
 <dt id="mongoalchemy.fields.EnumField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate and wrap value using the wrapping function from 
 <tt class="docutils literal"><span class="pre">EnumField.item_type</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.EnumField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unwrap value using the unwrap function from <tt class="docutils literal"><span class="pre">EnumField.item_type</span></tt>.
 Since unwrap validation could not happen in is_valid_wrap, it 
 happens in this function.</p>
@@ -490,14 +559,14 @@ representation of one</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ObjectIdField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates that <tt class="docutils literal"><span class="pre">value</span></tt> is an ObjectId (or hex representation 
 of one), then returns it</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ObjectIdField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates that <tt class="docutils literal"><span class="pre">value</span></tt> is an ObjectId, then returns it</p>
 </dd></dl>
 
@@ -508,32 +577,36 @@ of one), then returns it</p>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">AnythingField</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field that passes through whatever is set with no validation.  Useful
 for free-form objects</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>required: The field must be passed when constructing a document (optional. default: <tt class="xref docutils literal"><span class="pre">True</span></tt>)</li>
-<li>default:  Default value to use if one is not given (optional.)</li>
-<li>db_field: name to use when saving or loading this field from the database                 (optional.  default is the name the field is assigned to on a documet)</li>
-<li>allow_none: allow <tt class="xref docutils literal"><span class="pre">None</span></tt> as a value (optional. default: False)</li>
-<li>validator: a callable which will be called on objects when wrapping/unwrapping</li>
-<li>unwrap_validator: a callable which will be called on objects when unwrapping</li>
-<li>wrap_validator: a callable which will be called on objects when wrapping</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>required</strong> &#8211; The field must be passed when constructing a document (optional. default: <tt class="xref docutils literal"><span class="pre">True</span></tt>)</li>
+<li><strong>default</strong> &#8211; Default value to use if one is not given (optional.)</li>
+<li><strong>db_field</strong> &#8211; name to use when saving or loading this field from the database                 (optional.  default is the name the field is assigned to on a documet)</li>
+<li><strong>allow_none</strong> &#8211; allow <tt class="xref docutils literal"><span class="pre">None</span></tt> as a value (optional. default: False)</li>
+<li><strong>validator</strong> &#8211; a callable which will be called on objects when wrapping/unwrapping</li>
+<li><strong>unwrap_validator</strong> &#8211; a callable which will be called on objects when unwrapping</li>
+<li><strong>wrap_validator</strong> &#8211; a callable which will be called on objects when wrapping</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <p>The general validator is called after the field&#8217;s validator, but before 
 either of the wrap/unwrap versions.  The validator should raise a BadValueException
 if it fails, but if it returns False the field will raise an exception with
 a generic message.</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.AnythingField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Always returns the value passed in</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.AnythingField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Always returns the value passed in</p>
 </dd></dl>
 
@@ -559,15 +632,19 @@ a generic message.</p>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">SequenceField</tt><big>(</big><em>item_type</em>, <em>min_capacity=None</em>, <em>max_capacity=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class for Fields which are an iterable collection of objects in which
 every child element is of the same type</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>item_type: <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
-<li>min_capacity: minimum number of items contained in values</li>
-<li>max_capacity: maximum number of items contained in values</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item_type</strong> &#8211; <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
+<li><strong>min_capacity</strong> &#8211; minimum number of items contained in values</li>
+<li><strong>max_capacity</strong> &#8211; maximum number of items contained in values</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="mongoalchemy.fields.SequenceField.has_subfields">
 <tt class="descname">has_subfields</tt><a class="headerlink" href="#mongoalchemy.fields.SequenceField.has_subfields" title="Permalink to this definition">¶</a></dt>
@@ -618,25 +695,29 @@ the elements of value</p>
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="#mongoalchemy.fields.SequenceField" title="mongoalchemy.fields.SequenceField"><tt class="xref py py-class docutils literal"><span class="pre">SequenceField</span></tt></a></p>
 </div>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>item_type: <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
-<li>min_capacity: minimum number of items contained in values</li>
-<li>max_capacity: maximum number of items contained in values</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item_type</strong> &#8211; <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
+<li><strong>min_capacity</strong> &#8211; minimum number of items contained in values</li>
+<li><strong>max_capacity</strong> &#8211; maximum number of items contained in values</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.ListField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wraps the elements of <tt class="docutils literal"><span class="pre">value</span></tt> using <tt class="docutils literal"><span class="pre">ListField.item_type</span></tt> and
 returns them in a list</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ListField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unwraps the elements of <tt class="docutils literal"><span class="pre">value</span></tt> using <tt class="docutils literal"><span class="pre">ListField.item_type</span></tt> and
 returns them in a list</p>
 </dd></dl>
@@ -651,25 +732,29 @@ returns them in a list</p>
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="#mongoalchemy.fields.SequenceField" title="mongoalchemy.fields.SequenceField"><tt class="xref py py-class docutils literal"><span class="pre">SequenceField</span></tt></a></p>
 </div>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>item_type: <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
-<li>min_capacity: minimum number of items contained in values</li>
-<li>max_capacity: maximum number of items contained in values</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item_type</strong> &#8211; <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> instance used for validation and (un)wrapping</li>
+<li><strong>min_capacity</strong> &#8211; minimum number of items contained in values</li>
+<li><strong>max_capacity</strong> &#8211; maximum number of items contained in values</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.SetField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unwraps the elements of <tt class="docutils literal"><span class="pre">value</span></tt> using <tt class="docutils literal"><span class="pre">SetField.item_type</span></tt> and
 returns them in a set</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.SetField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unwraps the elements of <tt class="docutils literal"><span class="pre">value</span></tt> using <tt class="docutils literal"><span class="pre">SetField.item_type</span></tt> and
 returns them in a set</p>
 </dd></dl>
@@ -685,13 +770,17 @@ returns them in a set</p>
 <dd><p>Stores String to <tt class="docutils literal"><span class="pre">value_type</span></tt> Dictionaries.  For non-string keys use 
 <a class="reference internal" href="#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a>.  Strings also must obey the mongo key rules 
 (no <tt class="docutils literal"><span class="pre">.</span></tt> or <tt class="docutils literal"><span class="pre">$</span></tt>)</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>value_type: the Field type to use for the values</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value_type</strong> &#8211; the Field type to use for the values</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.DictField.validate_unwrap">
 <tt class="descname">validate_unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
@@ -708,14 +797,14 @@ key, and that every value validates based on DictField.value_type</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.DictField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates <tt class="docutils literal"><span class="pre">value</span></tt> and then returns a dictionary with each key in
 <tt class="docutils literal"><span class="pre">value</span></tt> mapped to its value wrapped with <tt class="docutils literal"><span class="pre">DictField.value_type</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.DictField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates <tt class="docutils literal"><span class="pre">value</span></tt> and then returns a dictionary with each key in
 <tt class="docutils literal"><span class="pre">value</span></tt> mapped to its value unwrapped using <tt class="docutils literal"><span class="pre">DictField.value_type</span></tt></p>
 </dd></dl>
@@ -728,14 +817,18 @@ key, and that every value validates based on DictField.value_type</p>
 <dd><p>Like a DictField, except it allows arbitrary keys.  The DB Format for 
 a <tt class="docutils literal"><span class="pre">KVField</span></tt> is <tt class="docutils literal"><span class="pre">[</span> <span class="pre">{</span> <span class="pre">'k'</span> <span class="pre">:</span> <span class="pre">key,</span> <span class="pre">'v'</span> <span class="pre">:</span> <span class="pre">value</span> <span class="pre">},</span> <span class="pre">...]</span></tt>.  Queries on 
 keys and values. can be done with <tt class="docutils literal"><span class="pre">.k</span></tt> and <tt class="docutils literal"><span class="pre">.v</span></tt></p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>key_type: the Field type to use for the keys</li>
-<li>value_type: the Field type to use for the values</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key_type</strong> &#8211; the Field type to use for the keys</li>
+<li><strong>value_type</strong> &#8211; the Field type to use for the values</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="mongoalchemy.fields.KVField.has_subfields">
 <tt class="descname">has_subfields</tt><a class="headerlink" href="#mongoalchemy.fields.KVField.has_subfields" title="Permalink to this definition">¶</a></dt>
@@ -759,7 +852,7 @@ dictionary should have</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.KVField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a dictionary with the keys being instances of <tt class="docutils literal"><span class="pre">KVField.key_type</span></tt>
 and the values being instances of <tt class="docutils literal"><span class="pre">KVField.value_type</span></tt>.  After validation, 
 the dictionary is transformed into a list of dictionaries with <tt class="docutils literal"><span class="pre">k</span></tt> and <tt class="docutils literal"><span class="pre">v</span></tt>
@@ -768,7 +861,7 @@ fields set to the keys and values from the original dictionary.</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.KVField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expects a list of dictionaries with <tt class="docutils literal"><span class="pre">k</span></tt> and <tt class="docutils literal"><span class="pre">v</span></tt> set to the 
 keys and values that will be unwrapped into the output python 
 dictionary should have.  Validates the input and then constructs the
@@ -782,8 +875,13 @@ dictionary from the list.</p>
 <h2>Document Field Objects<a class="headerlink" href="#document-field-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="mongoalchemy.document.DocumentField">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>namespace='global'</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field which wraps a <tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></p>
+<dl class="attribute">
+<dt id="mongoalchemy.document.DocumentField.type">
+<tt class="descname">type</tt><a class="headerlink" href="#mongoalchemy.document.DocumentField.type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mongoalchemy.document.DocumentField.dirty_ops">
 <tt class="descname">dirty_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.dirty_ops" title="Permalink to this definition">¶</a></dt>
@@ -808,26 +906,30 @@ document.  This function is mainly used internally</p>
 <tt class="descname">is_valid_unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.is_valid_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Called before wrapping.  Calls <tt class="xref py py-func docutils literal"><span class="pre">is_valid_unwrap()</span></tt> and 
 raises a <tt class="xref py py-class docutils literal"><span class="pre">BadValueException</span></tt> if validation fails</p>
-<dl class="docutils">
-<dt><strong>Parameters</strong>: </dt>
-<dd><ul class="first last simple">
-<li>value: The value to validate</li>
-<li>fields: The fields being returned if this is a partial                     document. They will be ignored when validating the fields                     of <tt class="docutils literal"><span class="pre">value</span></tt></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to validate</li>
+<li><strong>fields</strong> &#8211; The fields being returned if this is a partial                 document. They will be ignored when validating the fields                 of <tt class="docutils literal"><span class="pre">value</span></tt></li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.DocumentField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate <tt class="docutils literal"><span class="pre">value</span></tt> and then use the document&#8217;s class to wrap the 
 value</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.DocumentField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate <tt class="docutils literal"><span class="pre">value</span></tt> and then use the document&#8217;s class to unwrap the 
 value</p>
 </dd></dl>
@@ -835,7 +937,7 @@ value</p>
 <dl class="method">
 <dt id="mongoalchemy.document.DocumentField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField.validate_wrap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is an instance of <tt class="docutils literal"><span class="pre">DocumentField.document_class</span></tt>.
+<dd><p>Checks that <tt class="docutils literal"><span class="pre">value</span></tt> is an instance of <tt class="docutils literal"><span class="pre">DocumentField.type</span></tt>.
 if it is, then validation on its fields has already been done and
 no further validation is needed.</p>
 </dd></dl>
@@ -874,15 +976,19 @@ the one_time field is set to True.</p>
 <p class="last">The computed field interacts in an undefined way with partially loaded 
 documents right now.  If using this class watch out for strange behaviour.</p>
 </div>
-<dl class="docutils">
-<dt><strong>Parameters</strong>:</dt>
-<dd><ul class="first last simple">
-<li>fun: the function to compute the value of the computed field</li>
-<li>computed_type: the type to use when wrapping the computed field</li>
-<li>deps: the names of fields on the current object which should be                     passed in to compute the value</li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fun</strong> &#8211; the function to compute the value of the computed field</li>
+<li><strong>computed_type</strong> &#8211; the type to use when wrapping the computed field</li>
+<li><strong>deps</strong> &#8211; the names of fields on the current object which should be                 passed in to compute the value</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="mongoalchemy.fields.ComputedField.dirty_ops">
 <tt class="descname">dirty_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.dirty_ops" title="Permalink to this definition">¶</a></dt>
@@ -915,13 +1021,13 @@ sequence itself</p>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ComputedField.wrap">
-<tt class="descname">wrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.wrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates <tt class="docutils literal"><span class="pre">value</span></tt> and wraps it with <tt class="docutils literal"><span class="pre">ComputedField.computed_type</span></tt></p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.ComputedField.unwrap">
-<tt class="descname">unwrap</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.unwrap" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validates <tt class="docutils literal"><span class="pre">value</span></tt> and unwraps it with <tt class="docutils literal"><span class="pre">ComputedField.computed_type</span></tt></p>
 </dd></dl>
 
@@ -997,7 +1103,7 @@ sequence itself</p>
         <li class="right" >
           <a href="document.html" title="document"
              >previous</a> |</li>
-        <li><a href="../../index.html">MongoAlchemy v0.7 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
           <li><a href="../index.html" >API documentation</a> &raquo;</li>
           <li><a href="index.html" >Schema — Document-Object Mapper and Schema Definitions</a> &raquo;</li> 
       </ul>

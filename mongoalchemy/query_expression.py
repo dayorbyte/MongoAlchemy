@@ -213,7 +213,7 @@ class QueryExpression(object):
     def __init__(self, obj):
         self.obj = obj
     def not_(self):
-        '''Negates this instance's query expression using MongoDB's ``$not`` 
+        ''' Negates this instance's query expression using MongoDB's ``$not`` 
             operator
             
             **Example**: ``(User.name == 'Jeff').not_()``
