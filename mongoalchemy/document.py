@@ -368,7 +368,7 @@ class DocumentField(Field):
     
     has_subfields = True
     
-    def __init__(self, document_class, namespace='global', **kwargs):
+    def __init__(self, document_class, **kwargs):
         super(DocumentField, self).__init__(**kwargs)
         self.__type = document_class
     

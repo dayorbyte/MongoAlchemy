@@ -235,6 +235,14 @@ class Field(object):
     
     def _set_parent(self, parent):
         self.parent = parent
+        self.set_parent_on_subtypes(parent)
+    
+    def set_parent_on_subtypes(self, parent):
+        ''' This function sets the parent on any sub-Fields of this field. It
+            should be overridden by SequenceField and field which has subtypes
+            (such as SequenceField and DictField).
+        '''
+        pass
     
     def wrap(self, value):
         ''' Returns an object suitable for setting as a value on a MongoDB object.  
@@ -447,6 +455,10 @@ class TupleField(Field):
         self.size = len(item_types)
         self.types = item_types
     
+    def set_parent_on_subtypes(self, parent):
+        for type in self.types:
+            type._set_parent(parent)
+    
     def validate_wrap(self, value):
         ''' Checks that the correct number of elements are in ``value`` and that
             each element validates agains the associated Field class
@@ -506,8 +518,17 @@ class EnumField(Field):
         super(EnumField, self).__init__(**kwargs)
         self.item_type = item_type
         self.values = values
-        for value in values:
-            self.item_type.validate_wrap(value)
+        # Jan 22, 2011: Commenting this out.  We already check that the value
+        # is the right type, and that it is equal to one of the enum values.
+        # If those are true, the enum values are the right type.  If we do it
+        # now it causes validation issues in some cases with the 
+        # string-reference document fields
+        #
+        # for value in values:
+        #     self.item_type.validate_wrap(value)
+    
+    def set_parent_on_subtypes(self, parent):
+        self.item_type._set_parent(parent)
     
     def validate_wrap(self, value):
         ''' Checks that value is valid for `EnumField.item_type` and that 
@@ -568,6 +589,9 @@ class SequenceField(Field):
     def has_subfields(self):
         ''' Returns True if the sequence's value type has subfields. '''
         return self.item_type.has_subfields
+    
+    def set_parent_on_subtypes(self, parent):
+        self.item_type._set_parent(parent)
     
     def subfields(self):
         ''' Returns the names of the value type's sub-fields'''
@@ -673,7 +697,7 @@ class AnythingField(Field):
     def wrap(self, value):
         ''' Always returns the value passed in'''
         return value
-
+    
     def unwrap(self, value):
         ''' Always returns the value passed in'''
         return value
@@ -733,6 +757,9 @@ class DictField(Field):
         self.value_type = value_type
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("DictField value type is not a field!")
+    
+    def set_parent_on_subtypes(self, parent):
+        self.value_type._set_parent(parent)
     
     def _validate_key_wrap(self, key):
         if not isinstance(key, basestring):
@@ -812,7 +839,11 @@ class KVField(DictField):
         
         self.value_type = value_type
         self.value_type.name = 'v'
-        
+    
+    def set_parent_on_subtypes(self, parent):
+        self.value_type._set_parent(parent)
+        self.key_type._set_parent(parent)
+    
     def subfields(self):
         ''' Returns the k and v subfields, which can be accessed to do queries
             based on either of them
@@ -941,7 +972,10 @@ class ComputedField(Field):
         if self.name in instance._field_values and self.one_time:
             raise BadValueException(self.name, value, 'Cannot set a one-time field once it has been set')
         super(ComputedField, self).__set__(instance, value)
-
+    
+    def set_parent_on_subtypes(self, parent):
+        self.computed_type._set_parent(parent)
+    
     def dirty_ops(self, instance):
         dirty = False
         for dep in self.deps:

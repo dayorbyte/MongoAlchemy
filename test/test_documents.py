@@ -296,6 +296,16 @@ def test_config_full_name():
     assert e.d.a == 4
 
 @with_setup(test_setup)
+def test_config_in_list():
+    class E(Document):
+        d = ListField(ListField(DocumentField('ma.D')))
+    class D(Document):
+        config_full_name = 'ma.D'
+        a = IntField()
+    e = E(d=[[D(a=4)]])
+    assert e.wrap() == { 'd' : [[{'a':4}]] }
+
+@with_setup(test_setup)
 @raises(BadFieldSpecification)
 def test_bad_string_doc():
     class D(Document):
@@ -310,6 +320,15 @@ def test_namespaces_disabled():
         e = DocumentField('E')
     D(e=5).wrap()
 
+@with_setup(test_setup)
+def test_set_parent_on_subtypes():
+    class D(Document):
+        a = IntField()
+    
+    class ParentDoc(Document):
+        t = TupleField(DocumentField('D'))
+        e = EnumField(DocumentField('D'), D(a=1))
+        d = DictField(DocumentField('D'))
 
 # test DictDoc
 
