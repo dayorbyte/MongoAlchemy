@@ -6,7 +6,10 @@ class BadValueException(Exception):
         self.name = name
         self.value = value
         self.cause = cause
-        Exception.__init__(self, 'Bad value for field of type "%s".  Reason: "%s".  Cause: %s' % (name, reason, cause))
+        message = 'Bad value for field of type "%s".  Reason: "%s".' % (name, reason)
+        if cause != None:
+            message = '%s Cause: %s' % (message, cause)
+        Exception.__init__(self, message)
 
 class InvalidConfigException(Exception):
     ''' Raised when a bad value is passed in for a configuration that expects
