@@ -269,6 +269,31 @@ def test_update_with_unset():
     d = s.query(D).one()
     assert 'c' not in d
 
+def test_self_reference():
+    class D(Document):
+        d = DocumentField('D', required=False)
+        a = IntField()
+    d = D(d=D(a=5), a=4)
+    assert d.wrap() == { 'd' : { 'a' : 5 }, 'a' : 4 }
+    s = get_session()
+    s.clear_collection(D)
+    s.insert(d)
+    d_from_db = s.query(D).one()
+    assert d_from_db.d.a == d.d.a
+
+@raises(BadFieldSpecification)
+def test_bad_string_doc():
+    class D(Document):
+        e = DocumentField('E')
+    D(e=5).wrap()
+
+@raises(BadFieldSpecification)
+def test_namespaces_disabled():
+    class D(Document):
+        config_namespace = None
+        e = DocumentField('E')
+    D(e=5).wrap()
+
 
 # test DictDoc
 

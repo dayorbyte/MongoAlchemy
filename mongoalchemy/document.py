@@ -39,11 +39,13 @@ programmatically.  A document can have multiple indexes by adding extra
 
 '''
 import pymongo
-
+from collections import defaultdict
 from mongoalchemy.util import classproperty
 from mongoalchemy.query_expression import QueryField
 from mongoalchemy.fields import ObjectIdField, Field, BadValueException, SCALAR_MODIFIERS
-from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved
+from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
+
+document_type_registry = defaultdict(dict)
 
 class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
@@ -69,6 +71,14 @@ class DocumentMeta(type):
             if not isinstance(field, QueryField):
                 continue
             new_class._fields[name] = field.get_type()
+        
+        # 3. register type
+        if new_class.config_namespace != None:
+            name = new_class.config_full_name
+            if name == None:
+                name = new_class.__name__
+            document_type_registry[new_class.config_namespace][name] = new_class
+        
         return new_class
 
 class Document(object):
@@ -79,6 +89,26 @@ class Document(object):
         is automatically set on objects when they are saved into the database.
         This field can be overridden in subclasses if the default ID is not
         acceptable '''
+    
+    config_namespace = 'global'
+    ''' The namespace is used to determine how string class names should be 
+        looked up.  If an instance of DocumentField is created using a string,
+        it will be looked up using the value of this variable and the string.
+        To have more than one namespace create a subclass of Document
+        overriding this class variable.  To turn off caching all together, 
+        create a subclass where namespace is set to None.  Doing this will 
+        disable using strings to look up document names, which will make 
+        creating self-referencing documents impossible.  The default value is
+        "global"
+    '''
+    
+    config_full_name = None
+    ''' If namespaces are being used, the key for a class is normally
+        the class name.  In some cases the same class name may be used in 
+        different modules.  This field allows a longer unambiguous name
+        to be given.  It may also be used in error messages or string 
+        representations of the class
+    '''
     
     config_extra_fields = 'error'
     ''' Controls the method to use when dealing with fields passed in to the
@@ -342,10 +372,20 @@ class DocumentField(Field):
     
     has_subfields = True
     
-    def __init__(self, document_class, **kwargs):
+    def __init__(self, document_class, namespace='global', **kwargs):
         super(DocumentField, self).__init__(**kwargs)
-        self.type = document_class
-        self.document_class = document_class
+        self.__type = document_class
+    
+    @property
+    def type(self):
+        if not isinstance(self.__type, basestring) and issubclass(self.__type, Document):
+            return self.__type
+        if self.parent.config_namespace == None:
+            raise BadFieldSpecification('Document namespace is None.  Strings are not allowed for DocumentFields')
+        type = document_type_registry[self.parent.config_namespace].get(self.__type)
+        if type == None or not issubclass(type, Document):
+            raise BadFieldSpecification('No type found for %s.  Maybe it has not been imported yet and is not registered?' % self.__type)
+        return type
     
     def dirty_ops(self, instance):
         ''' Returns a dict of the operations needed to update this object.  
@@ -370,7 +410,7 @@ class DocumentField(Field):
     def subfields(self):
         ''' Returns the fields that can be retrieved from the enclosed 
             document.  This function is mainly used internally'''
-        return self.document_class.get_fields()
+        return self.type.get_fields()
     
     def sub_type(self):
         return self.type
@@ -404,7 +444,7 @@ class DocumentField(Field):
         return self.type.unwrap(value, fields=fields)
     
     def validate_wrap(self, value):
-        ''' Checks that ``value`` is an instance of ``DocumentField.document_class``.
+        ''' Checks that ``value`` is an instance of ``DocumentField.type``.
             if it is, then validation on its fields has already been done and
             no further validation is needed.
         '''
