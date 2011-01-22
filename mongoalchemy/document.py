@@ -281,7 +281,13 @@ class Document(object):
         
         if fields != None:
             params['retrieved_fields'] = fields
-        return cls(**params)
+        obj = cls(**params)
+        obj.__mark_clean()
+        return obj
+    
+    def __mark_clean(self):
+        self._dirty.clear()
+        
 
 class DictDoc(object):
     ''' Adds a mapping interface to a document.  Supports ``__getitem__`` and 
