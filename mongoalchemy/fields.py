@@ -74,6 +74,14 @@ ANY_MODIFIER = LIST_MODIFIERS | NUMBER_MODIFIERS
 class FieldMeta(type):
     def __new__(mcs, classname, bases, class_dict):
         
+        def wrap_unwrap_wrapper(fun):
+            def wrapped(self, value, *args, **kwds):
+                if self._allow_none and value == None:
+                    return None
+                return fun(self, value, *args, **kwds)
+            functools.update_wrapper(wrapped, fun, ('__name__', '__doc__'))
+            return wrapped
+        
         def validation_wrapper(fun, kind):
             def wrapped(self, value, *args, **kwds):
                 # Handle None
@@ -97,6 +105,11 @@ class FieldMeta(type):
             
             functools.update_wrapper(wrapped, fun, ('__name__', '__doc__'))
             return wrapped
+        
+        if 'wrap' in class_dict:
+            class_dict['wrap'] = wrap_unwrap_wrapper(class_dict['wrap'])
+        if 'unwrap' in class_dict:
+            class_dict['unwrap'] = wrap_unwrap_wrapper(class_dict['unwrap'])
         
         if 'validate_wrap' in class_dict:
             class_dict['validate_wrap'] = validation_wrapper(class_dict['validate_wrap'], 'wrap')

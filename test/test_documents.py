@@ -125,7 +125,6 @@ def test_non_existant_field():
     Doc().j = 5
     
 
-
 def test_default_value():
     class Doc(Document):
         i = IntField(required=False, default=1)
@@ -243,4 +242,4 @@ def test_dictdoc_setdefault():
     
     assert t.setdefault('i', 4) == 1
     assert t.setdefault('j', 3) == 3
-    
+

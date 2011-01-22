@@ -31,6 +31,8 @@ def test_allow_none():
     assert IntField(allow_none=True).is_valid_wrap(None) == True
     assert IntField().is_valid_unwrap(None) == False
     assert IntField().is_valid_wrap(None) == False
+    assert IntField(allow_none=True).wrap(None) == None
+    assert IntField(allow_none=True).unwrap(None) == None
 
 @raises(InvalidConfigException)
 def test_bad_on_update_value():
