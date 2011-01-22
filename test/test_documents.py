@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException, DictDoc
+from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException, DictDoc, document_type_registry
 from mongoalchemy.fields import *
 from test.util import known_failure
 
@@ -36,6 +36,9 @@ class DocA(Document):
         return 'DocA()'
 
 # Tests
+
+def test_setup():
+    document_type_registry.clear()
 
 def get_session():
     return Session.connect('unit-testing')
@@ -269,6 +272,7 @@ def test_update_with_unset():
     d = s.query(D).one()
     assert 'c' not in d
 
+@with_setup(test_setup)
 def test_self_reference():
     class D(Document):
         d = DocumentField('D', required=False)
@@ -281,12 +285,24 @@ def test_self_reference():
     d_from_db = s.query(D).one()
     assert d_from_db.d.a == d.d.a
 
+@with_setup(test_setup)
+def test_config_full_name():
+    class E(Document):
+        d = DocumentField('ma.D')
+    class D(Document):
+        config_full_name = 'ma.D'
+        a = IntField()
+    e = E(d=D(a=4))
+    assert e.d.a == 4
+
+@with_setup(test_setup)
 @raises(BadFieldSpecification)
 def test_bad_string_doc():
     class D(Document):
         e = DocumentField('E')
     D(e=5).wrap()
 
+@with_setup(test_setup)
 @raises(BadFieldSpecification)
 def test_namespaces_disabled():
     class D(Document):
