@@ -126,7 +126,7 @@ class Session(object):
         else:
             db_key = {'_id' : item.mongo_id}
         
-        dirty_ops = item.get_dirty_ops()
+        dirty_ops = item.get_dirty_ops(with_required=upsert)
         for key, op in chain(update_ops.items(), kwargs.items()):
             key = str(key)
             for current_op, keys in dirty_ops.items():

@@ -64,7 +64,7 @@ from copy import deepcopy
 
 from mongoalchemy.util import UNSET
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved, InvalidConfigException, BadFieldSpecification
+from mongoalchemy.exceptions import BadValueException, FieldNotRetrieved, InvalidConfigException, BadFieldSpecification, MissingValueException
 
 SCALAR_MODIFIERS = set(['$set', '$unset'])
 NUMBER_MODIFIERS = SCALAR_MODIFIERS | set(['$inc'])
@@ -196,10 +196,21 @@ class Field(object):
     
     def dirty_ops(self, instance):
         op = instance._dirty.get(self.name)
+        if op == '$unset':
+            return { '$unset' : { self.name : True } }
         if op == None:
             return {}
         return {
             op : {
+                self.name : self.wrap(instance._field_values[self.name])
+            }
+        }
+    
+    def update_ops(self, instance):
+        if self.name not in instance._field_values:
+            return {}
+        return {
+            self.on_update : {
                 self.name : self.wrap(instance._field_values[self.name])
             }
         }

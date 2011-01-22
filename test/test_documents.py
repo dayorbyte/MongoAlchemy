@@ -221,6 +221,55 @@ def is_valid_unwrap_test_false():
 def wrong_unwrap_type_test():
     DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
 
+@raises(MissingValueException)
+def test_upsert_with_required():
+    class D(Document):
+        a = IntField()
+        c = IntField()
+        b = IntField(required=False)
+    
+    s = get_session()
+    s.clear_collection(D)
+    s.update(D(b=4, c=4), id_expression=D.b == 4, upsert=True)
+
+def test_upsert_with_no_changes():
+    class D(Document):
+        a = IntField()
+        c = IntField()
+        b = IntField(required=False)
+    
+    s = get_session()
+    s.clear_collection(D)
+    s.update(D(a=1, b=4, c=4), id_expression=D.b == 4, upsert=True)
+    d = s.query(D).one()
+    s.update(d, upsert=True)
+
+def test_unwrapped_is_not_dirty():
+    class D(Document):
+        a = IntField()
+    s = get_session()
+    s.clear_collection(D)
+    s.insert(D(a=1))
+    d = s.query(D).one()
+    assert len(d.get_dirty_ops()) == 0, len(d.get_dirty_ops())
+
+def test_update_with_unset():
+    class D(Document, DictDoc):
+        a = IntField()
+        c = IntField()
+        b = IntField(required=False)
+    
+    s = get_session()
+    s.clear_collection(D)
+    d = D(a=1, b=4, c=4)
+    s.update(d, id_expression=D.b == 4, upsert=True)
+    d = s.query(D).one()
+    del d.c
+    s.update(d)
+    d = s.query(D).one()
+    assert 'c' not in d
+
+
 # test DictDoc
 
 def test_dictdoc_contains():

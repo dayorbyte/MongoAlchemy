@@ -123,15 +123,23 @@ class Document(object):
                 else:
                     raise ExtraValueException(k)
     
-    def get_dirty_ops(self):
+    def get_dirty_ops(self, with_required=False):
         ''' Returns a dict with the update operations necessary to make the 
             changes to this object to the database version.  It is mainly used
             internally for :func:`~mongoalchemy.session.Session.update` but
             may be useful for diagnostic purposes as well.
+            
+            :param with_required: Also include any field which is required.  This \
+                is useful if the method is being called for the purposes of \
+                an upsert where all required fields must always be sent.
         '''
         update_expression = {}
         for name, field in self.get_fields().iteritems():
             dirty_ops = field.dirty_ops(self)
+            if not dirty_ops and with_required and field.required:
+                dirty_ops = field.update_ops(self)
+                if not dirty_ops:
+                    raise MissingValueException(name)
             
             for op, values in dirty_ops.iteritems():
                 update_expression.setdefault(op, {})
