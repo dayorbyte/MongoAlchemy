@@ -116,7 +116,7 @@ class Document(object):
         fields which couldn't be mapped can be retrieved (and edited) using
         :func:`~Document.get_extra_fields` '''
     
-    def __init__(self, retrieved_fields=None, **kwargs):
+    def __init__(self, retrieved_fields=None, loading_from_db=False, **kwargs):
         ''' :param retrieved_fields: The names of the fields returned when loading \
                 a partial object.  This argument should not be explicitly set \
                 by subclasses
@@ -141,7 +141,7 @@ class Document(object):
                 continue
             
             if name in kwargs:
-                setattr(self, name, kwargs[name])
+                getattr(cls, name).set_value(self, kwargs[name], from_db=loading_from_db)
                 continue
         
         for k in kwargs:
@@ -315,7 +315,7 @@ class Document(object):
         
         if fields != None:
             params['retrieved_fields'] = fields
-        obj = cls(**params)
+        obj = cls(loading_from_db=True, **params)
         obj.__mark_clean()
         return obj
     

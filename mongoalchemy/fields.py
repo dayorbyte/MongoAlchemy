@@ -183,15 +183,18 @@ class Field(object):
         
     
     def __set__(self, instance, value):
-        instance._field_values[self.name] = value
-        if self.on_update != 'ignore':
-            instance._dirty[self.name] = self.on_update
+        self.set_value(instance, value)
     
     def __delete__(self, instance):
         if self.name not in instance._field_values:
             raise AttributeError(self.name)
         del instance._field_values[self.name]
         instance._dirty[self.name] = '$unset'
+    
+    def set_value(self, instance, value, from_db=False):
+        instance._field_values[self.name] = value
+        if self.on_update != 'ignore':
+            instance._dirty[self.name] = self.on_update
     
     def dirty_ops(self, instance):
         op = instance._dirty.get(self.name)

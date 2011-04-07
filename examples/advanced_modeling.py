@@ -1,32 +1,40 @@
+'''
+This page is going to go through some more advanced modeling techniques 
+using forward and self-references
+
+'''
+
+
 from mongoalchemy.document import Document, DocumentField
 from mongoalchemy.fields import *
 from datetime import datetime
-
+from pprint import pprint
 class Event(Document):
     name = StringField()
-    children = ListField(DocumentField('Event'), default=[])
-    start = DateTimeField()
+    children = ListField(DocumentField('Event'))
+    begin = DateTimeField()
     end = DateTimeField()
     
     def __init__(self, name, parent=None):
         Document.__init__(self, name=name)
+        self.children = []
         if parent != None:
             parent.children.append(self)
     def __enter__(self):
-        self.start = datetime.utcnow()
+        self.begin = datetime.utcnow()
         return self
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.end = datetime.utcnow()
 
-root = Event('request')
-with Event('main_func', root) as br:
-    with Event('setup', br):
+with Event('request') as root:
+    with Event('main_func', root) as br:
+        with Event('setup', br):
+            pass
+        with Event('handle', br):
+            pass
+        with Event('teardown', br):
+            pass
+    with Event('cleanup', root):
         pass
-    with Event('handle', br):
-        pass
-    with Event('teardown', br):
-        pass
-with Event('cleanup', root):
-    pass
 
-print root.wrap()
+pprint(root.wrap())
