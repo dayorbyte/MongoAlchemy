@@ -122,6 +122,11 @@ a generic message.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.fields.Field.set_value">
+<tt class="descname">set_value</tt><big>(</big><em>instance</em>, <em>value</em>, <em>from_db=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.set_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.fields.Field.dirty_ops">
 <tt class="descname">dirty_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.dirty_ops" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -145,6 +150,14 @@ document.</p>
 <tt class="descname">wrap_value</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.wrap_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrap <tt class="docutils literal"><span class="pre">value</span></tt> for use as the value in a Mongo query, for example 
 in $in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.fields.Field.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function sets the parent on any sub-Fields of this field. It
+should be overridden by SequenceField and field which has subtypes
+(such as SequenceField and DictField).</p>
 </dd></dl>
 
 <dl class="method">
@@ -441,6 +454,11 @@ types for each element in the field.</p>
 </tbody>
 </table>
 <dl class="method">
+<dt id="mongoalchemy.fields.TupleField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.fields.TupleField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField.validate_wrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that the correct number of elements are in <tt class="docutils literal"><span class="pre">value</span></tt> and that
@@ -509,6 +527,11 @@ in <tt class="docutils literal"><span class="pre">(4,</span> <span class="pre">6
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="mongoalchemy.fields.EnumField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mongoalchemy.fields.EnumField.validate_wrap">
 <tt class="descname">validate_wrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField.validate_wrap" title="Permalink to this definition">¶</a></dt>
@@ -652,6 +675,11 @@ every child element is of the same type</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.fields.SequenceField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.fields.SequenceField.subfields">
 <tt class="descname">subfields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SequenceField.subfields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the names of the value type&#8217;s sub-fields</p>
@@ -782,6 +810,11 @@ returns them in a set</p>
 </tbody>
 </table>
 <dl class="method">
+<dt id="mongoalchemy.fields.DictField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.fields.DictField.validate_unwrap">
 <tt class="descname">validate_unwrap</tt><big>(</big><em>value</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField.validate_unwrap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks that value is a <tt class="docutils literal"><span class="pre">dict</span></tt>, that every key is a valid MongoDB
@@ -836,6 +869,11 @@ keys and values. can be done with <tt class="docutils literal"><span class="pre"
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.fields.KVField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.fields.KVField.subfields">
 <tt class="descname">subfields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField.subfields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the k and v subfields, which can be accessed to do queries
@@ -875,7 +913,7 @@ dictionary from the list.</p>
 <h2>Document Field Objects<a class="headerlink" href="#document-field-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="mongoalchemy.document.DocumentField">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>namespace='global'</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.DocumentField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field which wraps a <tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></p>
 <dl class="attribute">
 <dt id="mongoalchemy.document.DocumentField.type">
@@ -989,6 +1027,11 @@ documents right now.  If using this class watch out for strange behaviour.</p>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="mongoalchemy.fields.ComputedField.set_parent_on_subtypes">
+<tt class="descname">set_parent_on_subtypes</tt><big>(</big><em>parent</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.set_parent_on_subtypes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="mongoalchemy.fields.ComputedField.dirty_ops">
 <tt class="descname">dirty_ops</tt><big>(</big><em>instance</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ComputedField.dirty_ops" title="Permalink to this definition">¶</a></dt>
