@@ -237,7 +237,7 @@ class Document(object):
             return False
         return True 
     
-    def commit(self, db):
+    def commit(self, db, safe=True):
         ''' Save this object to the database and set the ``_id`` field of this
             document to the returned id.
             

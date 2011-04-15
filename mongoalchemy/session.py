@@ -50,7 +50,7 @@ from itertools import chain
 
 class Session(object):
 
-    def __init__(self, database):
+    def __init__(self, database, safe=False):
         '''
         Create a session connecting to `database`.  
         
@@ -64,7 +64,7 @@ class Session(object):
         '''
         self.db = database
         self.queue = []
-        self.safe = False
+        self.safe = safe
     
     @classmethod
     def connect(self, database, *args, **kwds):
@@ -86,11 +86,11 @@ class Session(object):
         self.flush()
         self.db.connection.end_request()
     
-    def insert(self, item):
+    def insert(self, item, safe=False):
         ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
             insertion until the _id field is actually accessed'''
         self.queue.append(item)
-        self.flush()
+        self.flush(safe=safe)
     
     def update(self, item, id_expression=None, upsert=False, update_ops={}, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
@@ -236,10 +236,12 @@ class Session(object):
         for c in classes:
             self.db[c.get_collection_name()].remove()
     
-    def flush(self, safe=True):
+    def flush(self, safe=None):
         ''' Perform all database operations currently in the queue'''
+        if safe is None:
+            safe = self.safe
         for index, item in enumerate(self.queue):
-            item.commit(self.db)
+            item.commit(self.db, safe=safe)
         self.clear()
             
     
