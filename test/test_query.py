@@ -51,6 +51,13 @@ def test_field_filter():
         break
     assert t2.t.i == 3
 
+def test_raw_output():
+    s = get_session()
+    s.clear_collection(T)
+    s.insert(T(i=3))
+    value = s.query(T).raw_output().one()
+    assert isinstance(value, dict)
+    
 def test_limit():
     s = get_session()
     s.clear_collection(T)
@@ -231,6 +238,7 @@ def test_comparators():
     assert query_obj == {'i': {'$ne': 4, '$gte': 6, '$lte': 5, '$gt': 3, '$lt': 2}}
     
     s.query(T).filter(T.i == 1).query == { 'i' : 1}
+
 
 @raises(BadQueryException)
 def invalid_combination_test():

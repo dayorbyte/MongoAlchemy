@@ -52,6 +52,7 @@ class Query(object):
         self.hints = []
         self._limit = None
         self._skip = None
+        self._raw_output = False
     
     def __iter__(self):
         return self.__get_query_result()
@@ -83,6 +84,10 @@ class Query(object):
     
     def __get_query_result(self):
         return self.session.execute_query(self)
+    
+    def raw_output(self):
+        self._raw_output = True
+        return self
     
     def get_fields(self):
         return self._fields
@@ -121,6 +126,7 @@ class Query(object):
         qclone._hints = deepcopy(self.hints)
         qclone._limit = deepcopy(self._limit)
         qclone._skip = deepcopy(self._skip)
+        qclone._raw_output = deepcopy(self._raw_output)
         return qclone
     
     def one(self):
@@ -373,24 +379,30 @@ class Query(object):
 
 
 class QueryResult(object):
-    def __init__(self, cursor, type, fields=None):
+    def __init__(self, cursor, type, raw_output=False, fields=None):
         self.cursor = cursor
         self.type = type
         self.fields = fields
+        self.raw_output = raw_output
     
     def next(self):
         value = self.cursor.next()
-        return self.type.unwrap(value, fields=self.fields)
+        if not self.raw_output:
+            value = self.type.unwrap(value, fields=self.fields)
+        return value
     
     def __getitem__(self, index):
         value = self.cursor.__getitem__(index)
-        return self.type.unwrap(value)
+        if not self.raw_output:
+            value = self.type.unwrap(value)
+        return value
     
     def rewind(self):
         return self.cursor.rewind()
     
     def clone(self):
-        return QueryResult(self.cursor.clone(), self.type, fields=self.fields)
+        return QueryResult(self.cursor.clone(), self.type, 
+            raw_output=self.raw_output, fields=self.fields)
     
     def __iter__(self):
         return self

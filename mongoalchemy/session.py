@@ -172,7 +172,7 @@ class Session(object):
             cursor.limit(query.get_limit())
         if query.get_skip() != None:
             cursor.skip(query.get_skip())
-        return QueryResult(cursor, query.type, fields=query.get_fields())
+        return QueryResult(cursor, query.type, raw_output=query._raw_output, fields=query.get_fields())
     
     def remove_query(self, type):
         ''' Begin a remove query on the database's collection for `type`.
