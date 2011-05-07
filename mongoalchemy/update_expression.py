@@ -25,7 +25,7 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 from mongoalchemy.fields import BadValueException
-from mongoalchemy.query_expression import QueryExpression, BadQueryException
+from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
 
 class UpdateExpression(object):
     def __init__(self, query):
@@ -103,6 +103,8 @@ class UpdateExpression(object):
         
     def remove(self, qfield, value):
         ''' Atomically remove ``value`` from ``qfield``'''
+        if isinstance(value, QueryExpression):
+            return self._atomic_expression_op('$pull', qfield, value)
         return self._atomic_list_op('$pull', qfield, value)
         
     def remove_all(self, qfield, *value):
@@ -148,6 +150,16 @@ class UpdateExpression(object):
         if op not in self.update_data:
             self.update_data[op] = {}
         self.update_data[op][qfield.get_absolute_name()] = qfield.child_type().wrap(value)
+        return self
+    
+    def _atomic_expression_op(self, op, qfield, value):
+        qfield = self.query.resolve_name(qfield)
+        if op not in qfield.valid_modifiers:
+            raise InvalidModifierException(qfield, op)
+        
+        if op not in self.update_data:
+            self.update_data[op] = {}
+        self.update_data[op][qfield.get_absolute_name()] = flatten(value.obj)
         return self
     
     def _atomic_op(self, op, qfield, value):

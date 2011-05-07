@@ -96,6 +96,44 @@ def test_remove_obj():
     assert s.query(T).count() == 0
     t2 = T(i=3)
     s.remove(t2)
+
+def test_remove_expression():
+    class Page(Document):
+        text = StringField()
+        page_num = IntField()
+
+    class Book(Document):
+        isbn = StringField()
+        pages = ListField(DocumentField(Page))
+    
+    session = get_session()
+    session.clear_collection(Book)
+
+    ISBN = '3462784290890'
+    book = Book(isbn=ISBN, pages=[])
+    for i in range(0,10):
+        book.pages.append(Page(text='p%d' % i, page_num = i))
+
+    session.insert(book)
+
+    query = session.query(Book).filter(Book.isbn == ISBN, Book.pages.page_num > 5)
+    query.remove(Book.pages, Page.page_num == 8).execute()
+    book = session.query(Book).filter(Book.isbn == ISBN).one()
+    assert len(book.pages) == 9
+
+@raises(InvalidModifierException)
+def test_remove_expression_error():
+    class Page(Document):
+        text = StringField()
+        page_num = IntField()
+    
+    class Book(Document):
+        isbn = StringField()
+        pages = ListField(DocumentField(Page))
+    session = get_session()
+    session.query(Book).remove(Book.isbn, Page.page_num == 8)
+
+
 # SET
 
 def set_test():

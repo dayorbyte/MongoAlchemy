@@ -265,3 +265,19 @@ class QueryExpression(object):
             '$or' : [self.obj, expression.obj]
         }
         return self
+
+
+def flatten(obj):
+    if not isinstance(obj, dict):
+        return obj
+    ret = {}
+    for k, v in obj.iteritems():
+        if not isinstance(k, basestring):
+            k = str(k)
+        if isinstance(v, dict):
+            v = flatten(v)
+        if isinstance(v, list):
+            v = [flatten(x) for x in v]
+        ret[k] = v
+    return ret
+

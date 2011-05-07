@@ -352,3 +352,23 @@ def test_dictdoc_setdefault():
     assert t.setdefault('i', 4) == 1
     assert t.setdefault('j', 3) == 3
 
+
+def test_set_dict_field():
+    class TestDict(Document):
+        data = DictField(AnythingField())
+    s = Session.connect('mongoalchemy-unit-testing')
+    s.clear_collection(TestDict)
+    
+    td = TestDict()
+    
+    td.data = {"foo": "bar", "baz": "qux"}
+    s.insert(td)
+    
+    td = s.query(TestDict).one()
+    
+    td.data = {"foo": "bar"}
+    s.insert(td)
+    
+    td = s.query(TestDict).one()
+    
+    assert td.data == {'foo':'bar'}, td.data

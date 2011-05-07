@@ -25,7 +25,7 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 from mongoalchemy.fields import BadValueException
-from mongoalchemy.query_expression import QueryExpression, BadQueryException
+from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
 from mongoalchemy.update_expression import UpdateExpression
 
 class BadResultException(Exception):
@@ -67,19 +67,6 @@ class Query(object):
     
     @property
     def query(self):
-        def flatten(obj):
-            if not isinstance(obj, dict):
-                return obj
-            ret = {}
-            for k, v in obj.iteritems():
-                if not isinstance(k, basestring):
-                    k = str(k)
-                if isinstance(v, dict):
-                    v = flatten(v)
-                if isinstance(v, list):
-                    v = [flatten(x) for x in v]
-                ret[k] = v
-            return ret
         return flatten(self.__query)
     
     def __get_query_result(self):
