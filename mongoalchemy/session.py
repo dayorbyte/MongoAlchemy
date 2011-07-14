@@ -76,9 +76,12 @@ class Session(object):
             :param args: arguments for :class:`pymongo.connection.Connection`
             :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
         '''
+        safe = False
+        if 'safe' in kwds:
+          safe = kwds.pop('safe')
         conn = Connection(*args, **kwds)
         db = conn[database]
-        return Session(db)
+        return Session(db, safe=safe)
     
     def end(self):
         ''' End the session.  Flush all pending operations and ending the 
@@ -86,13 +89,15 @@ class Session(object):
         self.flush()
         self.db.connection.end_request()
     
-    def insert(self, item, safe=False):
+    def insert(self, item, safe=None):
         ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
             insertion until the _id field is actually accessed'''
+        if safe is None:
+            safe = self.safe
         self.queue.append(item)
         self.flush(safe=safe)
     
-    def update(self, item, id_expression=None, upsert=False, update_ops={}, **kwargs):
+    def update(self, item, id_expression=None, upsert=False, update_ops={}, safe=None, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
             field to decide which operations to do, or.  
             
@@ -122,7 +127,7 @@ class Session(object):
             db_key = Query(type(item), self).filter(id_expression).query
         else:
             db_key = {'_id' : item.mongo_id}
-        
+
         dirty_ops = item.get_dirty_ops(with_required=upsert)
         for key, op in chain(update_ops.items(), kwargs.items()):
             key = str(key)
@@ -133,9 +138,10 @@ class Session(object):
                 del dirty_ops[current_op][key]
                 if len(dirty_ops[current_op]) == 0:
                     del dirty_ops[current_op]
-        
-        self.flush()
-        self.db[item.get_collection_name()].update(db_key, dirty_ops, upsert=upsert)
+        if safe is None:
+            safe = self.safe
+        self.flush(safe=safe)
+        self.db[item.get_collection_name()].update(db_key, dirty_ops, upsert=upsert, safe=safe)
         
     
     def query(self, type):
@@ -192,7 +198,7 @@ class Session(object):
                 to the session's ``safe`` value.
         '''
         self.flush()
-        if safe == None:
+        if safe is None:
             safe = self.safe
         if not obj.has_id():
             return None
