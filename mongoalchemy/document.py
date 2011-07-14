@@ -246,7 +246,7 @@ class Document(object):
         collection = db[self.get_collection_name()]
         for index in self.get_indexes():
             index.ensure(collection)
-        id = collection.save(self.wrap())
+        id = collection.save(self.wrap(), safe=safe)
         self.mongo_id = id
     
     def wrap(self):
