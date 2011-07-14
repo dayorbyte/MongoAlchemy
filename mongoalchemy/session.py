@@ -203,6 +203,9 @@ class Session(object):
             safe = self.safe
         if not obj.has_id():
             return None
+        collection = self.db[obj.get_collection_name()]
+        for index in obj.get_indexes():
+            index.ensure(collection)
         return self.db[obj.get_collection_name()].remove(obj.mongo_id, safe=safe)
     
     def execute_remove(self, remove):
@@ -212,6 +215,11 @@ class Session(object):
         safe = self.safe
         if remove.safe != None:
             safe = remove.safe
+        
+        collection = self.db[remove.type.get_collection_name()]
+        for index in remove.type.get_indexes():
+            index.ensure(collection)
+
         return self.db[remove.type.get_collection_name()].remove(remove.query, safe=safe)
     
     def execute_update(self, update):
