@@ -387,7 +387,7 @@ class DocumentField(Field):
         ''' Returns a dict of the operations needed to update this object.  
             See :func:`Document.get_dirty_ops` for more details.'''
         try:
-            document = getattr(instance, self.name)
+            document = getattr(instance, self._name)
         except AttributeError:
             return {}
         if len(document._dirty) == 0:
@@ -399,7 +399,7 @@ class DocumentField(Field):
         for op, values in ops.iteritems():
             ret[op] = {}
             for key, value in values.iteritems():
-                name = '%s.%s' % (self.name, key)
+                name = '%s.%s' % (self._name, key)
                 ret[op][name] = value
         return ret
     

@@ -167,53 +167,53 @@ class Field(object):
         
         self.required = required
         self.default = default
-        self.name =  'Unbound_%s' % self.__class__.__name__
+        self._name =  'Unbound_%s' % self.__class__.__name__
     
     def __get__(self, instance, owner):
         if type(instance) == type(None):
             return QueryField(self)
-        if self.name in instance._field_values:
-            return instance._field_values[self.name]
+        if self._name in instance._field_values:
+            return instance._field_values[self._name]
         if self.default != UNSET:
             return self.default
         if instance.partial and self.db_field not in instance.retrieved_fields:
-            raise FieldNotRetrieved(self.name)
+            raise FieldNotRetrieved(self._name)
             
-        raise AttributeError(self.name)
+        raise AttributeError(self._name)
         
     
     def __set__(self, instance, value):
         self.set_value(instance, value)
     
     def __delete__(self, instance):
-        if self.name not in instance._field_values:
-            raise AttributeError(self.name)
-        del instance._field_values[self.name]
-        instance._dirty[self.name] = '$unset'
+        if self._name not in instance._field_values:
+            raise AttributeError(self._name)
+        del instance._field_values[self._name]
+        instance._dirty[self._name] = '$unset'
     
     def set_value(self, instance, value, from_db=False):
-        instance._field_values[self.name] = value
+        instance._field_values[self._name] = value
         if self.on_update != 'ignore':
-            instance._dirty[self.name] = self.on_update
+            instance._dirty[self._name] = self.on_update
     
     def dirty_ops(self, instance):
-        op = instance._dirty.get(self.name)
+        op = instance._dirty.get(self._name)
         if op == '$unset':
-            return { '$unset' : { self.name : True } }
+            return { '$unset' : { self._name : True } }
         if op == None:
             return {}
         return {
             op : {
-                self.name : self.wrap(instance._field_values[self.name])
+                self._name : self.wrap(instance._field_values[self._name])
             }
         }
     
     def update_ops(self, instance):
-        if self.name not in instance._field_values:
+        if self._name not in instance._field_values:
             return {}
         return {
             self.on_update : {
-                self.name : self.wrap(instance._field_values[self.name])
+                self._name : self.wrap(instance._field_values[self._name])
             }
         }
     
@@ -226,7 +226,7 @@ class Field(object):
         '''
         if self.__db_field != None:
             return self.__db_field
-        return self.name
+        return self._name
     
     def wrap_value(self, value):
         ''' Wrap ``value`` for use as the value in a Mongo query, for example 
@@ -234,7 +234,7 @@ class Field(object):
         return self.wrap(value)
     
     def _set_name(self, name):
-        self.name = name
+        self._name = name
     
     def _set_parent(self, parent):
         self.parent = parent
@@ -286,12 +286,12 @@ class Field(object):
         self.validate_wrap(value)
     
     def _fail_validation(self, value, reason='', cause=None):
-        raise BadValueException(self.name, value, reason, cause=cause)
+        raise BadValueException(self._name, value, reason, cause=cause)
     
     def _fail_validation_type(self, value, *type):
         types = '\n'.join([str(t) for t in type])
         got = value.__class__.__name__
-        raise BadValueException(self.name, value, 'Value is not an instance of %s (got: %s)' % (types, got))
+        raise BadValueException(self._name, value, 'Value is not an instance of %s (got: %s)' % (types, got))
     
     def is_valid_wrap(self, value):
         ''' Returns whether ``value`` is a valid value to wrap.
@@ -838,10 +838,10 @@ class KVField(DictField):
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("KVField value type is not a field!")
         self.key_type = key_type
-        self.key_type.name = 'k'
+        self.key_type._name = 'k'
         
         self.value_type = value_type
-        self.value_type.name = 'v'
+        self.value_type._name = 'v'
     
     def set_parent_on_subtypes(self, parent):
         self.value_type._set_parent(parent)
@@ -964,16 +964,16 @@ class ComputedField(Field):
         if type(instance) == type(None):
             return QueryField(self)
         
-        if self.name in instance._field_values and self.one_time:
-            return instance._field_values[self.name]
+        if self._name in instance._field_values and self.one_time:
+            return instance._field_values[self._name]
         computed_value = self.compute_value(instance)
         if self.one_time:
-            instance._field_values[self.name] = computed_value
+            instance._field_values[self._name] = computed_value
         return computed_value
     
     def __set__(self, instance, value):
-        if self.name in instance._field_values and self.one_time:
-            raise BadValueException(self.name, value, 'Cannot set a one-time field once it has been set')
+        if self._name in instance._field_values and self.one_time:
+            raise BadValueException(self._name, value, 'Cannot set a one-time field once it has been set')
         super(ComputedField, self).__set__(instance, value)
     
     def set_parent_on_subtypes(self, parent):
@@ -982,7 +982,7 @@ class ComputedField(Field):
     def dirty_ops(self, instance):
         dirty = False
         for dep in self.deps:
-            if dep.name in instance._dirty:
+            if dep._name in instance._dirty:
                 break
         else:
             if len(self.deps) > 0:
@@ -990,14 +990,14 @@ class ComputedField(Field):
         
         return {
             self.on_update : {
-                self.name : self.wrap(getattr(instance, self.name))
+                self._name : self.wrap(getattr(instance, self._name))
             }
         }
     
     def compute_value(self, doc):
         args = {}
         for dep in self.deps:
-            args[dep.name] = getattr(doc, dep.name)
+            args[dep._name] = getattr(doc, dep._name)
         value = self.fun(args)
         try:
             self.computed_type.validate_wrap(value)
