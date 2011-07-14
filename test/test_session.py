@@ -20,6 +20,13 @@ def test_context_manater():
         s.clear_collection(T)
         t = T(i=5)
 
+def test_safe():
+    s = Session.connect('unit-testing', safe=True)
+    assert s.safe == True
+    s = Session.connect('unit-testing', safe=False)
+    assert s.safe == False
+
+
 def test_update():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
