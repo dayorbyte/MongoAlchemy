@@ -217,7 +217,7 @@ class Session(object):
     def execute_update(self, update):
         ''' Execute an update expression.  Should generally only be called implicitly.
         '''
-
+        
         self.flush()
         assert len(update.update_data) > 0
         collection = self.db[update.query.type.get_collection_name()]
@@ -225,6 +225,34 @@ class Session(object):
             index.ensure(collection)
         collection.update(update.query.query, update.update_data, upsert=update.get_upsert(), multi=update.get_multi())
     
+    def execute_find_and_modify(self, fm_exp):
+        self.flush()
+        # assert len(fm_exp.update_data) > 0
+        collection = self.db[fm_exp.query.type.get_collection_name()]
+        for index in fm_exp.query.type.get_indexes():
+            index.ensure(collection)
+        kwargs = {
+            'query' : fm_exp.query.query, 
+            'update' : fm_exp.update_data, 
+            'upsert' : fm_exp.get_upsert(), 
+        }
+        
+        if fm_exp.query.get_fields():
+            kwargs['fields'] = {}
+            for f in fm_exp.query.get_fields():
+                kwargs['fields'][str(f)] = True
+        if fm_exp.query.sort:
+            kwargs['sort'] = fm_exp.query.sort
+        if fm_exp.get_new():
+            kwargs['new'] = fm_exp.get_new()
+        if fm_exp.get_remove():
+            kwargs['remove'] = fm_exp.get_remove()
+        
+        value = collection.find_and_modify(**kwargs)        
+        if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
+            return value
+        
+        return fm_exp.query.type.unwrap(value, fields=fm_exp.query.get_fields())
     
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 

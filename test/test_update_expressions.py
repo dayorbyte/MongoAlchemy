@@ -29,6 +29,30 @@ def update_test_setup():
     s.clear_collection(T)
     return s.query(T)
 
+# Find and Modify
+def test_find_and_modify():
+    s = get_session()
+    s.clear_collection(T, T2)
+    # insert
+    value = s.query(T).filter_by(i=12341).find_and_modify().set(i=12341).upsert().execute()
+    assert value == {}
+    assert s.query(T).one().i == 12341
+    # update
+    value = s.query(T).filter_by(i=12341).ascending(T.i).find_and_modify().set(i=9999).execute()
+    assert value.i == 12341
+    assert s.query(T).one().i == 9999
+    
+    # return new
+    value = s.query(T).filter_by(i=9999).fields(T.i).find_and_modify(new=True).set(i=8888).execute()
+    assert value.i == 8888, value.i
+    assert s.query(T).one().i == 8888
+
+    # remove
+    value = s.query(T).filter_by(i=8888).find_and_modify(remove=True).execute()
+    assert value.i == 8888, value.i
+    assert s.query(T).first() is None
+
+
 # General Update tests
 
 def test_multi():

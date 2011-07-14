@@ -192,6 +192,23 @@ class UpdateExpression(object):
         ''' Execute the update expression on the database '''
         self.session.execute_update(self)
 
+class FindAndModifyExpression(UpdateExpression):
+    def __init__(self, query, new, remove):
+        self.__new = new
+        self.__remove = remove
+        UpdateExpression.__init__(self, query)
+    
+    def get_remove(self):
+        return self.__remove
+    
+    def get_new(self):
+        return self.__new
+    
+    def execute(self):
+        ''' Execute the find and modify expression on the database '''
+        return self.session.execute_find_and_modify(self)
+        
+
 class UpdateException(Exception):
     ''' Base class for exceptions related to updates '''
     pass

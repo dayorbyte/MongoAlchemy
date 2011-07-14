@@ -26,7 +26,7 @@ from copy import copy, deepcopy
 
 from mongoalchemy.fields import BadValueException
 from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
-from mongoalchemy.update_expression import UpdateExpression
+from mongoalchemy.update_expression import UpdateExpression, FindAndModifyExpression
 
 class BadResultException(Exception):
     ''' Only raised right now when .one() finds more than one object '''
@@ -322,7 +322,17 @@ class Query(object):
         qfield = self.resolve_name(qfield)
         self.filter(QueryExpression({ qfield : { '$nin' : [qfield.wrap_value(value) for value in values]}}))
         return self
-
+    
+    def find_and_modify(self, new=False, remove=False):
+        ''' The mongo "find and modify" command.  Behaves like an update expression
+            in that "execute" must be called to do the update and return the 
+            results.
+            
+            :param new: Whether to return the new object or old (default: False)
+            :param remove: Whether to remove the object before returning it
+        '''
+        return FindAndModifyExpression(self, new=new, remove=remove)
+        
     
     def set(self, *args, **kwargs):
         ''' Refer to: :func:`~mongoalchemy.update_expression.UpdateExpression.set`'''
