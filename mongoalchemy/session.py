@@ -56,6 +56,8 @@ class Session(object):
         
         :param database: the database to connect to.  Should be an instance of \
             :class:`pymongo.database.Database`
+        :param safe: Whether the "safe" option should be used on mongo writes, \
+            blocking to make sure there are no errors.
         
         **Fields**:
             * db: the underlying pymongo database object
@@ -67,18 +69,17 @@ class Session(object):
         self.safe = safe
     
     @classmethod
-    def connect(self, database, *args, **kwds):
+    def connect(self, database, safe=False, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
             :param database: the database name to use.  Should be an instance of \
                     :class:`basestring`
+            :param safe: The value for the "safe" parameter of the Session \ 
+                init function
             :param args: arguments for :class:`pymongo.connection.Connection`
             :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
         '''
-        safe = False
-        if 'safe' in kwds:
-          safe = kwds.pop('safe')
         conn = Connection(*args, **kwds)
         db = conn[database]
         return Session(db, safe=safe)
