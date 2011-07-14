@@ -31,8 +31,8 @@ Creating a Mapping Object
     ...     gender = EnumField(StringField(), 'male', 'female')
     ...     blood_type = EnumField(StringField(), 'O+','A+','B+','AB+','O-','A-','B-','AB-')
     ...     def __str__(self):
-    ...         return '%s %s (%s; Age: %d; Type: %s)' % (first_name, last_name, 
-    ...             gender, age, blood_type)
+    ...         return '%s %s (%s; Age: %d; Type: %s)' % (self.first_name, self.last_name, 
+    ...             self.gender, self.age, self.blood_type)
 
 
 The above code creates a class ``BloodDoner`` which will has all of the 
