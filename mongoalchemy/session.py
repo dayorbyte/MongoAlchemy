@@ -284,7 +284,11 @@ class Session(object):
         if safe is None:
             safe = self.safe
         for index, item in enumerate(self.queue):
-            item.commit(self.db, safe=safe)
+            try:
+                item.commit(self.db, safe=safe)
+            except:
+                self.clear()
+                raise
         self.clear()
             
     

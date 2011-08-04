@@ -3,10 +3,16 @@ from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField
 from mongoalchemy.fields import *
 from test.util import known_failure
+from pymongo.errors import DuplicateKeyError
 
 class T(Document):
     i = IntField()
     l = ListField(IntField(), required=False, on_update='$pushAll')
+
+class TUnique(Document):
+    i = IntField()
+    main_index = Index().ascending('i').unique()
+
 
 def test_session():
     s = Session.connect('unit-testing')
@@ -26,6 +32,16 @@ def test_safe():
     s = Session.connect('unit-testing', safe=False)
     assert s.safe == False
 
+def test_safe_with_error():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TUnique)
+    s.insert(TUnique(i=1))
+    try:
+        s.insert(TUnique(i=1), safe=True)
+        assert False, 'No error raised on safe insert for second unique item'
+    except DuplicateKeyError:
+        assert len(s.queue) == 0
+    
 
 def test_update():
     s = Session.connect('unit-testing')
