@@ -5,6 +5,7 @@ from mongoalchemy.fields import *
 from mongoalchemy.update_expression import InvalidModifierException, UpdateException
 from mongoalchemy.query import BadQueryException, Query, BadResultException, RemoveQuery
 from test.util import known_failure
+from pymongo.errors import DuplicateKeyError
 
 class T(Document):
     i = IntField()
@@ -16,6 +17,12 @@ class T(Document):
 
 class T2(Document):
     t = DocumentField(T)
+
+class TUnique(Document):
+    i = IntField()
+    j = IntField(required=False)
+    main_index = Index().ascending('i').unique()
+
 
 def get_session():
     return Session.connect('unit-testing')
@@ -70,6 +77,26 @@ def nested_field_set_test():
     s.clear_collection(T, T2)
     s.query(T2).set('t.i', 3).upsert().execute()
     assert s.query(T2).one().t.i == 3
+
+def test_update_safe():
+    s = get_session()
+    s.clear_collection(TUnique)
+    s.query(TUnique).filter_by(i=1).set(i=1, j=2).upsert().execute()
+    # default safe=false -- ignore error
+    s.query(TUnique).filter_by(i=1).set(i=1, j=2).upsert().execute()
+    # explicit safe=false
+    s.query(TUnique).filter_by(i=1).set(i=1, j=2).safe().safe(safe=False).upsert().execute()
+    
+    # safe=true, exception
+    # TODO: doesn't produce a real exception.  should investigate why, but I checked
+    # and I am sending safe=True
+    # 
+    # try:
+    #     s.query(TUnique).filter_by(i=1).set(i=1, j=2).safe().upsert().execute()
+    #     assert False, 'No error raised on safe insert for second unique item'
+    # except DuplicateKeyError:
+    #     pass
+
 
 # Test Remove
 

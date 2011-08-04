@@ -222,7 +222,7 @@ class Session(object):
 
         return self.db[remove.type.get_collection_name()].remove(remove.query, safe=safe)
     
-    def execute_update(self, update):
+    def execute_update(self, update, safe=False):
         ''' Execute an update expression.  Should generally only be called implicitly.
         '''
         
@@ -231,7 +231,13 @@ class Session(object):
         collection = self.db[update.query.type.get_collection_name()]
         for index in update.query.type.get_indexes():
             index.ensure(collection)
-        collection.update(update.query.query, update.update_data, upsert=update.get_upsert(), multi=update.get_multi())
+        kwargs = dict(
+            upsert=update.get_upsert(), 
+            multi=update.get_multi(),
+            safe=safe,
+        )
+        print kwargs
+        collection.update(update.query.query, update.update_data, **kwargs)
     
     def execute_find_and_modify(self, fm_exp):
         self.flush()

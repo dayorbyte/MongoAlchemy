@@ -34,6 +34,7 @@ class UpdateExpression(object):
         self.update_data = {}
         self.__upsert = False
         self.__multi = False
+        self.__safe = False
     
     def upsert(self):
         ''' If a document matching the query doesn't exist, create one '''
@@ -44,6 +45,10 @@ class UpdateExpression(object):
         ''' Update multiple documents.  The Mongo default is to only update 
             the first matching document '''
         self.__multi = True
+        return self
+    
+    def safe(self, safe=True):
+        self.__safe = safe
         return self
     
     def set(self, *args, **kwargs):
@@ -190,7 +195,7 @@ class UpdateExpression(object):
     
     def execute(self):
         ''' Execute the update expression on the database '''
-        self.session.execute_update(self)
+        self.session.execute_update(self, safe=self.__safe)
 
 class FindAndModifyExpression(UpdateExpression):
     def __init__(self, query, new, remove):
