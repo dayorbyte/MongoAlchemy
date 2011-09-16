@@ -227,6 +227,6 @@ def binary_wrong_type_test_unwrap():
 
 def binary_value_test():
     s = BinaryField()
-    assert s.wrap(Binary(bytes('foo'))) == Binary(bytes('foo'))
-    assert s.wrap(bytes('foo')) == Binary(bytes('foo'))
-    assert s.unwrap(Binary(bytes('foo'))) == Binary(bytes('foo'))
+    assert s.wrap(Binary(bytes('foo'.encode('ascii')))) == Binary(bytes('foo'.encode('ascii')))
+    assert s.wrap(bytes('foo'.encode('ascii'))) == Binary(bytes('foo'.encode('ascii')))
+    assert s.unwrap(Binary(bytes('foo'.encode('ascii')))) == Binary(bytes('foo'.encode('ascii')))
