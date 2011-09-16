@@ -25,13 +25,15 @@ def test_indexes():
     t = TestDoc(int1=1, str1='a', str2='b', str3='c')
     s.insert(t)
     
-    assert s.get_indexes(TestDoc) == {u'_id_': {u'key': [(u'_id', 1)]},
-         u'int1_1_str3_-1': {u'dropDups': False,
-                             u'key': [(u'int1', 1), (u'str3', -1)],
-                             u'unique': False},
-         u'str1_-1': {u'dropDups': True, u'key': [(u'str1', -1)], u'unique': True},
-         u'str2_-1': {u'dropDups': False, u'key': [(u'str2', -1)], u'unique': True},
-         u'str3_-1': {u'dropDups': False, u'key': [(u'str3', -1)], u'unique': False}}
+    try:
+        import json
+    except:
+        import simplejson as json
+    
+    desired = '''{"_id_": {"key": [["_id", 1]], "v": 0}, "int1_1_str3_-1": {"dropDups": false, "key": [["int1", 1], ["str3", -1]], "unique": false, "v": 0}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 0}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 0}, "str3_-1": {"dropDups": false, "key": [["str3", -1]], "unique": false, "v": 0}}'''
+    got = s.get_indexes(TestDoc)
+    got = json.dumps(got, sort_keys=True)
+    assert got == desired, '\nG: %s\nD: %s' % (got, desired)
 
 @known_failure
 @raises(Exception)
