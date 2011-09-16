@@ -360,7 +360,7 @@ class BinaryField(PrimitiveField):
         super(BinaryField, self).__init__(constructor=Binary, **kwargs)
     
     def validate_wrap(self, value):
-        if not isinstance(value, str) and not isinstance(value, Binary):
+        if not isinstance(value, bytes) and not isinstance(value, Binary):
             self._fail_validation_type(value, str, Binary)
 
 class BoolField(PrimitiveField):
