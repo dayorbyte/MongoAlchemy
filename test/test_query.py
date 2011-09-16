@@ -281,13 +281,13 @@ def qr_test_rewind():
     s.insert(T(i=3))
     s.insert(T(i=4))
     it = iter(s.query(T))
-    it.next()
-    it.next()
+    next(it)
+    next(it)
     it.rewind()
-    it.next()
-    it.next()
+    next(it)
+    next(it)
     try:
-        it.next()
+        next(it)
     except StopIteration:
         pass
     
@@ -297,13 +297,13 @@ def qr_test_clone():
     s.insert(T(i=3))
     s.insert(T(i=4))
     it = iter(s.query(T))
-    it.next()
-    it.next()
+    next(it)
+    next(it)
     it2 = it.clone()
-    it2.next()
-    it2.next()
+    next(it2)
+    next(it2)
     try:
-        it2.next()
+        next(it2)
     except StopIteration:
         pass
 
