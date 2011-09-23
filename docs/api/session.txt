@@ -1,0 +1,7 @@
+
+Session
+========================================
+
+.. automodule:: mongoalchemy.session
+   :members:
+   :undoc-members:

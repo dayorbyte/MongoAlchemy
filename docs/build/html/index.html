@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to MongoAlchemy’s documentation! &mdash; MongoAlchemy v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="#" />
+    <link rel="next" title="MongoAlchemy Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="MongoAlchemy Tutorial"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">MongoAlchemy v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-mongoalchemy-s-documentation">
+<h1>Welcome to MongoAlchemy&#8217;s documentation!<a class="headerlink" href="#welcome-to-mongoalchemy-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="contents">
+<h2>Contents:<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">MongoAlchemy Tutorial</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_modeling.html">Advanced Modeling — Namespaces and Forward/Self-References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/session.html">Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/schema/index.html">Schema — Document-Object Mapper and Schema Definitions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/schema/document.html"><tt class="docutils literal"><span class="pre">document</span></tt></a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/schema/fields.html"><tt class="docutils literal"><span class="pre">fields</span></tt></a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/expressions/index.html">Expression Language — Querying and Updating</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/expressions/query.html">Query Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/expressions/query_expressions.html">Mongo Query Expression Language</a><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/expressions/update_expressions.html">Update Expressions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/expressions/update_expressions.html#remove-queries">Remove Queries</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/exceptions.html">Exceptions</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>MongoAlchemy is a layer on top of the <cite>Python</cite> <cite>MongoDB</cite> driver which adds
+client-side schema definitions, an easier to work with and programmatic query
+language, and a Document-Object mapper which allows python objects to be saved
+and loaded into the database in a type-safe way.</p>
+<p>An explicit goal of this project is to be able to perform as many operations
+as possible without having to perform a load/save cycle since doing so is both
+significantly slower and more likely to cause data loss.</p>
+<p>There&#8217;s more detail in the <a class="reference internal" href="tutorial.html"><em>MongoAlchemy Tutorial</em></a>, but a small example is on
+this page below the contents of the documentation.</p>
+</div>
+<div class="section" id="interesting-features">
+<h2>Interesting Features<a class="headerlink" href="#interesting-features" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first"><strong>Object-Document-Mapping</strong>: Turn MongoDB documents into Python objects and vice-versa.</p>
+</li>
+<li><p class="first"><strong>A rich expression language</strong>: which can be used to do queries for loading documents as well as updating documents without loading them.</p>
+</li>
+<li><p class="first"><strong>Use Any Collection and Field Names</strong> — Configuration allows collection names and field names to be different from their python names.</p>
+</li>
+<li><p class="first"><strong>Computed Fields</strong> <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.ComputedField" title="mongoalchemy.fields.ComputedField"><tt class="xref py py-class docutils literal"><span class="pre">ComputedField</span></tt></a> fields allow a function to be used to generate the value for a field.  Extremely useful for fields where the value is a function (like a last-updated field), or where the field is generated from other fields (like a set of keywords generated or the components of a URL)</p>
+</li>
+<li><p class="first"><strong>User-defined validation</strong> — for values being wrapped for the database or unwrapped into a python object, as well as validators which happen for both.  See <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> </p>
+</li>
+<li><p class="first"><strong>Arbitrary Value Fields</strong> — A field that can hold arbitrary values: <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.AnythingField" title="mongoalchemy.fields.AnythingField"><tt class="xref py py-class docutils literal"><span class="pre">AnythingField</span></tt></a></p>
+</li>
+<li><p class="first"><strong>More Flexible Mapping Type</strong> A dict-like field which can have arbitrary key and value types as well as allowing indexing on the keys — not normally possible in Mongo — by storing them in a different format than how they appear when accessed in python a plain dict. <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a></p>
+</li>
+<li><p class="first"><strong>Automatically Calculated Updates</strong> — The session object has an <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">mongoalchemy.session.Session.update()</span></tt></a> function which determines which fields are dirty and will execute the appropriate update operations to update the object in the database. The operations used for updating can be overriden at the field definition level as well as in the <tt class="docutils literal"><span class="pre">update</span></tt> call.</p>
+</li>
+<li><p class="first"><strong>Drop into raw Mongo</strong> — Most functions will accept raw pymongo instead of the mongoalchemy objects.  For example:</p>
+<div class="highlight-python"><pre>session.query('SomeClass').filter(SomeClass.name == foo).limit(5)``</pre>
+</div>
+<p>is perfectly valid, as is:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">({</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;foo&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">easy_install</span> <span class="pre">MongoAlchemy</span></tt></p>
+<p>You can also download the source code from the Python Package index or GitHub:</p>
+<p>The source code is available at: <a class="reference external" href="http://github.com/jeffjenkins/MongoAlchemy">http://github.com/jeffjenkins/MongoAlchemy</a></p>
+<p>The PyPi page is located here: <a class="reference external" href="http://pypi.python.org/pypi/MongoAlchemy/">http://pypi.python.org/pypi/MongoAlchemy/</a></p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.session</span> <span class="kn">import</span> <span class="n">Session</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Index</span><span class="p">,</span> <span class="n">DocumentField</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.fields</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Subclasses of Document both provide the mapping needed for</span>
+<span class="gp">... </span><span class="c"># queries as well as the classes for loading/saving objects.</span>
+<span class="gp">... </span><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">Document</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">config_collection_name</span> <span class="o">=</span> <span class="s">&#39;users&#39;</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c"># Setting the possible values by using fields</span>
+<span class="gp">... </span>    <span class="n">first_name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">last_name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">age</span> <span class="o">=</span> <span class="n">IntField</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c"># db_field allows a different DB field name than the one on the</span>
+<span class="gp">... </span>    <span class="c"># python object</span>
+<span class="gp">... </span>    <span class="n">email</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">(</span><span class="n">db_field</span><span class="o">=</span><span class="s">&#39;email_address&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">bio</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="c"># A computed field decorator allows values</span>
+<span class="gp">... </span>    <span class="nd">@computed_field</span><span class="p">(</span><span class="n">SetField</span><span class="p">(</span><span class="n">StringField</span><span class="p">()),</span> <span class="n">deps</span><span class="o">=</span><span class="p">[</span><span class="n">bio</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">keywords</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;bio&#39;</span><span class="p">,</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">))</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">kw_index</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;keywords&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">name_index</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">descending</span><span class="p">(</span><span class="s">&#39;first_name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;last_name&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">email_index</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">descending</span><span class="p">(</span><span class="s">&#39;email&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">email</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="s">&#39;User(email=&quot;</span><span class="si">%s</span><span class="s">&quot;)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">me</span> <span class="o">=</span> <span class="n">User</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Jenkins&#39;</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">bio</span><span class="o">=</span><span class="s">&#39;Jeff is the author of MongoAlchemy&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">me</span><span class="o">.</span><span class="n">keywords</span>
+<span class="go">set([&#39;author&#39;, &#39;of&#39;, &#39;is&#39;, &#39;Jeff&#39;, &#39;MongoAlchemy&#39;, &#39;the&#39;])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># This connections to the DB and starts the session</span>
+<span class="gp">... </span><span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;mongoalchemy-intro&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">clear_collection</span><span class="p">(</span><span class="n">User</span><span class="p">)</span> <span class="c"># clear previous runs of this code!</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Insert on a session will infer the correct collection and push the object</span>
+<span class="gp">... </span><span class="c"># into the database</span>
+<span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">me</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="p">([</span><span class="s">&#39;author&#39;</span><span class="p">,</span> <span class="s">&#39;of&#39;</span><span class="p">,</span> <span class="s">&#39;is&#39;</span><span class="p">,</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">,</span> <span class="s">&#39;the&#39;</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Get a user with me&#39;s email address and MongoAlchemy in their bio (via keywords)</span>
+<span class="gp">... </span><span class="n">db_user</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">email</span> <span class="o">==</span> <span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">db_user</span> <span class="o">==</span> <span class="n">me</span>
+<span class="go">True</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Using filter_by for simple equality checking is easier</span>
+<span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="n">email</span><span class="o">=</span><span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">in_</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">keywords</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="go">User(email=&quot;jeff@qcircles.net&quot;)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># It&#39;s also possible to do raw mongo filtering</span>
+<span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">User</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">({</span><span class="s">&#39;email&#39;</span><span class="p">:</span><span class="s">&#39;jeff@qcircles.net&#39;</span><span class="p">,</span> <span class="s">&#39;keywords&#39;</span><span class="p">:{</span><span class="s">&#39;$in&#39;</span><span class="p">:[</span><span class="s">&#39;MongoAlchemy&#39;</span><span class="p">]}})</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="go">User(email=&quot;jeff@qcircles.net&quot;)</span>
+<span class="go">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to MongoAlchemy&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#contents">Contents:</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#interesting-features">Interesting Features</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">MongoAlchemy Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="MongoAlchemy Tutorial"
+             >next</a> |</li>
+        <li><a href="#">MongoAlchemy v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

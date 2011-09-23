@@ -1,0 +1,17 @@
+
+Update Expressions
+==================================
+
+.. autoclass:: mongoalchemy.update_expression.UpdateExpression
+   :members:
+   :undoc-members:
+
+Remove Queries
+==================================
+
+Remove queries are executed with the ``remove_query`` method on a session.  
+They have the same filtering methods as querying.
+
+.. autoclass:: mongoalchemy.query.RemoveQuery
+   :members:
+   :undoc-members:

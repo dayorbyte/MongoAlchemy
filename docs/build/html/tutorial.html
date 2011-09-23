@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>MongoAlchemy Tutorial &mdash; MongoAlchemy v0.8 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="index.html" />
+    <link rel="next" title="Advanced Modeling — Namespaces and Forward/Self-References" href="advanced_modeling.html" />
+    <link rel="prev" title="Welcome to MongoAlchemy’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mongoalchemy-tutorial">
+<h1>MongoAlchemy Tutorial<a class="headerlink" href="#mongoalchemy-tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This tutorial is incomplete, but hopefully has enough detail that the places to look in the API documentation for the rest is clear.</p>
+</div>
+<p>In order to use MongoAlchemy to interact with a Mongo database, two things are
+needed:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>a <a class="reference internal" href="api/session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> object to handle queuing, </dt>
+<dd><p class="first last">sending, and receiving data from the database.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>a subclass of <a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> to define a mapping </dt>
+<dd><p class="first last">between a mongo object and python class.  The class serves as the mapping, and instances of the class are the python classes that are saved or loaded into the database</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>This tutorial is going go through the basics of each of these, as well as
+querying and updating in a way which is programmatic, type safe, and value
+checked.</p>
+<div class="section" id="creating-a-mapping-object">
+<h2>Creating a Mapping Object<a class="headerlink" href="#creating-a-mapping-object" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.document</span> <span class="kn">import</span> <span class="n">Document</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.fields</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">BloodDonor</span><span class="p">(</span><span class="n">Document</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">first_name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">last_name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">age</span> <span class="o">=</span> <span class="n">IntField</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">... </span>    <span class="n">gender</span> <span class="o">=</span> <span class="n">EnumField</span><span class="p">(</span><span class="n">StringField</span><span class="p">(),</span> <span class="s">&#39;male&#39;</span><span class="p">,</span> <span class="s">&#39;female&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">blood_type</span> <span class="o">=</span> <span class="n">EnumField</span><span class="p">(</span><span class="n">StringField</span><span class="p">(),</span> <span class="s">&#39;O+&#39;</span><span class="p">,</span><span class="s">&#39;A+&#39;</span><span class="p">,</span><span class="s">&#39;B+&#39;</span><span class="p">,</span><span class="s">&#39;AB+&#39;</span><span class="p">,</span><span class="s">&#39;O-&#39;</span><span class="p">,</span><span class="s">&#39;A-&#39;</span><span class="p">,</span><span class="s">&#39;B-&#39;</span><span class="p">,</span><span class="s">&#39;AB-&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">; Age: </span><span class="si">%d</span><span class="s">; Type: </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blood_type</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code creates a class <tt class="docutils literal"><span class="pre">BloodDoner</span></tt> which will has all of the
+information necessary to create python objects to save, load database
+objects (though there are none at the moment), and to construct queries for
+these objects.</p>
+<p>It also introduces several <tt class="xref py py-mod docutils literal"><span class="pre">field</span></tt> subclasses which are used
+to define the key/value pairs in the mongo Document.  The <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.StringField" title="mongoalchemy.fields.StringField"><tt class="xref py py-class docutils literal"><span class="pre">StringField</span></tt></a>
+and <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.IntField" title="mongoalchemy.fields.IntField"><tt class="xref py py-class docutils literal"><span class="pre">IntField</span></tt></a> are fairly self-explanatory.  The
+<a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.EnumField" title="mongoalchemy.fields.EnumField"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.EnumField</span></tt></a> is more complex. It takes a field as its first argument
+followed by any number of values of the type accepted by that field.  The
+EnumField will check both that the value it is constructed with is of the
+correct type, but also that its value is one of the values given in the
+constructor.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> and <a class="reference internal" href="api/schema/fields.html#module-mongoalchemy.fields" title="mongoalchemy.fields"><tt class="xref py py-mod docutils literal"><span class="pre">fields</span></tt></a></p>
+</div>
+</div>
+<div class="section" id="sessions">
+<h2>Sessions<a class="headerlink" href="#sessions" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.session</span> <span class="kn">import</span> <span class="n">Session</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;mongoalchemy-tutorial&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">clear_collection</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The above code creates a session object by connecting to a local mongo
+server and accessing the mongoalchemy-tutorial database.  Any arguments after
+the database name will be used as arguments to pymongo&#8217;s connection function.
+It&#8217;s also possible to directly construct a session using a pymongo database
+object, allowing one connection to be used for multiple sessions.  The last
+line clears all objects from the collection used for BloodDonor objects, in
+case this tutorial code had run before.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">donor</span> <span class="o">=</span> <span class="n">BloodDonor</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Jenkins&#39;</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">age</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">blood_type</span><span class="o">=</span><span class="s">&#39;O+&#39;</span><span class="p">,</span> <span class="n">gender</span><span class="o">=</span><span class="s">&#39;male&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">donor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When <tt class="docutils literal"><span class="pre">insert</span></tt> is called on the <tt class="docutils literal"><span class="pre">donor</span></tt> object the session serializes it
+into a form that the Mongo database understands, and then inserts it.  Once
+the insert command is complete the <tt class="docutils literal"><span class="pre">_id</span></tt> field of <tt class="docutils literal"><span class="pre">donor</span></tt> object is set.</p>
+<p>To make the next section more interesting more objects are needed, so we&#8217;ll
+add some of the cast of <cite>Community</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Winger&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">38</span><span class="p">,</span> <span class="n">blood_type</span><span class="o">=</span><span class="s">&#39;O+&#39;</span><span class="p">,</span> <span class="n">gender</span><span class="o">=</span><span class="s">&#39;male&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Britta&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Perry&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">27</span><span class="p">,</span> <span class="n">blood_type</span><span class="o">=</span><span class="s">&#39;A+&#39;</span><span class="p">,</span> <span class="n">gender</span><span class="o">=</span><span class="s">&#39;female&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Abed&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Nadir&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">29</span><span class="p">,</span> <span class="n">blood_type</span><span class="o">=</span><span class="s">&#39;O+&#39;</span><span class="p">,</span> <span class="n">gender</span><span class="o">=</span><span class="s">&#39;male&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">(</span><span class="n">first_name</span><span class="o">=</span><span class="s">&#39;Shirley&#39;</span><span class="p">,</span> <span class="n">last_name</span><span class="o">=</span><span class="s">&#39;Bennett&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">39</span><span class="p">,</span> <span class="n">blood_type</span><span class="o">=</span><span class="s">&#39;O-&#39;</span><span class="p">,</span> <span class="n">gender</span><span class="o">=</span><span class="s">&#39;female&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="querying">
+<h2>Querying<a class="headerlink" href="#querying" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
+<span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
+<span class="go">Jeff Winger (male; Age: 38; Type: O+)</span>
+</pre></div>
+</div>
+<p>The above code uses the <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.query" title="mongoalchemy.session.Session.query"><tt class="xref py py-func docutils literal"><span class="pre">query()</span></tt></a> method of
+the <tt class="docutils literal"><span class="pre">session</span></tt> object to start a query on the BloodDonor collection.  The
+filter function on a query object allows constraints to be added to the
+results returned.  In this case all donors who have the name Jeff are being
+printed.  The attributes of a Document subclass are used to access the names
+of fields in such a way that they generate query expressions which <tt class="docutils literal"><span class="pre">filter</span></tt>
+can use.</p>
+<p>Multiple filters can be applied by chaining calls to filter or by adding
+comma-separated query expressions inside a single call.  The following two
+examples return the same results:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
+<span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">donor</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="k">print</span> <span class="n">donor</span>
+<span class="go">Jeff Jenkins (male; Age: 28; Type: O+)</span>
+</pre></div>
+</div>
+<p>Instead of getting elements by iterating on the query, the <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.one" title="mongoalchemy.query.Query.one"><tt class="xref py py-func docutils literal"><span class="pre">one()</span></tt></a>
+and <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.first" title="mongoalchemy.query.Query.first"><tt class="xref py py-func docutils literal"><span class="pre">first()</span></tt></a> methods can be used.  <tt class="docutils literal"><span class="pre">one</span></tt> returns the first
+result and raises an exception if there is not exactly one returned result.  <tt class="docutils literal"><span class="pre">first</span></tt> returns
+the first result if there is one, and <tt class="xref docutils literal"><span class="pre">None</span></tt> if there is not one.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="api/expressions/query_expressions.html"><em>Mongo Query Expression Language</em></a> for all available types of query expressions</p>
+</div>
+</div>
+<div class="section" id="updating">
+<h2>Updating<a class="headerlink" href="#updating" title="Permalink to this headline">¶</a></h2>
+<p>There are a number of methods available for updating results of a query (
+rather than updating results by loading an object and re-inserting it).
+Here&#8217;s an example where my age changed and it turned out I had the wrong
+blood type:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">BloodDonor</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">first_name</span> <span class="o">==</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="n">BloodDonor</span><span class="o">.</span><span class="n">last_name</span> <span class="o">==</span> <span class="s">&#39;Jenkins&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span><span class="o">.</span><span class="n">inc</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">BloodDonor</span><span class="o">.</span><span class="n">blood_type</span><span class="p">,</span> <span class="s">&#39;O-&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+<span class="go">Jeff Jenkins (male; Age: 29; Type: O-)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.inc" title="mongoalchemy.update_expression.UpdateExpression.inc"><tt class="xref py py-func docutils literal"><span class="pre">inc()</span></tt></a> and <a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.set" title="mongoalchemy.update_expression.UpdateExpression.set"><tt class="xref py py-func docutils literal"><span class="pre">set()</span></tt></a>
+are two of the methods which can be used to do updates on a query.  Once an update
+method has been called on a query any further chaining is on a  <a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression" title="mongoalchemy.update_expression.UpdateExpression"><tt class="xref py py-class docutils literal"><span class="pre">UpdateExpression</span></tt></a>,
+so no further filtering of results will be possible.  The <a class="reference internal" href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.execute" title="mongoalchemy.update_expression.UpdateExpression.execute"><tt class="xref py py-func docutils literal"><span class="pre">execute()</span></tt></a>
+method causes the update to actually happen in the database.</p>
+<p>It is also possible to call <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> on the session
+to automatically update a particular object with an update command instead of either
+saving the object again (which is synchronous) or constructing the update expression
+yourself as above.</p>
+<p>By default all fields use the set operation to update their
+values, but that can be overriden by passing the on_update operator to the field constructor,
+or a keyword argument to update.  The value of these arguments is currently a string with
+the mongo operation you want to do instead.  For example, <tt class="docutils literal"><span class="pre">IntField(on_update='$inc')</span></tt>
+is an IntField which will increment when update is called.  <tt class="docutils literal"><span class="pre">Session.update</span></tt> <em>is still experimental,
+so watch out for side-effects</em></p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<ul class="last simple">
+<li><a class="reference internal" href="api/expressions/update_expressions.html"><em>Update Expressions</em></a> for all available types of update expressions</li>
+<li><a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">mongoalchemy.session.Session.update()</span></tt></a> for details of automatic updates</li>
+</ul>
+</div>
+</div>
+<div class="section" id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">still to come!</p>
+</div>
+<ul class="simple">
+<li>Indexes (For now, see <a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Index" title="mongoalchemy.document.Index"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a>)</li>
+<li>Hints (For now, see <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.hint_asc" title="mongoalchemy.query.Query.hint_asc"><tt class="xref py py-func docutils literal"><span class="pre">hint_asc()</span></tt></a> and <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.hint_desc" title="mongoalchemy.query.Query.hint_desc"><tt class="xref py py-func docutils literal"><span class="pre">hint_desc()</span></tt></a>)</li>
+<li>Partial Document Loading (For now, see the <tt class="docutils literal"><span class="pre">fields</span></tt> parameter to <a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>)</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">MongoAlchemy Tutorial</a><ul>
+<li><a class="reference internal" href="#creating-a-mapping-object">Creating a Mapping Object</a></li>
+<li><a class="reference internal" href="#sessions">Sessions</a></li>
+<li><a class="reference internal" href="#querying">Querying</a></li>
+<li><a class="reference internal" href="#updating">Updating</a></li>
+<li><a class="reference internal" href="#performance">Performance</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to MongoAlchemy&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced_modeling.html"
+                        title="next chapter">Advanced Modeling — Namespaces and Forward/Self-References</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

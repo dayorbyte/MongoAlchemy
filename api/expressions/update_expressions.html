@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Update Expressions &mdash; MongoAlchemy v0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../../index.html" />
+    <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
+    <link rel="next" title="Exceptions" href="../exceptions.html" />
+    <link rel="prev" title="Mongo Query Expression Language" href="query_expressions.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../exceptions.html" title="Exceptions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="query_expressions.html" title="Mongo Query Expression Language"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Expression Language — Querying and Updating</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="update-expressions">
+<h1>Update Expressions<a class="headerlink" href="#update-expressions" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="mongoalchemy.update_expression.UpdateExpression">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.update_expression.</tt><tt class="descname">UpdateExpression</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.upsert">
+<tt class="descname">upsert</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.upsert" title="Permalink to this definition">¶</a></dt>
+<dd><p>If a document matching the query doesn&#8217;t exist, create one</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.multi">
+<tt class="descname">multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.multi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update multiple documents.  The Mongo default is to only update 
+the first matching document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.safe">
+<tt class="descname">safe</tt><big>(</big><em>safe=True</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.safe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.set">
+<tt class="descname">set</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage is either:</p>
+<p>set(self, qfield, value): Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
+<p>OR</p>
+<p>set(key1=value1, key2=value2): Atomically set the named arguments 
+on the current object to the values given.  This form cannot 
+update a sub-document</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.unset">
+<tt class="descname">unset</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.unset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically delete the field <tt class="docutils literal"><span class="pre">qfield</span></tt>
+.. note:: Requires server version <strong>&gt;= 1.3.0+</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.inc">
+<tt class="descname">inc</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.inc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically increment <tt class="docutils literal"><span class="pre">qfield</span></tt> by <tt class="docutils literal"><span class="pre">value</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.append">
+<tt class="descname">append</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will 
+if the field is not a list field</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.extend">
+<tt class="descname">extend</tt><big>(</big><em>qfield</em>, <em>*value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.extend" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically append each value in <tt class="docutils literal"><span class="pre">value</span></tt> to the field <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.remove">
+<tt class="descname">remove</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically remove <tt class="docutils literal"><span class="pre">value</span></tt> from <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.remove_all">
+<tt class="descname">remove_all</tt><big>(</big><em>qfield</em>, <em>*value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.remove_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically remove each value in <tt class="docutils literal"><span class="pre">value</span></tt> from <tt class="docutils literal"><span class="pre">qfield</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.add_to_set">
+<tt class="descname">add_to_set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.add_to_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by 
+<tt class="docutils literal"><span class="pre">qfield</span></tt> must be a set</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requires server version <strong>1.3.0+</strong>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.pop_last">
+<tt class="descname">pop_last</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.pop_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically pop the last item in <tt class="docutils literal"><span class="pre">qfield.</span></tt>
+.. note:: Requires version <strong>1.1+</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.pop_first">
+<tt class="descname">pop_first</tt><big>(</big><em>qfield</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.pop_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Atomically pop the first item in <tt class="docutils literal"><span class="pre">qfield.</span></tt>
+.. note:: Requires version <strong>1.1+</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.get_upsert">
+<tt class="descname">get_upsert</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.get_upsert" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.get_multi">
+<tt class="descname">get_multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.get_multi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.update_expression.UpdateExpression.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the update expression on the database</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="remove-queries">
+<h1>Remove Queries<a class="headerlink" href="#remove-queries" title="Permalink to this headline">¶</a></h1>
+<p>Remove queries are executed with the <tt class="docutils literal"><span class="pre">remove_query</span></tt> method on a session.
+They have the same filtering methods as querying.</p>
+<dl class="class">
+<dt id="mongoalchemy.query.RemoveQuery">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query.</tt><tt class="descname">RemoveQuery</tt><big>(</big><em>type</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a remove query to remove the matched objects from the database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>type</strong> &#8211; A subclass of class:<cite>mongoalchemy.document.Document</cite></li>
+<li><strong>db</strong> &#8211; The <a class="reference internal" href="../session.html#mongoalchemy.session.Session" title="mongoalchemy.session.Session"><tt class="xref py py-class docutils literal"><span class="pre">Session</span></tt></a> which this query is associated with.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="mongoalchemy.query.RemoveQuery.query">
+<tt class="descname">query</tt><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.query" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.set_safe">
+<tt class="descname">set_safe</tt><big>(</big><em>is_safe</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.set_safe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set this remove to be safe.  It will call getLastError after the 
+remove to make sure it was successful.  <tt class="docutils literal"><span class="pre">**kwargs</span></tt> are parameters to 
+MongoDB&#8217;s getLastError command (as in pymongo&#8217;s remove).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the remove command on the session.  Return the result of 
+<tt class="docutils literal"><span class="pre">getLastError</span></tt> if <tt class="docutils literal"><span class="pre">safe</span></tt> is <tt class="xref docutils literal"><span class="pre">True</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.filter">
+<tt class="descname">filter</tt><big>(</big><em>*query_expressions</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the remove expression with <tt class="docutils literal"><span class="pre">*query_expressions</span></tt>, as in
+the <tt class="docutils literal"><span class="pre">Query</span></tt> filter method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.filter_by">
+<tt class="descname">filter_by</tt><big>(</big><em>**filters</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter_by" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter for the names in <tt class="docutils literal"><span class="pre">filters</span></tt> being equal to the associated 
+values.  Cannot be used for sub-objects since keys must be strings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.or_">
+<tt class="descname">or_</tt><big>(</big><em>first_qe</em>, <em>*qes</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.or_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works the same as the query expression method <tt class="docutils literal"><span class="pre">or_</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.in_">
+<tt class="descname">in_</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.in_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works the same as the query expression method <tt class="docutils literal"><span class="pre">in_</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query.RemoveQuery.nin">
+<tt class="descname">nin</tt><big>(</big><em>qfield</em>, <em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.nin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Works the same as the query expression method <tt class="docutils literal"><span class="pre">nin_</span></tt></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Update Expressions</a></li>
+<li><a class="reference internal" href="#remove-queries">Remove Queries</a></li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="query_expressions.html"
+                        title="previous chapter">Mongo Query Expression Language</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../exceptions.html"
+                        title="next chapter">Exceptions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/expressions/update_expressions.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../exceptions.html" title="Exceptions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="query_expressions.html" title="Mongo Query Expression Language"
+             >previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" >Expression Language — Querying and Updating</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

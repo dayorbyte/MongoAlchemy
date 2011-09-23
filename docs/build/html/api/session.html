@@ -1,0 +1,320 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Session &mdash; MongoAlchemy v0.8 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../index.html" />
+    <link rel="up" title="API documentation" href="index.html" />
+    <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
+    <link rel="prev" title="API documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="API documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-mongoalchemy.session">
+<span id="session"></span><h1>Session<a class="headerlink" href="#module-mongoalchemy.session" title="Permalink to this headline">¶</a></h1>
+<p>Session objects handles the actual queueing of database operations.
+The primary methods on a session are query, insert, and flush.</p>
+<p>The preferred way to use a session is the <cite>with statement</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">some_db</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">some_obj</span><span class="p">)</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>The with statement ensures that end_request is called on the 
+connection which can have a significant performance impact in some 
+situations because it will allow other threads to make use of the 
+<cite>socket</cite> connecting to the database.</p>
+<p>The session also responsible for ordering operations and knowing when
+operations need to be flushed, although it does not currently do
+anything intelligent for ordering.</p>
+<dl class="class">
+<dt id="mongoalchemy.session.Session">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.session.</tt><tt class="descname">Session</tt><big>(</big><em>database</em>, <em>safe=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a session connecting to <cite>database</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>database</strong> &#8211; the database to connect to.  Should be an instance of             <tt class="xref py py-class docutils literal"><span class="pre">pymongo.database.Database</span></tt></li>
+<li><strong>safe</strong> &#8211; Whether the &#8220;safe&#8221; option should be used on mongo writes,             blocking to make sure there are no errors.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt><strong>Fields</strong>:</dt>
+<dd><ul class="first last simple">
+<li>db: the underlying pymongo database object</li>
+<li>queue: the queue of unflushed database commands (currently useless                 since there aren&#8217;t any operations which defer flushing)</li>
+</ul>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="mongoalchemy.session.Session.connect">
+<em class="property">classmethod </em><tt class="descname">connect</tt><big>(</big><em>database</em>, <em>safe=False</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>connect</cite> is a thin wrapper around __init__ which creates the 
+database connection that the session will use.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>database</strong> &#8211; the database name to use.  Should be an instance of                     <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></li>
+<li><strong>safe</strong> &#8211; The value for the &#8220;safe&#8221; parameter of the Session 
+init function</li>
+<li><strong>args</strong> &#8211; arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
+<li><strong>kwds</strong> &#8211; keyword arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.end">
+<tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>End the session.  Flush all pending operations and ending the 
+<em>pymongo</em> request</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.insert">
+<tt class="descname">insert</tt><big>(</big><em>item</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert an item into the queue and flushes.  Later this function should be smart and delay 
+insertion until the _id field is actually accessed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.update">
+<tt class="descname">update</tt><big>(</big><em>item</em>, <em>id_expression=None</em>, <em>upsert=False</em>, <em>update_ops={}</em>, <em>safe=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update an item in the database.  Uses the on_update keyword to each
+field to decide which operations to do, or.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> &#8211; An instance of a <a class="reference internal" href="schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>                 subclass</li>
+<li><strong>id_expression</strong> &#8211; A query expression that uniquely picks out                 the item which should be updated.  If id_expression is not                 passed, update uses item.mongo_id.</li>
+<li><strong>upsert</strong> &#8211; Whether the update operation should be an upsert.                 If the item may not be in the database yet this should be True</li>
+<li><strong>update_ops</strong> &#8211; By default the operation used to update a field                 is specified with the on_update argument to its constructor.                 To override that value, use this dictionary, with                  <tt class="xref py py-class docutils literal"><span class="pre">QueryField</span></tt> objects as the keys                 and the mongo operation to use as the values.</li>
+<li><strong>kwargs</strong> &#8211; The kwargs are merged into update_ops dict to                 decide which fields to update the operation for.  These can                 only be for the top-level document since the keys                 are just strings.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This operation is <strong>experimental</strong> and <strong>not fully tested</strong>,
+although it does have code coverage.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.query">
+<tt class="descname">query</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.query" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Begin a query on the database&#8217;s collection for <cite>type</cite>.  If <cite>type</cite></dt>
+<dd>is an instance of basesting, the query will be in raw query mode
+which will not check field values or transform returned results
+into python objects.</dd>
+</dl>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="expressions/query.html#mongoalchemy.query.Query" title="mongoalchemy.query.Query"><tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt></a> class</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_query">
+<tt class="descname">execute_query</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the results of <tt class="docutils literal"><span class="pre">query</span></tt>.  This method will flush the queue</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.remove_query">
+<tt class="descname">remove_query</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Begin a remove query on the database&#8217;s collection for <cite>type</cite>.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><tt class="xref py py-class docutils literal"><span class="pre">RemoveQuery</span></tt> class</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.remove">
+<tt class="descname">remove</tt><big>(</big><em>obj</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a particular object from the database.  If the object has 
+no mongo ID set, the method just returns.  If this is a partial 
+document without the mongo ID field retrieved a <tt class="docutils literal"><span class="pre">FieldNotRetrieved</span></tt>
+will be raised</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>obj</strong> &#8211; the object to save</li>
+<li><strong>safe</strong> &#8211; whether to wait for the operation to complete.  Defaults                 to the session&#8217;s <tt class="docutils literal"><span class="pre">safe</span></tt> value.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_remove">
+<tt class="descname">execute_remove</tt><big>(</big><em>remove</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a remove expression.  Should generally only be called implicitly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_update">
+<tt class="descname">execute_update</tt><big>(</big><em>update</em>, <em>safe=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute an update expression.  Should generally only be called implicitly.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.execute_find_and_modify">
+<tt class="descname">execute_find_and_modify</tt><big>(</big><em>fm_exp</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_find_and_modify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.get_indexes">
+<tt class="descname">get_indexes</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.get_indexes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the index information for the collection associated with 
+<cite>cls</cite>.  Index information is returned in the same format as <em>pymongo</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the queue of database operations without executing any of 
+the pending operations</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.clear_collection">
+<tt class="descname">clear_collection</tt><big>(</big><em>*classes</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear all objects from the collections associated with the 
+objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.flush">
+<tt class="descname">flush</tt><big>(</big><em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform all database operations currently in the queue</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">API documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="schema/index.html"
+                        title="next chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/api/session.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="API documentation"
+             >previous</a> |</li>
+        <li><a href="../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="index.html" >API documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>

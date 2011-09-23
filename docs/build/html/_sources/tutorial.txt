@@ -1,0 +1,170 @@
+MongoAlchemy Tutorial
+================================
+
+.. note:: This tutorial is incomplete, but hopefully has enough detail that \
+        the places to look in the API documentation for the rest is clear.
+
+In order to use MongoAlchemy to interact with a Mongo database, two things are
+needed:  
+
+* a :class:`~mongoalchemy.session.Session` object to handle queuing, \
+    sending, and receiving data from the database.
+* a subclass of :class:`~mongoalchemy.document.Document` to define a mapping \
+    between a mongo object and python class.  The class serves as the mapping, \
+    and instances of the class are the python classes that are saved or loaded \
+    into the database
+
+This tutorial is going go through the basics of each of these, as well as 
+querying and updating in a way which is programmatic, type safe, and value 
+checked.
+
+Creating a Mapping Object
+---------------------------------
+
+    >>> from mongoalchemy.document import Document
+    >>> from mongoalchemy.fields import *
+    >>> class BloodDonor(Document):
+    ...     first_name = StringField()
+    ...     last_name = StringField()
+    ...     age = IntField(min_value=0)
+    ...     
+    ...     gender = EnumField(StringField(), 'male', 'female')
+    ...     blood_type = EnumField(StringField(), 'O+','A+','B+','AB+','O-','A-','B-','AB-')
+    ...     def __str__(self):
+    ...         return '%s %s (%s; Age: %d; Type: %s)' % (self.first_name, self.last_name, 
+    ...             self.gender, self.age, self.blood_type)
+
+
+The above code creates a class ``BloodDoner`` which will has all of the 
+information necessary to create python objects to save, load database 
+objects (though there are none at the moment), and to construct queries for
+these objects.  
+
+It also introduces several :mod:`~mongoalchemy.field` subclasses which are used 
+to define the key/value pairs in the mongo Document.  The :class:`~mongoalchemy.fields.StringField`
+and :class:`~mongoalchemy.fields.IntField` are fairly self-explanatory.  The 
+:class:`mongoalchemy.fields.EnumField` is more complex. It takes a field as its first argument 
+followed by any number of values of the type accepted by that field.  The 
+EnumField will check both that the value it is constructed with is of the 
+correct type, but also that its value is one of the values given in the 
+constructor.
+
+.. seealso:: 
+    
+    :class:`~mongoalchemy.document.Document` and :mod:`~mongoalchemy.fields`
+
+Sessions
+---------------------------------------
+
+    >>> from mongoalchemy.session import Session
+    >>> session = Session.connect('mongoalchemy-tutorial')
+    >>> session.clear_collection(BloodDonor)
+
+The above code creates a session object by connecting to a local mongo 
+server and accessing the mongoalchemy-tutorial database.  Any arguments after
+the database name will be used as arguments to pymongo's connection function.
+It's also possible to directly construct a session using a pymongo database 
+object, allowing one connection to be used for multiple sessions.  The last 
+line clears all objects from the collection used for BloodDonor objects, in 
+case this tutorial code had run before.
+
+    >>> donor = BloodDonor(first_name='Jeff', last_name='Jenkins', 
+    ...             age=28, blood_type='O+', gender='male')
+    >>> session.insert(donor)
+
+When ``insert`` is called on the ``donor`` object the session serializes it
+into a form that the Mongo database understands, and then inserts it.  Once
+the insert command is complete the ``_id`` field of ``donor`` object is set.
+
+To make the next section more interesting more objects are needed, so we'll 
+add some of the cast of `Community`:
+
+    >>> session.insert(BloodDonor(first_name='Jeff', last_name='Winger', age=38, blood_type='O+', gender='male'))
+    >>> session.insert(BloodDonor(first_name='Britta', last_name='Perry', age=27, blood_type='A+', gender='female'))
+    >>> session.insert(BloodDonor(first_name='Abed', last_name='Nadir', age=29, blood_type='O+', gender='male'))
+    >>> session.insert(BloodDonor(first_name='Shirley', last_name='Bennett', age=39, blood_type='O-', gender='female'))
+    
+
+
+Querying
+------------------------------
+
+    >>> for donor in session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff'):
+    >>>    print donor
+    Jeff Jenkins (male; Age: 28; Type: O+)
+    Jeff Winger (male; Age: 38; Type: O+)
+
+The above code uses the :func:`~mongoalchemy.session.Session.query` method of 
+the ``session`` object to start a query on the BloodDonor collection.  The 
+filter function on a query object allows constraints to be added to the 
+results returned.  In this case all donors who have the name Jeff are being 
+printed.  The attributes of a Document subclass are used to access the names 
+of fields in such a way that they generate query expressions which ``filter`` 
+can use.
+
+Multiple filters can be applied by chaining calls to filter or by adding 
+comma-separated query expressions inside a single call.  The following two 
+examples return the same results:
+
+    >>> query = session.query(BloodDonor)
+    >>> for donor in query.filter(BloodDonor.first_name == 'Jeff', BloodDonor.age < 30):
+    >>>    print donor
+    Jeff Jenkins (male; Age: 28; Type: O+)
+
+    >>> query = session.query(BloodDonor)
+    >>> for donor in query.filter(BloodDonor.first_name == 'Jeff').filter(BloodDonor.age < 30):
+    >>>    print donor
+    Jeff Jenkins (male; Age: 28; Type: O+)
+    
+
+Instead of getting elements by iterating on the query, the :func:`~mongoalchemy.query.Query.one`
+and :func:`~mongoalchemy.query.Query.first` methods can be used.  ``one`` returns the first 
+result and raises an exception if there is not exactly one returned result.  ``first`` returns 
+the first result if there is one, and ``None`` if there is not one.
+
+.. seealso:: :doc:`api/expressions/query_expressions` for all available types of query expressions
+
+Updating
+-------------------------------
+
+There are a number of methods available for updating results of a query (
+rather than updating results by loading an object and re-inserting it).  
+Here's an example where my age changed and it turned out I had the wrong
+blood type:
+
+>>> query = session.query(BloodDonor).filter(BloodDonor.first_name == 'Jeff', BloodDonor.last_name == 'Jenkins')
+>>> query.inc(BloodDonor.age, 1).set(BloodDonor.blood_type, 'O-').execute()
+>>> query.one()
+Jeff Jenkins (male; Age: 29; Type: O-)
+
+:func:`~mongoalchemy.update_expression.UpdateExpression.inc` and :func:`~mongoalchemy.update_expression.UpdateExpression.set` 
+are two of the methods which can be used to do updates on a query.  Once an update
+method has been called on a query any further chaining is on a  :class:`~mongoalchemy.update_expression.UpdateExpression`,
+so no further filtering of results will be possible.  The :func:`~mongoalchemy.update_expression.UpdateExpression.execute`
+method causes the update to actually happen in the database.
+
+It is also possible to call :func:`~mongoalchemy.session.Session.update` on the session
+to automatically update a particular object with an update command instead of either 
+saving the object again (which is synchronous) or constructing the update expression 
+yourself as above.  
+
+By default all fields use the set operation to update their 
+values, but that can be overriden by passing the on_update operator to the field constructor,
+or a keyword argument to update.  The value of these arguments is currently a string with
+the mongo operation you want to do instead.  For example, ``IntField(on_update='$inc')``
+is an IntField which will increment when update is called.  ``Session.update`` *is still experimental,
+so watch out for side-effects*
+
+.. seealso:: 
+    
+    * :doc:`api/expressions/update_expressions` for all available types of update expressions
+    * :func:`mongoalchemy.session.Session.update` for details of automatic updates
+
+Performance
+-----------------------------
+
+.. note:: still to come!
+
+* Indexes (For now, see :class:`~mongoalchemy.document.Index`)
+* Hints (For now, see :func:`~mongoalchemy.query.Query.hint_asc` and :func:`~mongoalchemy.query.Query.hint_desc`)
+* Partial Document Loading (For now, see the ``fields`` parameter to :class:`~mongoalchemy.document.Document`)

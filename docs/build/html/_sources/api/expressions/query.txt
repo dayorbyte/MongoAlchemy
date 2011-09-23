@@ -1,0 +1,16 @@
+
+Query Objects
+========================================================
+
+.. autoclass:: mongoalchemy.query.Query
+   :members:
+   :undoc-members:
+
+.. autoclass:: mongoalchemy.query.QueryResult
+   :members:
+   :undoc-members:
+
+
+
+
+

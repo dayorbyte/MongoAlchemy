@@ -1,0 +1,269 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Mongo Query Expression Language &mdash; MongoAlchemy v0.8 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="MongoAlchemy v0.8 documentation" href="../../index.html" />
+    <link rel="up" title="Expression Language — Querying and Updating" href="index.html" />
+    <link rel="next" title="Update Expressions" href="update_expressions.html" />
+    <link rel="prev" title="Query Objects" href="query.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="update_expressions.html" title="Update Expressions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="query.html" title="Query Objects"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Expression Language — Querying and Updating</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="mongo-query-expression-language">
+<h1>Mongo Query Expression Language<a class="headerlink" href="#mongo-query-expression-language" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="query-fields">
+<h2>Query Fields<a class="headerlink" href="#query-fields" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mongoalchemy.query_expression.QueryField">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryField</tt><big>(</big><em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.get_type">
+<tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the underlying <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.matched_index">
+<tt class="descname">matched_index</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.matched_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents the matched array index on a query with objects inside
+of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span class="pre">$</span></tt> operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.get_absolute_name">
+<tt class="descname">get_absolute_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_absolute_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.in_">
+<tt class="descname">in_</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.in_" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if this query field is one of the values 
+in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$in</span></tt> expression.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.nin">
+<tt class="descname">nin</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.nin" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if this query field is not one of the values 
+in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$nin</span></tt> expression.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.eq_">
+<tt class="descname">eq_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.eq_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.lt_">
+<tt class="descname">lt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.lt_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&lt;</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.le_">
+<tt class="descname">le_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.le_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&lt;=</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.ne_">
+<tt class="descname">ne_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.ne_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">!=</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.gt_">
+<tt class="descname">gt_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.gt_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&gt;</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.ge_">
+<tt class="descname">ge_</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.ge_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a query expression where <tt class="docutils literal"><span class="pre">this</span> <span class="pre">field</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usage is via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">&gt;=</span> <span class="pre">value</span></tt></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="query-expressions">
+<h2>Query Expressions<a class="headerlink" href="#query-expressions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mongoalchemy.query_expression.QueryExpression">
+<em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryExpression</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression" title="Permalink to this definition">¶</a></dt>
+<dd><p>A QueryExpression wraps a dictionary representing a query to perform 
+on a mongo collection.  The</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is no <tt class="docutils literal"><span class="pre">and_</span></tt> expression because multiple expressions
+can be specified to a single call of <tt class="xref py py-func docutils literal"><span class="pre">Query.filter()</span></tt></p>
+</div>
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryExpression.not_">
+<tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt> 
+operator</p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff').not_()</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Another usage is via an operator, but parens are needed 
+to get past precedence issues: <tt class="docutils literal"><span class="pre">~</span> <span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff')</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryExpression.or_">
+<tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 
+expression, starting a new one if one does not exst</p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff').or_(User.name</span> <span class="pre">==</span> <span class="pre">'Jack')</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The prefered usageis via an operator: <tt class="docutils literal"><span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">'Jeff'</span> <span class="pre">|</span> <span class="pre">User.name</span> <span class="pre">==</span> <span class="pre">'Jack'</span></tt></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Mongo Query Expression Language</a><ul>
+<li><a class="reference internal" href="#query-fields">Query Fields</a></li>
+<li><a class="reference internal" href="#query-expressions">Query Expressions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="query.html"
+                        title="previous chapter">Query Objects</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="update_expressions.html"
+                        title="next chapter">Update Expressions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/api/expressions/query_expressions.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="update_expressions.html" title="Update Expressions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="query.html" title="Query Objects"
+             >previous</a> |</li>
+        <li><a href="../../index.html">MongoAlchemy v0.8 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >API documentation</a> &raquo;</li>
+          <li><a href="index.html" >Expression Language — Querying and Updating</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Jeffrey Jenkins.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+    </div>
+  </body>
+</html>
