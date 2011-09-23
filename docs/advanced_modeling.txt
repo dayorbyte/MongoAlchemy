@@ -1,3 +1,0 @@
-Advanced Modeling — Namespaces and Forward/Self-References
-============================================================
-
