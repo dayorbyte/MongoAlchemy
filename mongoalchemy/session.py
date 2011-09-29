@@ -263,6 +263,10 @@ class Session(object):
             kwargs['remove'] = fm_exp.get_remove()
         
         value = collection.find_and_modify(**kwargs)        
+        
+        if value is None:
+            return None
+        
         if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
             return value
         

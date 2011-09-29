@@ -263,11 +263,10 @@ class Document(object):
                 continue
             try:
                 value = getattr(self, name)
+                res[field.db_field] = field.wrap(value)
             except AttributeError:
                 if field.required:
                     raise MissingValueException(name)
-                continue
-            res[field.db_field] = field.wrap(value)
         return res
     
     @classmethod

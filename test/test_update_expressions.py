@@ -42,8 +42,9 @@ def test_find_and_modify():
     s.clear_collection(T, T2)
     # insert
     value = s.query(T).filter_by(i=12341).find_and_modify().set(i=12341).upsert().execute()
-    assert value == {}
+    assert value == {}, value
     assert s.query(T).one().i == 12341
+    
     # update
     value = s.query(T).filter_by(i=12341).ascending(T.i).find_and_modify().set(i=9999).execute()
     assert value.i == 12341
@@ -58,6 +59,10 @@ def test_find_and_modify():
     value = s.query(T).filter_by(i=8888).find_and_modify(remove=True).execute()
     assert value.i == 8888, value.i
     assert s.query(T).first() is None
+
+    # update
+    value = s.query(T).filter_by(i=1000).ascending(T.i).find_and_modify(new=True).set(i=0).execute()
+    assert value is None, value
 
 
 # General Update tests
