@@ -61,6 +61,7 @@ from pymongo.objectid import ObjectId
 from pymongo.binary import Binary
 import functools
 from copy import deepcopy
+from mongoalchemy.document import document_type_registry, DocumentMeta
 
 from mongoalchemy.util import UNSET
 from mongoalchemy.query_expression import QueryField
@@ -744,6 +745,55 @@ class ObjectIdField(Field):
         self.validate_unwrap(value)
         return value
 
+class ReferenceField(Field):
+    ''' Field that references another Document. Document instance is passed by a parameter,
+        returns an instance of referenced Document on load'''
+
+    valid_modifiers = SCALAR_MODIFIERS
+
+    def __init__(self, reference_document, **kwargs):
+        self.reference_document = reference_document
+        super(ReferenceField, self).__init__(**kwargs)
+
+    def validate_wrap(self, value):
+        if isinstance(self.reference_document,DocumentMeta):
+            return
+        else:
+            self._fail_validation_type(self.reference_document,"DocumentMeta, reference_document needs to be an "
+            +"instance of collection to be referenced")
+        super(Field,self).validate_wrap(**kwargs)
+
+    def wrap(self, value):
+        ''' Validates that ``value`` is a reference document, then returns it '''
+        self.validate_wrap(value)
+
+        return {'object_id':ObjectId(value.mongo_id),'class_name':value.__class__.__name__}
+
+    def validate_unwrap(self, value):
+        if isinstance(value,dict):
+            return
+        else:
+            self._fail_validation(value, 'Value returned is not a dictionary.')
+
+    def unwrap(self, value):
+        ''' Validates that ``value`` contains a dict with an ObjectId and document class name
+         then returns an instance of object found '''
+        self.validate_unwrap(value)
+
+        class_name = value.get('class_name')
+        object_id = value.get('object_id')
+
+        instance = None
+
+        try:
+            instance = document_type_registry['global'][class_name].query.get(object_id)
+        except KeyError:
+            self._fail_validation(value,". " + class_name + " is not a Document found in global scope")
+
+        if instance is not None:
+            return instance
+        else:
+            self._fail_validation(value, ". Could not create an instance based on referenced object.")
 
 class DictField(Field):
     ''' Stores String to ``value_type`` Dictionaries.  For non-string keys use 
