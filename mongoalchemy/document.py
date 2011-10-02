@@ -150,6 +150,8 @@ class Document(object):
                     self.__extra_fields[k] = kwargs[k]
                 else:
                     raise ExtraValueException(k)
+
+        self.__extra_fields_orig = dict(self.__extra_fields)
     
     def get_dirty_ops(self, with_required=False):
         ''' Returns a dict with the update operations necessary to make the 
@@ -173,6 +175,27 @@ class Document(object):
                 update_expression.setdefault(op, {})
                 for key, value in values.iteritems():
                     update_expression[op][key] = value
+
+        if self.config_extra_fields == 'ignore':
+            old_extrakeys = set(self.__extra_fields_orig.keys())
+            cur_extrakeys = set(self.__extra_fields.keys())
+
+            new_extrakeys = cur_extrakeys - old_extrakeys
+            rem_extrakeys = old_extrakeys - cur_extrakeys
+            same_extrakeys = cur_extrakeys & old_extrakeys
+
+            update_expression.setdefault('$unset', {})
+            for key in rem_extrakeys:
+                update_expression['$unset'][key] = True
+
+            update_expression.setdefault('$set', {})
+            for key in new_extrakeys:
+                update_expression['$set'][key] = self.__extra_fields[key]
+
+            for key in same_extrakeys:
+                if self.__extra_fields[key] != self.__extra_fields_orig[key]:
+                    update_expression['$set'][key] = self.__extra_fields[key]
+
         return update_expression
     
     def get_extra_fields(self):
