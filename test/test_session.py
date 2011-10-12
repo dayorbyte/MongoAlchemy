@@ -90,26 +90,28 @@ def test_update_push():
     t = s.query(T).one()
     assert s.query(T).one().i == 7 and t.l == [3, 4]
     
-
 def test_update_ignore_extras():
     s = Session.connect('unit-testing')
     s.clear_collection(TExtra)
     # Create Object
-    t = TExtra(i=1, j='test')
+    t = TExtra(i=1, j='test', k='test2')
     s.insert(t)
     # Retrieve Object
     t = s.query(TExtra).one()
     assert t.i == 1
     assert t.get_extra_fields()['j'] == 'test'
+    assert t.get_extra_fields()['k'] == 'test2'
     # Update Object
     t.i = 5
-    del t.get_extra_fields()['j']
-    t.get_extra_fields()['k'] = 'added'
+    del t.get_extra_fields()['j'] # delete an extra field
+    t.get_extra_fields()['k'] = 'changed' # change an extra field
+    t.get_extra_fields()['l'] = 'added' # new extra field
     s.update(t)
 
     # Retrieve Object
     t_new = s.query(TExtra).one()
 
     assert 'j' not in t_new.get_extra_fields()
-    assert t_new.get_extra_fields()['k'] == 'added'
+    assert t_new.get_extra_fields()['k'] == 'changed'
+    assert t_new.get_extra_fields()['l'] == 'added'
     assert t_new.i == 5
