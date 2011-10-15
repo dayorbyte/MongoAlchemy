@@ -420,7 +420,8 @@ class DocumentField(Field):
             document = getattr(instance, self._name)
         except AttributeError:
             return {}
-        if len(document._dirty) == 0:
+        if len(document._dirty) == 0 and \
+           self.__type.config_extra_fields != 'ignore':
             return {}
         
         ops = document.get_dirty_ops()

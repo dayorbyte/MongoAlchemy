@@ -17,6 +17,9 @@ class TExtra(Document):
     i = IntField()
     config_extra_fields = 'ignore'
 
+class TExtraDocField(Document):
+    doc = DocumentField(TExtra)
+
 
 def test_session():
     s = Session.connect('unit-testing')
@@ -115,3 +118,26 @@ def test_update_ignore_extras():
     assert t_new.get_extra_fields()['k'] == 'changed'
     assert t_new.get_extra_fields()['l'] == 'added'
     assert t_new.i == 5
+
+
+def test_update_docfield_extras():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TExtraDocField)
+    # Create Object
+    t = TExtra(i=1, j='test')
+    t2 = TExtraDocField(doc=t)
+    s.insert(t2)
+    # Retrieve Object
+    t2 = s.query(TExtraDocField).one()
+    assert t2.doc.i == 1
+    assert t2.doc.get_extra_fields()['j'] == 'test'
+    # Update Object's extra fields
+    t2.doc.get_extra_fields()['t'] = 'added'
+
+    s.update(t2)
+
+    # Retrieve Object
+    t2_new = s.query(TExtraDocField).one()
+    assert t2_new.doc.i == 1
+    assert t2_new.doc.get_extra_fields()['j'] == 'test'
+    assert t2_new.doc.get_extra_fields()['t'] == 'added'
