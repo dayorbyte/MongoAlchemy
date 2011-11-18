@@ -204,7 +204,7 @@ class Field(object):
             return {}
         return {
             op : {
-                self._name : self.wrap(instance._field_values[self._name])
+                self.db_field : self.wrap(instance._field_values[self._name])
             }
         }
     

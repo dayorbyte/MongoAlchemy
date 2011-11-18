@@ -468,6 +468,7 @@ def test_update_obeys_mongo_id_field():
     '''Updating a document should obey the mongo_id field'''
     s = get_session()
 
+    s.db.Foo.remove()
     class Foo(Document):
         mongo_id = IntField(db_field='_id')
 
@@ -479,3 +480,5 @@ def test_update_obeys_mongo_id_field():
 
     for data in s.db.Foo.find():
         assert 'mongo_id' not in data
+
+    s.db.Foo.remove()
