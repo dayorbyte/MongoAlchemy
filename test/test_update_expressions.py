@@ -463,3 +463,25 @@ def pop_last_db_test():
     q.pop_last(T.l).execute()
     t = q.one()
     assert t.i == 5 and t.l == [6, 5, 4]
+
+def test_update_obeys_db_field():
+    '''Updating a document should update the db_field in the \
+    database'''
+    s = get_session()
+
+    s.db.Foo.remove()
+    class Foo(Document):
+        mongo_id = IntField(db_field='_id')
+        bar = StringField(db_field='baz')
+
+    a = Foo(mongo_id=2, bar="Hello")
+    s.update(a, upsert=True, safe=True)
+
+    a_from_db = s.db.Foo.find_one()
+    assert a_from_db is not None
+    assert 'mongo_id' not in a_from_db
+    assert 'bar' not in a_from_db
+    assert a_from_db['_id'] == 2
+    assert a_from_db['baz'] == u'Hello'
+
+    s.db.Foo.remove()

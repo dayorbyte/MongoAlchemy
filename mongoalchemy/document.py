@@ -165,6 +165,8 @@ class Document(object):
         '''
         update_expression = {}
         for name, field in self.get_fields().iteritems():
+            if field.db_field == '_id':
+                continue
             dirty_ops = field.dirty_ops(self)
             if not dirty_ops and with_required and field.required:
                 dirty_ops = field.update_ops(self)
