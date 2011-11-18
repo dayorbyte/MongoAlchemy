@@ -463,3 +463,19 @@ def pop_last_db_test():
     q.pop_last(T.l).execute()
     t = q.one()
     assert t.i == 5 and t.l == [6, 5, 4]
+
+def test_update_obeys_mongo_id_field():
+    '''Updating a document should obey the mongo_id field'''
+    s = get_session()
+
+    class Foo(Document):
+        mongo_id = IntField(db_field='_id')
+
+    a = Foo(mongo_id=1)
+    s.insert(a)
+
+    b = Foo(mongo_id=2)
+    s.update(b, upsert=True)
+
+    for data in s.db.Foo.find():
+        assert 'mongo_id' not in data
