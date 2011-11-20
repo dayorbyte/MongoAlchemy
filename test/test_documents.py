@@ -59,6 +59,11 @@ def test_basic2():
     assert Doc.class_name() == 'Doc', Doc.class_name()
     assert Doc.get_collection_name() == 'DocCol'
 
+def test_mongo_id():
+    class Doc(Document):
+        i = IntField(_id=True)
+    assert Doc.mongo_id is None
+
 def test_update_ops():
     td = TestDoc(int1=1)
     doca = DocA(test_doc=td)

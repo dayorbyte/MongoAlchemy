@@ -34,6 +34,15 @@ def test_allow_none():
     assert IntField(allow_none=True).wrap(None) == None
     assert IntField(allow_none=True).unwrap(None) == None
 
+def test_id_attr():
+    assert IntField().is_id == False
+    assert IntField(db_field='_id').is_id == True
+    assert IntField(_id=True).is_id == True
+
+@raises(InvalidConfigException)
+def test_bad_id_attr():
+    IntField(db_field='foo', _id=True)
+
 @raises(InvalidConfigException)
 def test_bad_on_update_value():
     IntField(on_update='set')

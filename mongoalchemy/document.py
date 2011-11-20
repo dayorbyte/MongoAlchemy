@@ -58,11 +58,17 @@ class DocumentMeta(type):
             raise DocumentException("config_extra_fields must be one of: 'error', 'ignore'")
         
         # 1. Set up links between fields and the document class
+        new_id = False
         for name, value in class_dict.iteritems():
             if not isinstance(value, Field):
                 continue
+            if value.is_id and name != 'mongo_id':
+                new_id = True
             value._set_name(name)
             value._set_parent(new_class)
+        
+        if new_id:
+            new_class.mongo_id = None
         
         # 2. create a dict of fields to set on the object
         new_class._fields = {}

@@ -133,7 +133,7 @@ class Field(object):
     valid_modifiers = SCALAR_MODIFIERS
     
     def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
-            validator=None, unwrap_validator=None, wrap_validator=None):
+            validator=None, unwrap_validator=None, wrap_validator=None, _id=False):
         '''
             :param required: The field must be passed when constructing a document (optional. default: ``True``)
             :param default:  Default value to use if one is not given (optional.)
@@ -143,14 +143,25 @@ class Field(object):
             :param validator: a callable which will be called on objects when wrapping/unwrapping
             :param unwrap_validator: a callable which will be called on objects when unwrapping
             :param wrap_validator: a callable which will be called on objects when wrapping
-        
+            :param _id: Set the db_field to _id.  If a field has this the "mongo_id" field will \
+                also be removed from the document the field is on.
+            
             The general validator is called after the field's validator, but before 
             either of the wrap/unwrap versions.  The validator should raise a BadValueException
             if it fails, but if it returns False the field will raise an exception with
             a generic message.
         
         '''
-        self.__db_field = db_field
+        
+        if _id and db_field is not None:
+            raise InvalidConfigException('Cannot set db_field and _id on the same Field')
+        if _id:
+            self.__db_field = '_id'
+        else:
+            self.__db_field = db_field
+        
+        self.is_id = self.__db_field == '_id'
+        
         self.__value = UNSET
         self.__update_op = UNSET
         
