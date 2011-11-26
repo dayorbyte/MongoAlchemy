@@ -20,6 +20,9 @@ class TExtra(Document):
 class TExtraDocField(Document):
     doc = DocumentField(TExtra)
 
+class TExtraDocFieldList(Document):
+    doclist = ListField(DocumentField(TExtra))
+
 
 def test_session():
     s = Session.connect('unit-testing')
@@ -141,3 +144,40 @@ def test_update_docfield_extras():
     assert t2_new.doc.i == 1
     assert t2_new.doc.get_extra_fields()['j'] == 'test'
     assert t2_new.doc.get_extra_fields()['t'] == 'added'
+
+def test_update_docfield_list_extras():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TExtraDocFieldList)
+
+    # Create Objects
+    t = TExtra(i=1, j='test')
+    t2 = TExtra(i=2, j='test2')
+    tListDoc = TExtraDocFieldList(doclist=[t, t2])
+
+    s.insert(tListDoc)
+    # Retrieve Object
+    tListDoc = s.query(TExtraDocFieldList).one()
+    assert len(tListDoc.doclist) == 2
+    for doc in tListDoc.doclist:
+        if doc.i == 1:
+            assert doc.get_extra_fields()['j'] == 'test'
+            # go ahead and update j now
+            doc.get_extra_fields()['j'] = 'testChanged'
+        elif doc.i == 2:
+            assert doc.get_extra_fields()['j'] == 'test2'
+        else:
+            assert False
+
+    # update the parent document
+    s.update(tListDoc)
+
+    # re-fetch and verify
+    tListDoc = s.query(TExtraDocFieldList).one()
+
+    for doc in tListDoc.doclist:
+        if doc.i == 1:
+            assert doc.get_extra_fields()['j'] == 'testChanged'
+        elif doc.i == 2:
+            assert doc.get_extra_fields()['j'] == 'test2'
+        else:
+            assert False
