@@ -23,6 +23,9 @@ class TExtraDocField(Document):
 class TExtraDocFieldList(Document):
     doclist = ListField(DocumentField(TExtra))
 
+class TIntListDoc(Document):
+    intlist = ListField(IntField())
+
 
 def test_session():
     s = Session.connect('unit-testing')
@@ -31,7 +34,7 @@ def test_session():
     s.clear()
     s.end()
 
-def test_context_manater():
+def test_context_manager():
     with Session.connect('unit-testing') as s:
         s.clear_collection(T)
         t = T(i=5)
@@ -181,3 +184,33 @@ def test_update_docfield_list_extras():
             assert doc.get_extra_fields()['j'] == 'test2'
         else:
             assert False
+
+
+def test_update_list():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TIntListDoc)
+
+    tIntList = TIntListDoc(intlist=[1,2])
+    s.insert(tIntList)
+
+    # pull out of db
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([1,2]) == sorted(tFetched.intlist)
+
+    # append to list, update
+    l = tFetched.intlist
+    l.append(3)
+    s.update(tFetched)
+
+    # pull out of db
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([1,2,3]) == sorted(tFetched.intlist)
+
+    tFetched.intlist.remove(1)
+    s.update(tFetched)
+
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([2,3]) == sorted(tFetched.intlist)
