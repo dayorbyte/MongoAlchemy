@@ -139,10 +139,7 @@ may be useful for diagnostic purposes as well.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>with_required</strong> &#8211; Also include any field which is required.  This                 is useful if the method is being called for the purposes of                 an upsert where all required fields must always be sent.</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>with_required</strong> &#8211; Also include any field which is required.  This                 is useful if the method is being called for the purposes of                 an upsert where all required fields must always be sent.</td>
 </tr>
 </tbody>
 </table>
@@ -194,17 +191,14 @@ for the current class.</p>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Document.commit">
-<tt class="descname">commit</tt><big>(</big><em>db</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.commit" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">commit</tt><big>(</big><em>db</em>, <em>safe=True</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.commit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save this object to the database and set the <tt class="docutils literal"><span class="pre">_id</span></tt> field of this
 document to the returned id.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>db</strong> &#8211; The pymongo database to write to</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>db</strong> &#8211; The pymongo database to write to</td>
 </tr>
 </tbody>
 </table>
@@ -277,10 +271,7 @@ on the owner document class.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> &#8211; Name to be used in the index</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; Name to be used in the index</td>
 </tr>
 </tbody>
 </table>
@@ -294,10 +285,7 @@ on the owner document class.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> &#8211; Name to be used in the index</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> &#8211; Name to be used in the index</td>
 </tr>
 </tbody>
 </table>
@@ -311,10 +299,7 @@ on the owner document class.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>drop_dups</strong> &#8211; Drop duplicate objects while creating the unique                 index?  Default to <tt class="xref docutils literal"><span class="pre">False</span></tt></li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>drop_dups</strong> &#8211; Drop duplicate objects while creating the unique                 index?  Default to <tt class="xref docutils literal"><span class="pre">False</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -328,10 +313,7 @@ on the owner document class.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>collection</strong> &#8211; the <tt class="docutils literal"><span class="pre">pymongo</span></tt> collection to ensure this index                     is on</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>collection</strong> &#8211; the <tt class="docutils literal"><span class="pre">pymongo</span></tt> collection to ensure this index                     is on</td>
 </tr>
 </tbody>
 </table>
@@ -362,7 +344,7 @@ on the owner document class.</p>
                         title="previous chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="fields.html"
-                        title="next chapter"><tt class="docutils literal"><span class="pre">fields</span></tt></a></p>
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">fields</span></tt></a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/api/schema/document.txt"
@@ -371,7 +353,7 @@ on the owner document class.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -407,7 +389,7 @@ on the owner document class.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

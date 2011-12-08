@@ -93,7 +93,7 @@ output types for <a class="reference internal" href="#mongoalchemy.fields.Field.
 <h2>Field Objects<a class="headerlink" href="#field-objects" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="mongoalchemy.fields.Field">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">Field</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">Field</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em>, <em>_id=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.Field" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -106,6 +106,7 @@ output types for <a class="reference internal" href="#mongoalchemy.fields.Field.
 <li><strong>validator</strong> &#8211; a callable which will be called on objects when wrapping/unwrapping</li>
 <li><strong>unwrap_validator</strong> &#8211; a callable which will be called on objects when unwrapping</li>
 <li><strong>wrap_validator</strong> &#8211; a callable which will be called on objects when wrapping</li>
+<li><strong>_id</strong> &#8211; Set the db_field to _id.  If a field has this the &#8220;mongo_id&#8221; field will                 also be removed from the document the field is on.</li>
 </ul>
 </td>
 </tr>
@@ -169,10 +170,7 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to convert.</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to convert.</td>
 </tr>
 </tbody>
 </table>
@@ -188,10 +186,7 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to convert.</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to convert.</td>
 </tr>
 </tbody>
 </table>
@@ -206,10 +201,7 @@ raises a <tt class="xref py py-class docutils literal"><span class="pre">BadValu
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to validate</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to validate</td>
 </tr>
 </tbody>
 </table>
@@ -229,10 +221,7 @@ a is_valid_unwrap function is inheriting that behaviour.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to check</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to check</td>
 </tr>
 </tbody>
 </table>
@@ -247,10 +236,7 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to check</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to check</td>
 </tr>
 </tbody>
 </table>
@@ -265,10 +251,7 @@ Raises <tt class="docutils literal"><span class="pre">NotImplementedError</span>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; The value to check</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; The value to check</td>
 </tr>
 </tbody>
 </table>
@@ -480,10 +463,7 @@ each element validates agains the associated Field class</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; the tuple (or list) to wrap</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; the tuple (or list) to wrap</td>
 </tr>
 </tbody>
 </table>
@@ -497,10 +477,7 @@ each element validates agains the associated Field class</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> &#8211; list returned from the database.</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> &#8211; list returned from the database.</td>
 </tr>
 </tbody>
 </table>
@@ -597,7 +574,7 @@ of one), then returns it</p>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.AnythingField">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">AnythingField</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">AnythingField</tt><big>(</big><em>required=True</em>, <em>default=UNSET</em>, <em>db_field=None</em>, <em>allow_none=False</em>, <em>on_update='$set'</em>, <em>validator=None</em>, <em>unwrap_validator=None</em>, <em>wrap_validator=None</em>, <em>_id=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.AnythingField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field that passes through whatever is set with no validation.  Useful
 for free-form objects</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -612,6 +589,7 @@ for free-form objects</p>
 <li><strong>validator</strong> &#8211; a callable which will be called on objects when wrapping/unwrapping</li>
 <li><strong>unwrap_validator</strong> &#8211; a callable which will be called on objects when unwrapping</li>
 <li><strong>wrap_validator</strong> &#8211; a callable which will be called on objects when wrapping</li>
+<li><strong>_id</strong> &#8211; Set the db_field to _id.  If a field has this the &#8220;mongo_id&#8221; field will                 also be removed from the document the field is on.</li>
 </ul>
 </td>
 </tr>
@@ -802,10 +780,7 @@ returns them in a set</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value_type</strong> &#8211; the Field type to use for the values</li>
-</ul>
-</td>
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value_type</strong> &#8211; the Field type to use for the values</td>
 </tr>
 </tbody>
 </table>
@@ -1117,7 +1092,7 @@ sequence itself</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -1153,7 +1128,7 @@ sequence itself</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>

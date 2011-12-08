@@ -88,8 +88,8 @@ checked.</p>
 <span class="gp">... </span>    <span class="n">gender</span> <span class="o">=</span> <span class="n">EnumField</span><span class="p">(</span><span class="n">StringField</span><span class="p">(),</span> <span class="s">&#39;male&#39;</span><span class="p">,</span> <span class="s">&#39;female&#39;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">blood_type</span> <span class="o">=</span> <span class="n">EnumField</span><span class="p">(</span><span class="n">StringField</span><span class="p">(),</span> <span class="s">&#39;O+&#39;</span><span class="p">,</span><span class="s">&#39;A+&#39;</span><span class="p">,</span><span class="s">&#39;B+&#39;</span><span class="p">,</span><span class="s">&#39;AB+&#39;</span><span class="p">,</span><span class="s">&#39;O-&#39;</span><span class="p">,</span><span class="s">&#39;A-&#39;</span><span class="p">,</span><span class="s">&#39;B-&#39;</span><span class="p">,</span><span class="s">&#39;AB-&#39;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">; Age: </span><span class="si">%d</span><span class="s">; Type: </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span><span class="p">,</span>
-<span class="gp">... </span>            <span class="n">gender</span><span class="p">,</span> <span class="n">age</span><span class="p">,</span> <span class="n">blood_type</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> (</span><span class="si">%s</span><span class="s">; Age: </span><span class="si">%d</span><span class="s">; Type: </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_name</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="bp">self</span><span class="o">.</span><span class="n">gender</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">blood_type</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The above code creates a class <tt class="docutils literal"><span class="pre">BloodDoner</span></tt> which will has all of the
@@ -260,7 +260,7 @@ so watch out for side-effects</em></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -294,7 +294,7 @@ so watch out for side-effects</em></p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.3.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
     </div>
   </body>
 </html>
