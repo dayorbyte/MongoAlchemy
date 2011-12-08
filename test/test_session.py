@@ -20,6 +20,12 @@ class TExtra(Document):
 class TExtraDocField(Document):
     doc = DocumentField(TExtra)
 
+class TExtraDocFieldList(Document):
+    doclist = ListField(DocumentField(TExtra))
+
+class TIntListDoc(Document):
+    intlist = ListField(IntField())
+
 
 def test_session():
     s = Session.connect('unit-testing')
@@ -28,7 +34,7 @@ def test_session():
     s.clear()
     s.end()
 
-def test_context_manater():
+def test_context_manager():
     with Session.connect('unit-testing') as s:
         s.clear_collection(T)
         t = T(i=5)
@@ -141,3 +147,70 @@ def test_update_docfield_extras():
     assert t2_new.doc.i == 1
     assert t2_new.doc.get_extra_fields()['j'] == 'test'
     assert t2_new.doc.get_extra_fields()['t'] == 'added'
+
+def test_update_docfield_list_extras():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TExtraDocFieldList)
+
+    # Create Objects
+    t = TExtra(i=1, j='test')
+    t2 = TExtra(i=2, j='test2')
+    tListDoc = TExtraDocFieldList(doclist=[t, t2])
+
+    s.insert(tListDoc)
+    # Retrieve Object
+    tListDoc = s.query(TExtraDocFieldList).one()
+    assert len(tListDoc.doclist) == 2
+    for doc in tListDoc.doclist:
+        if doc.i == 1:
+            assert doc.get_extra_fields()['j'] == 'test'
+            # go ahead and update j now
+            doc.get_extra_fields()['j'] = 'testChanged'
+        elif doc.i == 2:
+            assert doc.get_extra_fields()['j'] == 'test2'
+        else:
+            assert False
+
+    # update the parent document
+    s.update(tListDoc)
+
+    # re-fetch and verify
+    tListDoc = s.query(TExtraDocFieldList).one()
+
+    for doc in tListDoc.doclist:
+        if doc.i == 1:
+            assert doc.get_extra_fields()['j'] == 'testChanged'
+        elif doc.i == 2:
+            assert doc.get_extra_fields()['j'] == 'test2'
+        else:
+            assert False
+
+
+def test_update_list():
+    s = Session.connect('unit-testing')
+    s.clear_collection(TIntListDoc)
+
+    tIntList = TIntListDoc(intlist=[1,2])
+    s.insert(tIntList)
+
+    # pull out of db
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([1,2]) == sorted(tFetched.intlist)
+
+    # append to list, update
+    l = tFetched.intlist
+    l.append(3)
+    s.update(tFetched)
+
+    # pull out of db
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([1,2,3]) == sorted(tFetched.intlist)
+
+    tFetched.intlist.remove(1)
+    s.update(tFetched)
+
+    tFetched = s.query(TIntListDoc).one()
+
+    assert sorted([2,3]) == sorted(tFetched.intlist)

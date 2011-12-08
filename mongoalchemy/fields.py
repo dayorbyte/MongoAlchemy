@@ -657,6 +657,30 @@ class SequenceField(Field):
         for v in value:
             self._validate_child_unwrap(v)
 
+    def set_value(self, instance, value, from_db=False):
+        super(SequenceField, self).set_value(instance, value, from_db=from_db)
+
+        if from_db:
+            # loaded from db, stash it
+            if 'orig_values' not in instance.__dict__:
+                instance.__dict__['orig_values'] = {}
+            instance.__dict__['orig_values'][self._name] = deepcopy(value)
+
+    def dirty_ops(self, instance):
+        ops = super(SequenceField, self).dirty_ops(instance)
+        if len(ops) == 0:
+            # see if the underlying sequence has changed.  Overwrite if so
+            try:
+                if instance._field_values[self._name] != instance.__dict__['orig_values'][self._name]:
+                    ops = {'$set': {
+                        self.db_field : self.wrap(instance._field_values[self._name])
+                    }}
+            except KeyError:
+                # required field is missing
+                pass
+        return ops
+
+
 class ListField(SequenceField):
     ''' Field representing a python list.
         
