@@ -2,7 +2,7 @@ from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
 from datetime import datetime
-from pymongo.binary import Binary
+from bson.binary import Binary
 
 # Field Tests
 
@@ -145,22 +145,22 @@ def test_anything():
 #ObjectID Field
 @raises(BadValueException)
 def objectid_wrong_type_test():
-    from pymongo.objectid import ObjectId
+    from bson.objectid import ObjectId
     ObjectIdField().wrap(1)
 
 @raises(BadValueException)
 def objectid_wrong_type_unwrap_test():
-    from pymongo.objectid import ObjectId
+    from bson.objectid import ObjectId
     ObjectIdField().unwrap(1)
 
 #ObjectID Field
 @raises(BadValueException)
 def objectid_wrong_hex_length_test():
-    from pymongo.objectid import ObjectId
+    from bson.objectid import ObjectId
     ObjectIdField().wrap('c9e2587eae7dd6064000000')
 
 def objectid_value_test():
-    from pymongo.objectid import ObjectId
+    from bson.objectid import ObjectId
     o = ObjectIdField()
     oid = ObjectId('4c9e2587eae7dd6064000000')
     assert o.unwrap(o.wrap(oid)) == oid

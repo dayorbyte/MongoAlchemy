@@ -57,8 +57,8 @@ output types for :func:`~Field.wrap` and :func:`~Field.unwrap`.
 
 import itertools
 from datetime import datetime
-from pymongo.objectid import ObjectId
-from pymongo.binary import Binary
+from bson.objectid import ObjectId
+from bson.binary import Binary
 import functools
 from copy import deepcopy
 
