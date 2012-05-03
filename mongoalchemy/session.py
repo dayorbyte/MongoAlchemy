@@ -69,7 +69,7 @@ class Session(object):
         self.safe = safe
     
     @classmethod
-    def connect(self, database, safe=False, *args, **kwds):
+    def connect(self, database, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
@@ -80,6 +80,9 @@ class Session(object):
             :param args: arguments for :class:`pymongo.connection.Connection`
             :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
         '''
+        safe = kwds.get('safe', False)
+        if 'safe' in kwds:
+            del kwds['safe']
         conn = Connection(*args, **kwds)
         db = conn[database]
         return Session(db, safe=safe)
