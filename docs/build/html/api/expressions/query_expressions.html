@@ -80,6 +80,49 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.near">
+<tt class="descname">near</tt><big>(</big><em>x</em>, <em>y</em>, <em>max_distance=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.near" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return documents near the given point</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.near_sphere">
+<tt class="descname">near_sphere</tt><big>(</big><em>x</em>, <em>y</em>, <em>max_distance=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.near_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return documents near the given point using sphere distances</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.within_box">
+<tt class="descname">within_box</tt><big>(</big><em>corner1</em>, <em>corner2</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adapted from the Mongo docs:</p>
+<p>&gt; session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.within_radius">
+<tt class="descname">within_radius</tt><big>(</big><em>x</em>, <em>y</em>, <em>radius</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adapted from the Mongo docs:</p>
+<p>&gt; session.query(Places).filter(Places.loc.within_radius(1, 2, 50)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.within_radius_sphere">
+<tt class="descname">within_radius_sphere</tt><big>(</big><em>x</em>, <em>y</em>, <em>radius</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_radius_sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adapted from the Mongo docs:</p>
+<p>&gt; session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.within_polygon">
+<tt class="descname">within_polygon</tt><big>(</big><em>polygon</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_polygon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adapted from the Mongo docs:</p>
+<p>&gt; polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
+&gt; polygonB = { a : { x : 10, y : 20 }, b : { x : 15, y : 25 }, c : { x : 20, y : 20 } }
+&gt; session.query(Places).filter(Places.loc.within_polygon(polygonA)
+&gt; session.query(Places).filter(Places.loc.within_polygon(polygonB)</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.in_">
 <tt class="descname">in_</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.in_" title="Permalink to this definition">¶</a></dt>
 <dd><p>A query to check if this query field is one of the values 

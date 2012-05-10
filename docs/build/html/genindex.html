@@ -121,6 +121,7 @@
     <dd><dl>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.dirty_ops">(mongoalchemy.fields.ComputedField method)</a></dt>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.dirty_ops">(mongoalchemy.fields.Field method)</a></dt>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.dirty_ops">(mongoalchemy.fields.SequenceField method)</a></dt>
   </dl></dd>
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
@@ -184,6 +185,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.ge_">ge_() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Index.geo2d">geo2d() (mongoalchemy.document.Index method)</a></dt>
+    <dt><a href="api/schema/document.html#mongoalchemy.document.Index.geo_haystack">geo_haystack() (mongoalchemy.document.Index method)</a></dt>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.get_absolute_name">get_absolute_name() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_collection_name">get_collection_name() (mongoalchemy.document.Document class method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_dirty_ops">get_dirty_ops() (mongoalchemy.document.Document method)</a></dt>
@@ -192,12 +195,12 @@
     <dd><dl>
       <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_fields">(mongoalchemy.query.Query method)</a></dt>
   </dl></dd>
+</dl></td>
+  <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.get_indexes">get_indexes() (mongoalchemy.document.Document class method)</a></dt>
     <dd><dl>
       <dt><a href="api/session.html#mongoalchemy.session.Session.get_indexes">(mongoalchemy.session.Session method)</a></dt>
   </dl></dd>
-</dl></td>
-  <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_limit">get_limit() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/expressions/update_expressions.html#mongoalchemy.update_expression.UpdateExpression.get_multi">get_multi() (mongoalchemy.update_expression.UpdateExpression method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.get_skip">get_skip() (mongoalchemy.query.Query method)</a></dt>
@@ -287,14 +290,16 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.ne_">ne_() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.near">near() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.near_sphere">near_sphere() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.QueryResult.next">next() (mongoalchemy.query.QueryResult method)</a></dt>
+</dl></td>
+  <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.nin">nin() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/update_expressions.html#mongoalchemy.query.RemoveQuery.nin">(mongoalchemy.query.RemoveQuery method)</a></dt>
       <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.nin">(mongoalchemy.query_expression.QueryField method)</a></dt>
   </dl></dd>
-</dl></td>
-  <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.not_">not_() (mongoalchemy.query.Query method)</a></dt>
     <dd><dl>
       <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryExpression.not_">(mongoalchemy.query_expression.QueryExpression method)</a></dt>
@@ -397,6 +402,9 @@
 </dl></td>
   <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.set_value">set_value() (mongoalchemy.fields.Field method)</a></dt>
+    <dd><dl>
+      <dt><a href="api/schema/fields.html#mongoalchemy.fields.SequenceField.set_value">(mongoalchemy.fields.SequenceField method)</a></dt>
+  </dl></dd>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.SetField">SetField (class in mongoalchemy.fields)</a></dt>
     <dt><a href="api/expressions/query.html#mongoalchemy.query.Query.skip">skip() (mongoalchemy.query.Query method)</a></dt>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.StringField">StringField (class in mongoalchemy.fields)</a></dt>
@@ -491,6 +499,12 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.within_box">within_box() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.within_polygon">within_polygon() (mongoalchemy.query_expression.QueryField method)</a></dt>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.within_radius">within_radius() (mongoalchemy.query_expression.QueryField method)</a></dt>
+</dl></td>
+  <td style="width: 33%" valign="top"><dl>
+    <dt><a href="api/expressions/query_expressions.html#mongoalchemy.query_expression.QueryField.within_radius_sphere">within_radius_sphere() (mongoalchemy.query_expression.QueryField method)</a></dt>
     <dt><a href="api/schema/document.html#mongoalchemy.document.Document.wrap">wrap() (mongoalchemy.document.Document method)</a></dt>
     <dd><dl>
       <dt><a href="api/schema/fields.html#mongoalchemy.document.DocumentField.wrap">(mongoalchemy.document.DocumentField method)</a></dt>
@@ -506,8 +520,6 @@
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.SetField.wrap">(mongoalchemy.fields.SetField method)</a></dt>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.TupleField.wrap">(mongoalchemy.fields.TupleField method)</a></dt>
   </dl></dd>
-</dl></td>
-  <td style="width: 33%" valign="top"><dl>
     <dt><a href="api/schema/fields.html#mongoalchemy.fields.ComputedField.wrap_value">wrap_value() (mongoalchemy.fields.ComputedField method)</a></dt>
     <dd><dl>
       <dt><a href="api/schema/fields.html#mongoalchemy.fields.Field.wrap_value">(mongoalchemy.fields.Field method)</a></dt>

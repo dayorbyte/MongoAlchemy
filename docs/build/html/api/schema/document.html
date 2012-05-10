@@ -292,6 +292,45 @@ on the owner document class.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.document.Index.geo2d">
+<tt class="descname">geo2d</tt><big>(</big><em>name</em>, <em>min=None</em>, <em>max=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.geo2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a 2d index.  See: 
+<a class="reference external" href="http://www.mongodb.org/display/DOCS/Geospatial+Indexing">http://www.mongodb.org/display/DOCS/Geospatial+Indexing</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the indexed column</li>
+<li><strong>min</strong> &#8211; minimum value for the index</li>
+<li><strong>max</strong> &#8211; minimum value for the index</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.document.Index.geo_haystack">
+<tt class="descname">geo_haystack</tt><big>(</big><em>name</em>, <em>bucket_size</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.geo_haystack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Haystack index.  See:
+<a class="reference external" href="http://www.mongodb.org/display/DOCS/Geospatial+Haystack+Indexing">http://www.mongodb.org/display/DOCS/Geospatial+Haystack+Indexing</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the indexed column</li>
+<li><strong>bucket_size</strong> &#8211; Size of the haystack buckets (see mongo docs)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.document.Index.unique">
 <tt class="descname">unique</tt><big>(</big><em>drop_dups=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.unique" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make this index unique, optionally dropping duplicate entries.</p>
