@@ -515,6 +515,14 @@ class TupleField(Field):
             ret.append(field.unwrap(value))
         return tuple(ret)
 
+class GeoField(TupleField):
+    def __init__(self, **kwargs):
+        ''' :param item_types: instances of :class:`Field`, in the order they \
+                    will appear in the tuples.
+            :param kwargs: arguments for :class:`Field`
+        '''
+        super(GeoField, self).__init__(IntField(), IntField(), **kwargs)
+
 class EnumField(Field):
     ''' Represents a single value out of a list of possible values, all 
         of the same type. == is used for comparison

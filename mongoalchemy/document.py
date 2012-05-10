@@ -39,6 +39,7 @@ programmatically.  A document can have multiple indexes by adding extra
 
 '''
 import pymongo
+from pymongo import GEO2D
 from collections import defaultdict
 from mongoalchemy.util import classproperty
 from mongoalchemy.query_expression import QueryField
@@ -512,6 +513,11 @@ class Index(object):
         self.components = []
         self.__unique = False
         self.__drop_dups = False
+        
+        self.__min = None
+        self.__max = None
+        self.__bucket_size = None
+
     
     def ascending(self, name):
         ''' Add a descending index for ``name`` to this index.
@@ -529,6 +535,30 @@ class Index(object):
         self.components.append((name, Index.DESCENDING))
         return self
     
+    def geo2d(self, name, min=None, max=None):
+        """ Create a 2d index.  See: 
+            http://www.mongodb.org/display/DOCS/Geospatial+Indexing
+
+            :param name: Name of the indexed column
+            :param min: minimum value for the index
+            :param max: minimum value for the index
+        """
+        self.components.append((name, GEO2D))
+        self.__min = min
+        self.__max = max
+        return self
+
+    def geo_haystack(self, name, bucket_size):
+        """ Create a Haystack index.  See:
+            http://www.mongodb.org/display/DOCS/Geospatial+Haystack+Indexing
+
+            :param name: Name of the indexed column
+            :param bucket_size: Size of the haystack buckets (see mongo docs)   
+        """
+        self.components.append((name, 'geoHaystack'))
+        self.__bucket_size = bucket_size
+        return self
+
     def unique(self, drop_dups=False):
         ''' Make this index unique, optionally dropping duplicate entries.
                 
@@ -545,7 +575,14 @@ class Index(object):
             :param collection: the ``pymongo`` collection to ensure this index \
                     is on
         '''
+        extras = {}
+        if self.__min is not None:
+            extras['min'] = self.__min
+        if self.__max is not None:
+            extras['max'] = self.__max
+        if self.__bucket_size is not None:
+            extras['bucket_size'] = self.__bucket_size
         collection.ensure_index(self.components, unique=self.__unique, 
-            drop_dups=self.__drop_dups)
+            drop_dups=self.__drop_dups, **extras)
         return self
         

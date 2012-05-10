@@ -112,6 +112,72 @@ class QueryField(object):
             current = current._get_parent()
         return '.'.join(reversed(res))
     
+    def near(self, x, y, max_distance=None):
+        """ Return documents near the given point
+        """
+        expr = {
+            self : {'$near' : [x, y]}
+        }
+        if max_distance is not None:
+            expr[self]['$maxDistance'] = max_distance
+        # if bucket_size is not None:
+        #     expr['$bucketSize'] = max_distance
+        return QueryExpression(expr)        
+
+    def near_sphere(self, x, y, max_distance=None):
+        """ Return documents near the given point using sphere distances
+        """
+        expr = {
+            self : {'$nearSphere' : [x, y]}
+        }
+        if max_distance is not None:
+            expr[self]['$maxDistance'] = max_distance
+        return QueryExpression(expr)        
+
+    def within_box(self, corner1, corner2):
+        """ Adapted from the Mongo docs:
+
+            > session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)
+        """
+        return QueryExpression({
+            self : {'$within' : {
+                    '$box' : [corner1, corner2],
+                }}
+            })
+    def within_radius(self, x, y, radius):
+        """ Adapted from the Mongo docs:
+
+            > session.query(Places).filter(Places.loc.within_radius(1, 2, 50)
+        """
+        return QueryExpression({
+            self : {'$within' : {
+                    '$center' : [[x, y], radius],
+                }}
+            })
+    def within_radius_sphere(self, x, y, radius):
+        """ Adapted from the Mongo docs:
+
+            > session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)
+        """
+        return QueryExpression({
+            self : {'$within' : {
+                    '$centerSphere' : [[x, y], radius],
+                }}
+            })
+    def within_polygon(self, polygon):
+        """ Adapted from the Mongo docs:
+
+            > polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
+            > polygonB = { a : { x : 10, y : 20 }, b : { x : 15, y : 25 }, c : { x : 20, y : 20 } }
+            > session.query(Places).filter(Places.loc.within_polygon(polygonA)
+            > session.query(Places).filter(Places.loc.within_polygon(polygonB)
+        """
+        return QueryExpression({
+            self : {'$within' : {
+                    '$polygon' : polygon,
+                }}
+            })
+
     def in_(self, *values):
         ''' A query to check if this query field is one of the values 
             in ``values``.  Produces a MongoDB ``$in`` expression.

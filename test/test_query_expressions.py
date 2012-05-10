@@ -122,6 +122,58 @@ def list_in_operator_test():
     assert q == { 'ints' : [3] }, q
 
 #
+#   Geo Tests
+#
+def test_geo():
+    class Place(Document):
+        config_collection_name = 'places4'
+        loc = GeoField()
+        val = IntField()
+        index = Index().geo2d('loc', min=-100, max=100)
+    s = Session.connect('unit-testing')
+    s.clear_collection(Place)
+    s.insert(Place(loc=(1,1), val=2))
+    s.insert(Place(loc=(5,5), val=4))
+    s.insert(Place(loc=(30,30 ), val=5))
+    x = s.query(Place).filter(Place.loc.near(0, 1))
+    assert x.first().val == 2, x.query
+
+    xs = s.query(Place).filter(Place.loc.near(1, 1, max_distance=2)).all()
+    assert len(xs) == 1, xs
+    
+    xs = s.query(Place).filter(Place.loc.near_sphere(1, 1, max_distance=50)).all()
+    assert len(xs) == 3
+
+    q = s.query(Place).filter(Place.loc.within_box([-2, -2], [2, 2]))
+    assert len(q.all()) == 1, q.query
+
+    q = s.query(Place).filter(Place.loc.within_radius(0, 0, 2))
+    assert len(q.all()) == 1, q.query
+
+    q = s.query(Place).filter(Place.loc.within_polygon(
+        [[-2, 0], [2, 0], [0, 2], [0, -2]]
+    ))
+    assert len(q.all()) == 1, q.query
+
+    q = s.query(Place).filter(Place.loc.within_radius_sphere(30, 30, 0.0001))
+    assert len(q.all()) == 1, q.all()
+
+
+def test_geo_haystack():
+    class Place(Document):
+        config_collection_name = 'places'
+        loc = GeoField()
+        val = IntField()
+        index = Index().geo_haystack('loc', bucket_size=100)
+    s = Session.connect('unit-testing')
+    s.clear_collection(Place)
+    s.insert(Place(loc=(1,1), val=2))
+    s.insert(Place(loc=(5,5), val=4))
+    
+
+
+
+#
 #  Comparator Tests
 #
 @raises(BadValueException)
