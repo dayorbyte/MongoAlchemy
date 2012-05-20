@@ -114,7 +114,7 @@ def int_value_test():
 
 @raises(BadValueException)
 def float_wrong_type_test():
-    FloatField().wrap(1)
+    FloatField().wrap('1')
 
 # Date/time field
 @raises(BadValueException)

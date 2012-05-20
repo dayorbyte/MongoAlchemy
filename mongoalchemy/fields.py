@@ -396,10 +396,14 @@ class NumberField(PrimitiveField):
         self.min = min_value
         self.max = max_value
         
-    def validate_wrap(self, value, type):
+    def validate_wrap(self, value, *types):
         ''' Validates the type and value of ``value`` '''
-        if not isinstance(value, type): 
-            self._fail_validation_type(value, type)
+        for type in types:
+            if isinstance(value, type): 
+                break
+        else:
+            self._fail_validation_type(value, *types)
+
         if self.min != None and value < self.min:
             self._fail_validation(value, 'Value too small')
         if self.max != None and value > self.max:
@@ -427,7 +431,7 @@ class FloatField(NumberField):
         super(FloatField, self).__init__(constructor=float, **kwargs)
     def validate_wrap(self, value):
         ''' Validates the type and value of ``value`` '''
-        return NumberField.validate_wrap(self, value, float)
+        return NumberField.validate_wrap(self, value, float, int)
 
 class DateTimeField(PrimitiveField):
     ''' Field for datetime objects. '''
@@ -521,7 +525,7 @@ class GeoField(TupleField):
                     will appear in the tuples.
             :param kwargs: arguments for :class:`Field`
         '''
-        super(GeoField, self).__init__(IntField(), IntField(), **kwargs)
+        super(GeoField, self).__init__(FloatField(), FloatField(), **kwargs)
 
 class EnumField(Field):
     ''' Represents a single value out of a list of possible values, all 
