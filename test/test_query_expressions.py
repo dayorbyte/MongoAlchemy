@@ -164,7 +164,7 @@ def test_geo_haystack():
         config_collection_name = 'places'
         loc = GeoField()
         val = IntField()
-        index = Index().geo_haystack('loc', bucket_size=100)
+        index = Index().geo_haystack('loc', bucket_size=100).descending('val')
     s = Session.connect('unit-testing')
     s.clear_collection(Place)
     s.insert(Place(loc=(1,1), val=2))
