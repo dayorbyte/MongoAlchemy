@@ -30,7 +30,7 @@ def test_indexes():
     except:
         import simplejson as json
     
-    desired = '''{"_id_": {"key": [["_id", 1]], "v": 0}, "int1_1_str3_-1": {"dropDups": false, "key": [["int1", 1], ["str3", -1]], "unique": false, "v": 0}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 0}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 0}, "str3_-1": {"dropDups": false, "key": [["str3", -1]], "unique": false, "v": 0}}'''
+    desired = '''{"_id_": {"key": [["_id", 1]], "v": 1}, "int1_1_str3_-1": {"dropDups": false, "key": [["int1", 1], ["str3", -1]], "v": 1}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 1}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 1}, "str3_-1": {"dropDups": false, "key": [["str3", -1]], "v": 1}}'''
     got = s.get_indexes(TestDoc)
     got = json.dumps(got, sort_keys=True)
     assert got == desired, '\nG: %s\nD: %s' % (got, desired)
