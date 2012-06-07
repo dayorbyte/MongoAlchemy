@@ -132,7 +132,45 @@ def datetime_too_old_test():
 def datetime_value_test():
     s = DateTimeField()
     assert s.wrap(datetime(2009, 7, 9)) == datetime(2009, 7, 9)
-    assert s.unwrap(datetime(2009, 7, 9)) == datetime(2009, 7, 9)
+    assert s.unwrap(datetime(2009, 7, 9)) == datetime(2009, 7, 9), (s.unwrap(datetime(2009, 7, 9)),)
+
+@raises(BadValueException)
+def test_tz_unaware():
+    s = DateTimeField(use_tz=True)
+    s.wrap(datetime.now())
+
+def test_tz_aware():
+    import pytz
+    from mongoalchemy.session import Session
+    from mongoalchemy.document import Document
+    # doc
+    class DocTZ(Document):
+        time = DateTimeField(use_tz=True)
+    class DocNoTZ(Document):
+        time = DateTimeField(use_tz=False)
+
+    # timezone -- choose one where the author doesn't live
+    eastern = pytz.timezone('Australia/Melbourne')
+    utc = pytz.utc
+    # session
+    s = Session.connect('unit-testing', timezone=eastern)
+    s.clear_collection(DocTZ)
+    s.clear_collection(DocNoTZ)
+    # time
+    local = eastern.localize(datetime.now())
+    local = local.replace(microsecond=0)
+    doc = DocTZ(time=local)
+    s.insert(doc)
+
+    doc = s.query(DocTZ).one()
+    assert doc.time == local, (doc.time, local)
+
+    # do the no timezone case for code coverage
+    s.insert(DocNoTZ(time=datetime(2012, 1, 1)))
+    obj = s.query(DocNoTZ).one()
+
+
+
 
 # Anything Field
 def test_anything():

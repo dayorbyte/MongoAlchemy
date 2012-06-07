@@ -313,7 +313,7 @@ class Document(object):
             raise BadValueException('Document', obj, 'Exception validating document', cause=e)
     
     @classmethod
-    def unwrap(cls, obj, fields=None, database=None, connection=None):
+    def unwrap(cls, obj, fields=None, session=None):
         ''' Returns an instance of this document class based on the mongo object 
             ``obj``.  This is done by using the ``unwrap()`` methods of the 
             underlying fields to set values.
@@ -323,7 +323,10 @@ class Document(object):
                     for the fields to load.  If ``None`` is passed all fields  \
                     are loaded
             '''
-        
+        if session:
+            database = session.db
+            connection = database.connection
+
         # Get reverse name mapping
         name_reverse = {}
         for name, field in cls.get_fields().iteritems():
@@ -342,13 +345,13 @@ class Document(object):
 
             extra_unwrap = {}
             if field.has_autoload:
-                extra_unwrap['database'] = database
-                extra_unwrap['connection'] = connection
+                extra_unwrap['session'] = session
             if field_is_doc:
                 normalized_fields = cls.__normalize(fields)
                 unwrapped = field.unwrap(v, fields=normalized_fields.get(k), **extra_unwrap)
             else:
                 unwrapped = field.unwrap(v, **extra_unwrap)
+            unwrapped = field.localize(session, unwrapped)
             params[str(k)] = unwrapped
         
         if fields is not None:
@@ -472,11 +475,11 @@ class DocumentField(Field):
         self.validate_wrap(value)
         return self.type.wrap(value)
     
-    def unwrap(self, value, fields=None, database=None, connection=None):
+    def unwrap(self, value, fields=None, session=None):
         ''' Validate ``value`` and then use the document's class to unwrap the 
             value'''
         self.validate_unwrap(value, fields=fields)
-        return self.type.unwrap(value, fields=fields, database=database, connection=connection)
+        return self.type.unwrap(value, fields=fields, session=session)
     
     def validate_wrap(self, value):
         ''' Checks that ``value`` is an instance of ``DocumentField.type``.

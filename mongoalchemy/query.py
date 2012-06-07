@@ -70,7 +70,7 @@ class Query(object):
         return flatten(self.__query)
     
     def __get_query_result(self):
-        return self.session.execute_query(self)
+        return self.session.execute_query(self, self.session)
     
     def raw_output(self):
         self._raw_output = True
@@ -376,18 +376,19 @@ class Query(object):
 
 
 class QueryResult(object):
-    def __init__(self, cursor, type, raw_output=False, fields=None):
+    def __init__(self, session, cursor, type, raw_output=False, fields=None):
         self.cursor = cursor
         self.type = type
         self.fields = fields
         self.raw_output = raw_output
+        self.session = session
     
     def next(self):
         value = self.cursor.next()
         if not self.raw_output:
             db = self.cursor.collection.database
             conn = db.connection
-            value = self.type.unwrap(value, fields=self.fields, database=db, connection=conn)
+            value = self.type.unwrap(value, fields=self.fields, session=self.session)
         return value
     
     def __getitem__(self, index):
@@ -395,14 +396,15 @@ class QueryResult(object):
         if not self.raw_output:
             db = self.cursor.collection.database
             conn = db.connection
-            value = self.type.unwrap(value, database=db, connection=conn)
+            value = self.type.unwrap(value, session=self.session)
+            # value = self.session.localize(session, value)
         return value
     
     def rewind(self):
         return self.cursor.rewind()
     
     def clone(self):
-        return QueryResult(self.cursor.clone(), self.type, 
+        return QueryResult(self.session, self.cursor.clone(), self.type, 
             raw_output=self.raw_output, fields=self.fields)
     
     def __iter__(self):

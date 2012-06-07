@@ -79,11 +79,11 @@ def test_unwrap():
     assert isinstance(ret, DBRef), ret
 
     field = RefField(DocumentField(A), db='unit-testing', simple=True, autoload=True)
-    ret = field.unwrap(a.mongo_id, connection=s.db.connection)
+    ret = field.unwrap(a.mongo_id, session=s)
     assert isinstance(ret, A), ret
 
     field = RefField(collection='A', db='unit-testing', autoload=True)
-    ret = field.unwrap(dbaref, connection=s.db.connection)
+    ret = field.unwrap(dbaref, session=s)
     assert ret['_id'] == a.mongo_id
 
 @raises(BadValueException)

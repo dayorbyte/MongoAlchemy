@@ -50,7 +50,7 @@ from itertools import chain
 
 class Session(object):
 
-    def __init__(self, database, safe=False):
+    def __init__(self, database, timezone=None, safe=False):
         '''
         Create a session connecting to `database`.  
         
@@ -67,9 +67,10 @@ class Session(object):
         self.db = database
         self.queue = []
         self.safe = safe
+        self.timezone = timezone
     
     @classmethod
-    def connect(self, database, *args, **kwds):
+    def connect(self, database, timezone=None, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
@@ -83,9 +84,11 @@ class Session(object):
         safe = kwds.get('safe', False)
         if 'safe' in kwds:
             del kwds['safe']
+        if timezone is not None:
+            kwds['tz_aware'] = True
         conn = Connection(*args, **kwds)
         db = conn[database]
-        return Session(db, safe=safe)
+        return Session(db, timezone=timezone, safe=safe)
     
     def end(self):
         ''' End the session.  Flush all pending operations and ending the 
@@ -162,7 +165,7 @@ class Session(object):
             type = FreeFormDoc(type)
         return Query(type, self)
     
-    def execute_query(self, query):
+    def execute_query(self, query, session):
         ''' Get the results of ``query``.  This method will flush the queue '''
         collection = self.db[query.type.get_collection_name()]
         for index in query.type.get_indexes():
@@ -182,7 +185,7 @@ class Session(object):
             cursor.limit(query.get_limit())
         if query.get_skip() != None:
             cursor.skip(query.get_skip())
-        return QueryResult(cursor, query.type, raw_output=query._raw_output, fields=query.get_fields())
+        return QueryResult(session, cursor, query.type, raw_output=query._raw_output, fields=query.get_fields())
     
     def remove_query(self, type):
         ''' Begin a remove query on the database's collection for `type`.
@@ -275,8 +278,7 @@ class Session(object):
         
         return fm_exp.query.type.unwrap(value, 
                 fields=fm_exp.query.get_fields(),
-                database=self.db,
-                connection=self.db.connection
+                session=self,
             )
     
     def get_indexes(self, cls):

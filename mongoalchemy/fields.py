@@ -230,6 +230,9 @@ class Field(object):
             }
         }
     
+    def localize(self, session, value):
+        return value
+
     @property
     def db_field(self):
         ''' The name to use when setting this field on a document.  If 
@@ -437,20 +440,53 @@ class FloatField(NumberField):
 
 class DateTimeField(PrimitiveField):
     ''' Field for datetime objects. '''
-    def __init__(self, min_date=None, max_date=None, **kwargs):
+    def __init__(self, min_date=None, max_date=None, use_tz=False, **kwargs):
         ''' :param max_date: maximum date
             :param min_date: minimum date
+            :param use_tz: Require a timezone-aware datetime (via pytz).  
+                Values are converted to UTC before saving.  min and max dates
+                are currently ignored when use_tz is on.  You MUST pass a 
+                timezone into the session
             :param kwargs: arguments for :class:`Field`
         '''
         super(DateTimeField, self).__init__(lambda dt : dt, **kwargs)
         self.min = min_date
         self.max = max_date
+        self.use_tz = use_tz
+        if self.use_tz:
+            import pytz
+            self.utc = pytz.utc
+            assert self.min is None and self.max is None
     
+    def wrap(self, value):
+        self.validate_wrap(value)
+        value = self.constructor(value)
+        if self.use_tz:
+            return value
+        return value
+    def unwrap(self, value):
+        self.validate_unwrap(value)
+        return self.constructor(value)
+    def localize(self, session, value):
+        if not self.use_tz:
+            return value
+        return value.astimezone(session.timezone)
+
     def validate_wrap(self, value):
         ''' Validates the value's type as well as it being in the valid 
             date range'''
         if not isinstance(value, datetime):
             self._fail_validation_type(value, datetime)
+
+        if self.use_tz and value.tzinfo is None:
+            self._fail_validation(value, '''datetime is not timezone aware and use_tz is on.  make sure timezone is set on the session''')
+
+        # if using timezone support it isn't clear how min and max should work,
+        # so the problem is being punted on for now.
+        if self.use_tz:
+            return
+
+        # min/max
         if self.min != None and value < self.min:
             self._fail_validation(value, 'DateTime too old')
         if self.max != None and value > self.max:
@@ -969,7 +1005,7 @@ class KVField(DictField):
 class RefField(Field):
     ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
         saving the referenced object or updates to it, but it can handle 
-        auto-loading.  
+        auto-loading.
     '''
     #: If this kind of field can have sub-fields, this attribute should be True
     has_subfields = True
@@ -977,15 +1013,18 @@ class RefField(Field):
 
     def __init__(self, type=None, autoload=False, collection=None,
                     db=None, simple=False, **kwargs):
-        ''' :param type: the Field type to use for the values.  It 
-                must be a DocumentField.  If you want to save raw mongo 
-                objects
-            :param simple: Only save the _id, not a full db ref.  If this
+        ''' :param type: (optional) the Field type to use for the values.  It 
+                must be a DocumentField.  If you want to save refs to raw mongo 
+                objects, you can leave this field out
+            :param simple: (optional) Only save the _id, not a full db ref.  If this
                 option is selected one of type or collection must also be 
                 passed
-            :param db: The database to load the object from.
-            :param collection: The collection to load simple references from.
-                This option is mutually exclusive with the ``type`` param.
+            :param db: (optional) The database to load the object from.  
+                Defaults to the same database as the object this field is 
+                bound to.
+            :param collection: (optional) The collection to load simple 
+                references from. This option is mutually exclusive with the 
+                ``type`` param.
             :param autoload: Load this reference when loading the parent 
                 object.  This will trigger a database request for each object.
                 It may eventually be optimized to batch requests where 
@@ -1035,11 +1074,17 @@ class RefField(Field):
             id=doc_id)
         return ref
             
-    def unwrap(self, value, fields=None, connection=None, database=None):
+    def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
             the object.  If ``RefField.simple`` is True, the loaded object 
             will be left alone (like an ``AnythingField``).  
         '''
+        database = None
+        connection = None
+        if session:
+            database = session.db
+            connection = database.connection
+
         self.validate_reference(value)
         if not self.autoload:
             if self.simple:
