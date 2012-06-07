@@ -273,7 +273,11 @@ class Session(object):
         if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
             return value
         
-        return fm_exp.query.type.unwrap(value, fields=fm_exp.query.get_fields())
+        return fm_exp.query.type.unwrap(value, 
+                fields=fm_exp.query.get_fields(),
+                database=self.db,
+                connection=self.db.connection
+            )
     
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 

@@ -385,13 +385,17 @@ class QueryResult(object):
     def next(self):
         value = self.cursor.next()
         if not self.raw_output:
-            value = self.type.unwrap(value, fields=self.fields)
+            db = self.cursor.collection.database
+            conn = db.connection
+            value = self.type.unwrap(value, fields=self.fields, database=db, connection=conn)
         return value
     
     def __getitem__(self, index):
         value = self.cursor.__getitem__(index)
         if not self.raw_output:
-            value = self.type.unwrap(value)
+            db = self.cursor.collection.database
+            conn = db.connection
+            value = self.type.unwrap(value, database=db, connection=conn)
         return value
     
     def rewind(self):

@@ -59,6 +59,7 @@ import itertools
 from datetime import datetime
 from bson.objectid import ObjectId
 from bson.binary import Binary
+from bson.dbref import DBRef
 import functools
 from copy import deepcopy
 
@@ -126,6 +127,9 @@ class Field(object):
     #: If this kind of field can have sub-fields, this attribute should be True
     has_subfields = False
     
+    #: If this kind of field can do extra requests, this attribute should be True
+    has_autoload = False
+
     no_real_attributes = False  # used for free-form queries.  
     
     __metaclass__ = FieldMeta
@@ -159,9 +163,7 @@ class Field(object):
             self.__db_field = '_id'
         else:
             self.__db_field = db_field
-        
         self.is_id = self.__db_field == '_id'
-        
         self.__value = UNSET
         self.__update_op = UNSET
         
@@ -963,6 +965,131 @@ class KVField(DictField):
             v = value_dict['v']
             ret[self.key_type.unwrap(k)] = self.value_type.unwrap(v)
         return ret
+
+class RefField(Field):
+    ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
+        saving the referenced object or updates to it, but it can handle 
+        auto-loading.  
+    '''
+    #: If this kind of field can have sub-fields, this attribute should be True
+    has_subfields = True
+    has_autoload = True
+
+    def __init__(self, type=None, autoload=False, collection=None,
+                    db=None, simple=False, **kwargs):
+        ''' :param type: the Field type to use for the values.  It 
+                must be a DocumentField.  If you want to save raw mongo 
+                objects
+            :param simple: Only save the _id, not a full db ref.  If this
+                option is selected one of type or collection must also be 
+                passed
+            :param db: The database to load the object from.
+            :param collection: The collection to load simple references from.
+                This option is mutually exclusive with the ``type`` param.
+            :param autoload: Load this reference when loading the parent 
+                object.  This will trigger a database request for each object.
+                It may eventually be optimized to batch requests where 
+                possible.
+
+        '''
+        from mongoalchemy.document import DocumentField
+        if type and collection:
+            raise BadFieldSpecification('Only one of type and collection can be passed')
+        if type is not None and not isinstance(type, DocumentField):
+            raise BadFieldSpecification("RefField value type is not a DocumentField!")
+
+        super(RefField, self).__init__(**kwargs)
+        self.simple = simple
+        self.autoload = autoload
+        self.type = type
+        if type is not None:
+            self.collection = self.type.type.get_collection_name()
+        else:
+            self.collection = collection
+        self.db = db
+        
+    
+    def wrap(self, value):
+        ''' Validate ``value`` and then use the value_type to wrap the 
+            value'''
+        self.validate_wrap(value)
+        from mongoalchemy.document import Document
+        is_doc = isinstance(value, Document)
+
+        if is_doc:
+            try:
+                value.mongo_id
+            except AttributeError:
+                raise BadValueException(self._name, value, 'No Mongo ID')
+
+        if self.simple:
+            if is_doc:
+                return value.mongo_id
+            return value['_id']
+        if is_doc:
+            doc_id = value.mongo_id
+        else:
+            doc_id = value['_id']
+
+        ref = DBRef(collection=self.collection, database=self.db, 
+            id=doc_id)
+        return ref
+            
+    def unwrap(self, value, fields=None, connection=None, database=None):
+        ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
+            the object.  If ``RefField.simple`` is True, the loaded object 
+            will be left alone (like an ``AnythingField``).  
+        '''
+        self.validate_reference(value)
+        if not self.autoload:
+            if self.simple:
+                return DBRef(database=self.db, 
+                    collection=self.collection, 
+                    id=value)
+            collection = self.collection
+            if self.type is not None:
+                collection = self.type.type.get_collection_name()
+            assert value.collection == self.collection
+            return DBRef(database=self.db, 
+                    collection=self.collection, 
+                    id=value.id)
+        if self.db:
+            database = connection[self.db]
+        if self.simple:
+            raw = database[self.collection].find_one({'_id':value})
+        else:
+            raw = database.dereference(value)
+        if not self.type:
+            return raw
+        self.validate_unwrap(raw)
+        return self.type.unwrap(raw)
+    
+    def validate_reference(self, value):
+        if self.simple:
+            return True
+        if not isinstance(value, DBRef):
+            self._fail_validation_type(value, DBRef)
+
+    def validate_wrap(self, value):
+        ''' Checks that has the fields necessary for a Mongo DBRef
+        '''
+        if not self.type:
+            return
+        if not isinstance(value, self.type.type):
+            self._fail_validation_type(value, self.type.type)
+    
+    def validate_unwrap(self, value):
+        ''' Validates every field in the underlying document type.  If ``fields`` 
+            is not ``None``, only the fields in ``fields`` will be checked.
+        '''
+        if self.simple:
+            return True
+        try:
+            self.type.validate_unwrap(value)
+        except BadValueException, bve:
+            self._fail_validation(value, 'RefField invalid', cause=bve)
+
+
 
 class ComputedField(Field):
     ''' A computed field is generated based on an object's other values.  It
