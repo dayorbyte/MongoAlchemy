@@ -85,7 +85,11 @@ class DocumentMeta(type):
             if name == None:
                 name = new_class.__name__
             document_type_registry[new_class.config_namespace][name] = new_class
-        
+
+        for b in bases:
+            if 'Document' in globals() and issubclass(b, Document):
+                b.add_subclass(new_class)
+
         return new_class
 
 class Document(object):
@@ -109,6 +113,25 @@ class Document(object):
         "global"
     '''
     
+    config_polymorphic = None
+    ''' The variable to use when determining which class to instantiate a
+        database object with.  It is the name of an attribute which
+        will be used to decide the type of the object.  If you want more 
+        control over which class is selected, you can override 
+        ``get_subclass``.
+    '''
+    # config_polymorphic_func = None
+    # ''' The method to call when determining which subclass to instantiate a
+    #     database object with.
+    # '''
+
+
+    config_polymorphic_identity = None
+    ''' When using a string value with ``config_polymorphic_on`` in a parent 
+        class, this is the value that the attribute is compared to when 
+        determining 
+    '''
+
     config_full_name = None
     ''' If namespaces are being used, the key for a class is normally
         the class name.  In some cases the same class name may be used in 
@@ -122,7 +145,7 @@ class Document(object):
         document constructor.  Possible values are 'error' and 'ignore'. Any 
         fields which couldn't be mapped can be retrieved (and edited) using
         :func:`~Document.get_extra_fields` '''
-    
+
     def __init__(self, retrieved_fields=None, loading_from_db=False, **kwargs):
         ''' :param retrieved_fields: The names of the fields returned when loading \
                 a partial object.  This argument should not be explicitly set \
@@ -160,6 +183,44 @@ class Document(object):
 
         self.__extra_fields_orig = dict(self.__extra_fields)
     
+    _subclasses = {}
+    @classmethod
+    def add_subclass(cls, subclass):
+        ''' Register a subclass of this class.  Maps the subclass to the 
+            value of subclass.config_polymorphic_identity if available.
+        '''
+        # if not polymorphic, stop
+        if hasattr(subclass, 'config_polymorphic_identity'):
+            attr = subclass.config_polymorphic_identity
+            cls._subclasses[attr] = subclass
+
+
+    @classmethod
+    def get_subclass(cls, obj):
+        ''' Get the subclass to use when instantiating a polymorphic object.
+            The default implementation looks at ``cls.config_polymorphic``
+            to get the name of an attribute.  Subclasses automatically 
+            register their value for that attribute on creation via their
+            ``config_polymorphic_identity`` field.  This process is then 
+            repeated recursively until None is returned (indicating that the
+            current class is the correct one)
+
+            This method can be overridden to allow any method you would like 
+            to use to select subclasses. It should return either the subclass
+            to use or None, if the original class should be used.
+        '''
+        if cls.config_polymorphic is None:
+            return
+        value = obj.get(cls.config_polymorphic)
+        value = cls._subclasses.get(value)
+        if value == cls or value is None:
+            return None
+
+        sub_value = value.get_subclass(obj)
+        if sub_value is None:
+            return value
+        return sub_value
+
     def get_dirty_ops(self, with_required=False):
         ''' Returns a dict with the update operations necessary to make the 
             changes to this object to the database version.  It is mainly used
@@ -323,6 +384,12 @@ class Document(object):
                     for the fields to load.  If ``None`` is passed all fields  \
                     are loaded
             '''
+
+        subclass = cls.get_subclass(obj)
+        if subclass and subclass != cls:
+            return subclass.unwrap(obj, fields=fields, session=session)
+
+
         if session:
             database = session.db
             connection = database.connection

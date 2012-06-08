@@ -97,7 +97,37 @@ def test_delete_field():
     except AttributeError:
         pass
         
-    
+
+def test_inheritance():
+    # classes
+    class InA(Document):
+        config_extra_fields = 'ignore'
+        config_polymorphic = 'type'
+        a = IntField()
+        type = StringField()
+    class InB(InA):
+        config_collection_name = 'InA'
+        config_polymorphic_identity = 'foo'
+        config_polymorphic = 'type2'
+        b = IntField()
+        type = StringField(default=config_polymorphic_identity)
+    class InC(InB):
+        config_collection_name = 'InA'
+        config_polymorphic_identity = 'bar'
+        c = IntField()
+        type2 = StringField(default=config_polymorphic_identity)
+
+    # clear old data
+    s = get_session()
+    s.clear_collection(InA)
+
+    b = InC(a=5, b=1, c=0)
+    bb = InC(a=4, b=3, c=12)
+    s.insert(b)
+    s.insert(bb)
+    for obj in s.query(InA).all():
+        assert type(obj) == InC, type(obj)
+
 
 @raises(DocumentException)
 def bad_extra_fields_param_test():

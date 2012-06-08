@@ -242,7 +242,6 @@ class Session(object):
             multi=update.get_multi(),
             safe=safe,
         )
-        print kwargs
         collection.update(update.query.query, update.update_data, **kwargs)
     
     def execute_find_and_modify(self, fm_exp):
