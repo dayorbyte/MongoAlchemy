@@ -86,9 +86,16 @@ class DocumentMeta(type):
                 name = new_class.__name__
             document_type_registry[new_class.config_namespace][name] = new_class
 
+        # 4.  Add subclasses
+
         for b in bases:
             if 'Document' in globals() and issubclass(b, Document):
                 b.add_subclass(new_class)
+            if not hasattr(b, 'config_polymorphic_collection'):
+                continue
+            if b.config_polymorphic_collection and 'config_collection' not in class_dict:
+                new_class.config_collection_name = b.get_collection_name()
+
 
         return new_class
 
@@ -120,10 +127,10 @@ class Document(object):
         control over which class is selected, you can override 
         ``get_subclass``.
     '''
-    # config_polymorphic_func = None
-    # ''' The method to call when determining which subclass to instantiate a
-    #     database object with.
-    # '''
+    
+    config_polymorphic_collection = False
+    ''' Use the base class collection name for the subclasses.  Default: False
+    '''
 
 
     config_polymorphic_identity = None

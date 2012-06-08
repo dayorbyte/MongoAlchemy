@@ -103,16 +103,17 @@ def test_inheritance():
     class InA(Document):
         config_extra_fields = 'ignore'
         config_polymorphic = 'type'
+        config_polymorphic_collection = True
         a = IntField()
         type = StringField()
     class InB(InA):
-        config_collection_name = 'InA'
+        # config_collection_name = 'InA'
         config_polymorphic_identity = 'foo'
         config_polymorphic = 'type2'
         b = IntField()
         type = StringField(default=config_polymorphic_identity)
     class InC(InB):
-        config_collection_name = 'InA'
+        # config_collection_name = 'InA'
         config_polymorphic_identity = 'bar'
         c = IntField()
         type2 = StringField(default=config_polymorphic_identity)
