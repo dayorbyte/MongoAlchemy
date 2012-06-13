@@ -41,6 +41,20 @@ def test_reffield():
     b = B(y=a)
     assert b.wrap()['y'] == dbref
 
+def test_wrap_unwrap():
+    s = get_session()
+    
+    a = A(x=5)
+    s.insert(a)
+    
+    aref = {'$id':a.mongo_id, '$ref':'A'}
+    dbref = DBRef(database='unit-testing', collection='A', id=a.mongo_id)
+    dbref_without_db = DBRef(collection='A', id=a.mongo_id)
+
+    f = RefField(DocumentField(A))
+    assert f.wrap(a) == f.wrap(f.unwrap(f.wrap(a))), (f.wrap(a), f.wrap(f.unwrap(f.wrap(a))))
+
+
 def test_wrap():
     s = get_session()
     

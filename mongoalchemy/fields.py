@@ -1053,6 +1053,9 @@ class RefField(Field):
             value'''
         self.validate_wrap(value)
         from mongoalchemy.document import Document
+        if isinstance(value, DBRef):
+            return value
+
         is_doc = isinstance(value, Document)
 
         if is_doc:
@@ -1120,7 +1123,9 @@ class RefField(Field):
         '''
         if not self.type:
             return
-        if not isinstance(value, self.type.type):
+        if isinstance(value, DBRef):
+            self.validate_reference(value)
+        elif not isinstance(value, self.type.type):
             self._fail_validation_type(value, self.type.type)
     
     def validate_unwrap(self, value):
