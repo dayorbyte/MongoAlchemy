@@ -3,6 +3,9 @@
 Documentation
 ======================
 
+**NOTE: Over the next few weeks (starting July 22) I'm going to be making significant internal changes for efficiency and flexibilty.  The interface should be basically the same when I'm done, but you may want to keep this in mind!**
+
+
 See: http://mongoalchemy.org/
 
 This project is almost entirely driven by what people need.  There are still 
