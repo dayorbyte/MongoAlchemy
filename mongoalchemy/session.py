@@ -43,14 +43,15 @@
 
 
 from pymongo.connection import Connection
+from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
-from mongoalchemy.document import FieldNotRetrieved
+from mongoalchemy.document import FieldNotRetrieved, Document
 from mongoalchemy.query_expression import FreeFormDoc
 from itertools import chain
 
 class Session(object):
 
-    def __init__(self, database, timezone=None, safe=False):
+    def __init__(self, database, timezone=None, safe=False, cache_size=0):
         '''
         Create a session connecting to `database`.  
         
@@ -68,9 +69,11 @@ class Session(object):
         self.queue = []
         self.safe = safe
         self.timezone = timezone
+        self.cache_size = cache_size
+        self.cache = {}
     
     @classmethod
-    def connect(self, database, timezone=None, *args, **kwds):
+    def connect(self, database, timezone=None, cache_size=0, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
@@ -88,17 +91,44 @@ class Session(object):
             kwds['tz_aware'] = True
         conn = Connection(*args, **kwds)
         db = conn[database]
-        return Session(db, timezone=timezone, safe=safe)
+        return Session(db, timezone=timezone, safe=safe, cache_size=cache_size)
     
+    def cache_write(self, obj):
+        if self.cache_size == 0:
+            return
+        if obj.mongo_id in self.cache:
+            return
+        if len(self.cache) >= self.cache_size:
+            for key in self.cache:
+                break
+            del self.cache[key]
+        assert isinstance(obj.mongo_id, ObjectId), 'Currently, cached objects must use mongo_id as an ObjectId'
+        # if not isinstance(obj.mongo_id, ObjectId):
+        #     self.cache[ObjectId(obj.mongo_id)] = obj
+        # else:
+        self.cache[obj.mongo_id] = obj
+
+    def cache_read(self, id):
+        if self.cache_size == 0:
+            return
+        assert isinstance(id, ObjectId), 'Currently, cached objects must use mongo_id as an ObjectId'
+        # if not isinstance(id, ObjectId):
+        #     id = ObjectId(id)
+        if id in self.cache:
+            return self.cache[id]
+        return None
+
     def end(self):
         ''' End the session.  Flush all pending operations and ending the 
             *pymongo* request'''
+        self.cache = {}
         self.flush()
         self.db.connection.end_request()
     
     def insert(self, item, safe=None):
         ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
             insertion until the _id field is actually accessed'''
+        item._set_session(self)
         if safe is None:
             safe = self.safe
         self.queue.append(item)
@@ -130,6 +160,7 @@ class Session(object):
                 This operation is **experimental** and **not fully tested**,
                 although it does have code coverage.  
             '''
+        item._set_session(self)
         if id_expression:
             db_key = Query(type(item), self).filter(id_expression).query
         else:
@@ -165,16 +196,18 @@ class Session(object):
             type = FreeFormDoc(type)
         return Query(type, self)
     
+    def add_to_session(self, obj):
+        obj._set_session(self)
+    
     def execute_query(self, query, session):
         ''' Get the results of ``query``.  This method will flush the queue '''
         collection = self.db[query.type.get_collection_name()]
         for index in query.type.get_indexes():
             index.ensure(collection)
-        
+
         kwargs = dict()
         if query.get_fields():
             kwargs['fields'] = [str(f) for f in query.get_fields()]
-        
         cursor = collection.find(query.query, **kwargs)
         
         if query.sort:
@@ -204,6 +237,7 @@ class Session(object):
             :param safe: whether to wait for the operation to complete.  Defaults \
                 to the session's ``safe`` value.
         '''
+        obj._set_session(self)
         self.flush()
         if safe is None:
             safe = self.safe
@@ -274,11 +308,20 @@ class Session(object):
         
         if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
             return value
-        
-        return fm_exp.query.type.unwrap(value, 
+
+        # No cache in find and modify, right?  
+        # this is an update operation
+        # obj = self.cache_read(value['_id'])
+        # if obj is not None:
+        #     return obj
+        obj = fm_exp.query.type.unwrap(value, 
                 fields=fm_exp.query.get_fields(),
                 session=self,
             )
+        if not fm_exp.query.get_fields():
+            self.cache_write(obj)
+        return obj
+
     
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 
@@ -290,7 +333,7 @@ class Session(object):
         ''' Clear the queue of database operations without executing any of 
              the pending operations'''
         self.queue = []
-    
+        
     def clear_collection(self, *classes):
         ''' Clear all objects from the collections associated with the 
             objects in `*cls`. **use with caution!**'''
@@ -304,12 +347,49 @@ class Session(object):
         for index, item in enumerate(self.queue):
             try:
                 item.commit(self.db, safe=safe)
+                self.cache_write(item)
             except:
+                self.cache = {}
                 self.clear()
                 raise
         self.clear()
-            
-    
+
+    def dereference(self, ref):
+        print 'DEREF', ref
+        if isinstance(ref, Document):
+            return ref
+        assert hasattr(ref, 'type')
+                
+        obj = self.cache_read(ref.id)
+        print 'CACHE READ', obj
+        if obj is not None:
+            return obj
+        value = self.db.dereference(ref)
+        obj = ref.type.unwrap(value, session=self)
+        self.cache_write(obj)
+        return obj
+
+    def refresh(self, document):
+        """ Load a new copy of a document from the database.  does not 
+            replace the old one """
+        try:
+            old_cache_size = self.cache_size
+            self.cache_size = 0
+            obj = self.query(type(document)).filter_by(mongo_id=document.mongo_id).one()
+        finally:
+            self.cache_size = old_cache_size
+        self.cache_write(obj)
+        return obj
+
+    def clone(self, document):
+        ''' Serialize a document, remove its _id, and deserialize as a new 
+            object '''
+        
+        wrapped = document.wrap()
+        if '_id' in wrapped:
+            del wrapped['_id']
+        return type(document).unwrap(wrapped, session=self)
+        
     def __enter__(self):
         return self
     

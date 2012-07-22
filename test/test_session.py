@@ -45,6 +45,86 @@ def test_safe():
     s = Session.connect('unit-testing', safe=False)
     assert s.safe == False
 
+def test_cache():
+    s = Session.connect('unit-testing', cache_size=10)
+    t = TExtra(i=4)
+    s.insert(t)
+    s.insert(t)
+    t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
+    assert id(t) == id(t2)
+    assert id(s.refresh(t)) != t2
+
+def test_cache2():
+    s = Session.connect('unit-testing', cache_size=10)
+    t = TExtra(i=4)
+    s.insert(t)
+    s.insert(t)
+    for t2 in s.query(TExtra).filter_by(mongo_id=t.mongo_id):
+        assert id(t) == id(t2)
+        assert id(s.refresh(t)) != t2
+        break
+def test_cache3():
+    s = Session.connect('unit-testing', cache_size=10)
+    t = TExtra(i=4)
+    s.insert(t)
+    s.insert(t)
+    t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id)[0]
+    assert id(t) == id(t2)
+    assert id(s.refresh(t)) != t2
+
+# def test_cache2():
+#     class SimpleDoc(Document):
+#         i = IntField()
+
+#     class CacheList(Document):
+#         l_ids = ListField(RefField(SimpleDoc)
+#     s = Session.connect('unit-testing', cache_size=10)
+    
+    
+
+#     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
+#     assert id(t) == id(t2)
+#     assert id(s.refresh(t)) != t2
+
+
+def test_clone():
+    s = Session.connect('unit-testing', cache_size=10)
+    t = TExtra(i=4)
+    s.insert(t)
+
+    t2 = s.clone(t)
+    s.insert(t2)
+
+    assert t2.mongo_id != t.mongo_id
+    
+
+def test_cache_miss():
+    s_nocache = Session.connect('unit-testing', cache_size=10)
+    t = TExtra(i=4)
+    s_nocache.insert(t)
+
+    s = Session.connect('unit-testing', cache_size=10)
+    s.add_to_session(t)
+    t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
+    # assert id(t) == id(t2)
+
+
+
+def test_cache_max():
+    # not a great test, but gets coverage
+    s = Session.connect('unit-testing', cache_size=3)
+    for i in range(0, 10):
+        t = TExtra(i=4)
+        s.insert(t)
+    assert len(s.cache) == 3
+
+def test_cache2():
+    s = Session.connect('unit-testing')
+    t = TExtra(i=4)
+    s.insert(t)
+    t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
+    assert id(t) != id(t2)
+
 def test_safe_with_error():
     s = Session.connect('unit-testing')
     s.clear_collection(TUnique)

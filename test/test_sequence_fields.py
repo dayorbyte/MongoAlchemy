@@ -19,6 +19,7 @@ def list_wrong_child_type_test():
 def list_bad_child_type_test_wrap():
     ListField(int).wrap([4])
 
+
 @raises(Exception)
 def list_bad_child_test_unwrap():
     ListField(IntField()).unwrap(['4'])
@@ -39,6 +40,9 @@ def list_value_test():
     foo = [x for x in '12345']
     assert s.unwrap(s.wrap(foo)) == foo
 
+def list_default_test():
+    s = ListField(StringField(), default_empty=True)
+    assert s.default == []
 
 # Set Field
 @raises(BadValueException)
@@ -73,3 +77,7 @@ def set_value_test():
     s = SetField(StringField())
     foo = set([x for x in '12345'])
     assert s.unwrap(s.wrap(foo)) == foo
+
+def set_default_test():
+    assert SetField(StringField(), default_empty=True).default == set()
+    assert SetField(StringField(), default=set([3])).default == set([3])

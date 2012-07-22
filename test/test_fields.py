@@ -33,6 +33,7 @@ def test_allow_none():
     assert IntField().is_valid_wrap(None) == False
     assert IntField(allow_none=True).wrap(None) == None
     assert IntField(allow_none=True).unwrap(None) == None
+    assert IntField(default=None).unwrap(None) == None
 
 def test_id_attr():
     assert IntField().is_id == False
@@ -205,6 +206,10 @@ def objectid_value_test():
     
     oid2 = '4c9e2587eae7dd6064000000'
     assert o.unwrap(o.wrap(oid2)) == oid
+
+    assert o.wrap(o.unwrap(oid.binary)) == oid
+
+    assert isinstance(o.gen(), ObjectId)
 
 
 # TupleField

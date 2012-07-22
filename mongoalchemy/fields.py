@@ -77,7 +77,7 @@ class FieldMeta(type):
         
         def wrap_unwrap_wrapper(fun):
             def wrapped(self, value, *args, **kwds):
-                if self._allow_none and value == None:
+                if self._allow_none and value is None:
                     return None
                 return fun(self, value, *args, **kwds)
             functools.update_wrapper(wrapped, fun, ('__name__', '__doc__'))
@@ -86,7 +86,7 @@ class FieldMeta(type):
         def validation_wrapper(fun, kind):
             def wrapped(self, value, *args, **kwds):
                 # Handle None
-                if self._allow_none and value == None:
+                if self._allow_none and value is None:
                     return
                 # Standard Field validation
                 fun(self, value, *args, **kwds)
@@ -135,9 +135,10 @@ class Field(object):
     __metaclass__ = FieldMeta
     
     valid_modifiers = SCALAR_MODIFIERS
-    
+
     def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
-            validator=None, unwrap_validator=None, wrap_validator=None, _id=False):
+            validator=None, unwrap_validator=None, wrap_validator=None, _id=False,
+            proxy=None, iproxy=None):
         '''
             :param required: The field must be passed when constructing a document (optional. default: ``True``)
             :param default:  Default value to use if one is not given (optional.)
@@ -167,28 +168,35 @@ class Field(object):
         self.__value = UNSET
         self.__update_op = UNSET
         
+        self.proxy = proxy
+        self.iproxy = iproxy
+
         self.validator = validator
         self.unwrap_validator = unwrap_validator
         self.wrap_validator = wrap_validator
         
         self._allow_none = allow_none
+        
+        self.required = required
+        self.default = default
+        if default is None:
+            self._allow_none = True
         self._owner = None
         
         if on_update not in self.valid_modifiers and on_update != 'ignore':
             raise InvalidConfigException('Unsupported update operation: %s' % on_update)
         self.on_update = on_update
-        
-        self.required = required
-        self.default = default
+
         self._name =  'Unbound_%s' % self.__class__.__name__
     
     def __get__(self, instance, owner):
-        if type(instance) == type(None):
+        if instance is None:
             return QueryField(self)
         if self._name in instance._field_values:
             return instance._field_values[self._name]
         if self.default != UNSET:
-            return self.default
+            self.set_value(instance, self.default)
+            return instance._field_values[self._name]
         if instance.partial and self.db_field not in instance.retrieved_fields:
             raise FieldNotRetrieved(self._name)
             
@@ -213,7 +221,7 @@ class Field(object):
         op = instance._dirty.get(self._name)
         if op == '$unset':
             return { '$unset' : { self._name : True } }
-        if op == None:
+        if op is None:
             return {}
         return {
             op : {
@@ -271,7 +279,7 @@ class Field(object):
         '''
         raise NotImplementedError()
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Returns an object suitable for setting as a value on a subclass of
             :class:`~mongoalchemy.document.Document`.  
             Raises ``NotImplementedError`` in the base class.
@@ -346,7 +354,7 @@ class PrimitiveField(Field):
     def wrap(self, value):
         self.validate_wrap(value)
         return self.constructor(value)
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         self.validate_unwrap(value)
         return self.constructor(value)
 
@@ -367,9 +375,9 @@ class StringField(PrimitiveField):
         if not isinstance(value, basestring):
             self._fail_validation_type(value, basestring)
         if self.max != None and len(value) > self.max:
-            self._fail_validation(value, 'Value too long')
+            self._fail_validation(value, 'Value too long (%d)' % len(value))
         if self.min != None and len(value) < self.min:
-            self._fail_validation(value, 'Value too short')
+            self._fail_validation(value, 'Value too short (%d)' % len(value))
 
 class BinaryField(PrimitiveField):
     def __init__(self, **kwargs):
@@ -424,7 +432,7 @@ class IntField(NumberField):
         super(IntField, self).__init__(constructor=int, **kwargs)
     def validate_wrap(self, value):
         ''' Validates the type and value of ``value`` '''
-        NumberField.validate_wrap(self, value, int)
+        NumberField.validate_wrap(self, value, int, long)
 
 class FloatField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``float`` '''
@@ -464,7 +472,7 @@ class DateTimeField(PrimitiveField):
         if self.use_tz:
             return value
         return value
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         self.validate_unwrap(value)
         return self.constructor(value)
     def localize(self, session, value):
@@ -546,7 +554,7 @@ class TupleField(Field):
             ret.append(field.wrap(value))
         return ret
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Validate and then unwrap ``value`` for object creation.
             
             :param value: list returned from the database.  
@@ -554,7 +562,7 @@ class TupleField(Field):
         self.validate_unwrap(value)
         ret = []
         for field, value in itertools.izip(self.types, value):
-            ret.append(field.unwrap(value))
+            ret.append(field.unwrap(value, session=session))
         return tuple(ret)
 
 class GeoField(TupleField):
@@ -618,12 +626,12 @@ class EnumField(Field):
         self.validate_wrap(value)
         return self.item_type.wrap(value)
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Unwrap value using the unwrap function from ``EnumField.item_type``.
             Since unwrap validation could not happen in is_valid_wrap, it 
             happens in this function.'''
         self.validate_unwrap(value)
-        value = self.item_type.unwrap(value)
+        value = self.item_type.unwrap(value, session=session)
         for val in self.values:
             if val == value:
                 return val
@@ -637,23 +645,29 @@ class SequenceField(Field):
     valid_modifiers = LIST_MODIFIERS
     
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 
-            **kwargs):
+            default_empty=False, **kwargs):
         ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
             :param min_capacity: minimum number of items contained in values
             :param max_capacity: maximum number of items contained in values 
+            :param default_empty: the default is an empty sequence.
         '''
         super(SequenceField, self).__init__(**kwargs)
         self.item_type = item_type
         self.min = min_capacity
         self.max = max_capacity
+        self.default_empty = default_empty
         if not isinstance(item_type, Field):
             raise BadFieldSpecification("List item_type is not a field!")
-    
+        
     @property
     def has_subfields(self):
         ''' Returns True if the sequence's value type has subfields. '''
         return self.item_type.has_subfields
     
+    @property
+    def has_autoload(self):
+        return self.item_type.has_autoload
+
     def set_parent_on_subtypes(self, parent):
         self.item_type._set_parent(parent)
     
@@ -682,8 +696,11 @@ class SequenceField(Field):
     def _validate_child_wrap(self, value):
         self.item_type.validate_wrap(value)
     
-    def _validate_child_unwrap(self, value):
-        self.item_type.validate_unwrap(value)
+    def _validate_child_unwrap(self, value, session=None):
+        if self.has_autoload:
+            self.item_type.validate_unwrap(value, session=session)
+        else:
+            self.item_type.validate_unwrap(value)
     
     def _length_valid(self, value):
         if self.min != None and len(value) < self.min: 
@@ -699,13 +716,17 @@ class SequenceField(Field):
         for v in value:
             self._validate_child_wrap(v)
             
-    def validate_unwrap(self, value):
+    def validate_unwrap(self, value, session=None):
         ''' Checks that the type of ``value`` is correct as well as validating
             the elements of value'''
         self._validate_unwrap_type(value)
         self._length_valid(value)
         for v in value:
-            self._validate_child_unwrap(v)
+            if self.has_autoload:
+                self._validate_child_unwrap(v, session=session)
+            else:
+                self._validate_child_unwrap(v)
+
 
     def set_value(self, instance, value, from_db=False):
         super(SequenceField, self).set_value(instance, value, from_db=from_db)
@@ -735,8 +756,27 @@ class ListField(SequenceField):
     ''' Field representing a python list.
         
         .. seealso:: :class:`SequenceField`'''
+
+    def __init__(self, item_type, **kwargs):
+        ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
+            :param min_capacity: minimum number of items contained in values
+            :param max_capacity: maximum number of items contained in values 
+            :param default_empty: the default is an empty sequence.
+        '''
+        super(ListField, self).__init__(item_type, **kwargs)
+
+    def set_default(self, value):
+        self._default = value
+    def get_default(self):
+        if self.default_empty:
+            return []
+        return self._default
+    default = property(get_default, set_default)
+
     def _validate_wrap_type(self, value):
-        if not isinstance(value, list) and not isinstance(value, tuple):
+        import types
+        if not any([isinstance(value, list), isinstance(value, tuple), 
+            isinstance(value, types.GeneratorType)]):
             self._fail_validation_type(value, list, tuple)
     _validate_unwrap_type = _validate_wrap_type
     
@@ -745,16 +785,29 @@ class ListField(SequenceField):
             returns them in a list'''
         self.validate_wrap(value)
         return [self.item_type.wrap(v) for v in value]
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Unwraps the elements of ``value`` using ``ListField.item_type`` and
             returns them in a list'''
-        self.validate_unwrap(value)
-        return [self.item_type.unwrap(v) for v in value]
+        kwargs = {}
+        if self.has_autoload:
+            kwargs['session'] = session
+        self.validate_unwrap(value, **kwargs)
+        return [ self.item_type.unwrap(v, **kwargs) for v in value]
+           
 
 class SetField(SequenceField):
     ''' Field representing a python set.
         
         .. seealso:: :class:`SequenceField`'''
+    
+    def set_default(self, value):
+        self._default = value
+    def get_default(self):
+        if self.default_empty:
+            return set()
+        return self._default
+    default = property(get_default, set_default)
+
     def _validate_wrap_type(self, value):
         if not isinstance(value, set):
             self._fail_validation_type(value, set)
@@ -770,11 +823,11 @@ class SetField(SequenceField):
         self.validate_wrap(value)
         return [self.item_type.wrap(v) for v in value]
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Unwraps the elements of ``value`` using ``SetField.item_type`` and
             returns them in a set'''
         self.validate_unwrap(value)
-        return set([self.item_type.unwrap(v) for v in value])
+        return set([self.item_type.unwrap(v, session=session) for v in value])
 
 class AnythingField(Field):
     ''' A field that passes through whatever is set with no validation.  Useful
@@ -786,7 +839,7 @@ class AnythingField(Field):
         ''' Always returns the value passed in'''
         return value
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Always returns the value passed in'''
         return value
     
@@ -803,9 +856,12 @@ class ObjectIdField(Field):
     
     valid_modifiers = SCALAR_MODIFIERS 
     
-    def __init__(self, **kwargs):
+    def __init__(self, session=None, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
     
+    def gen(self):
+        return ObjectId()
+
     def validate_wrap(self, value):
         ''' Checks that ``value`` is a pymongo ``ObjectId`` or a string 
             representation of one'''
@@ -813,6 +869,10 @@ class ObjectIdField(Field):
             self._fail_validation_type(value, ObjectId)
         if isinstance(value, ObjectId):
             return
+        #: bytes
+        if len(value) == 12:
+            return
+        # hex
         if len(value) != 24:
             self._fail_validation(value, 'hex object ID is the wrong length')
     
@@ -838,14 +898,26 @@ class DictField(Field):
     
     valid_modifiers = SCALAR_MODIFIERS
     
-    def __init__(self, value_type, **kwargs):
+    def __init__(self, value_type, default_empty=False, **kwargs):
         ''' :param value_type: the Field type to use for the values
         '''
         super(DictField, self).__init__(**kwargs)
         self.value_type = value_type
+        self.default_empty = default_empty
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("DictField value type is not a field!")
+    def set_default(self, value):
+        self._default = value
+    def get_default(self):
+        if self.default_empty:
+            return {}
+        return self._default
+    default = property(get_default, set_default)
     
+    @property
+    def has_autoload(self):
+        return self.value_type.has_autoload
+
     def set_parent_on_subtypes(self, parent):
         self.value_type._set_parent(parent)
     
@@ -895,14 +967,14 @@ class DictField(Field):
             ret[k] = self.value_type.wrap(v)
         return ret
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Validates ``value`` and then returns a dictionary with each key in
             ``value`` mapped to its value unwrapped using ``DictField.value_type``
         '''
         self.validate_unwrap(value)
         ret = {}
         for k, v in value.iteritems():
-            ret[k] = self.value_type.unwrap(v)
+            ret[k] = self.value_type.unwrap(v, session=session)
         return ret
 
 class KVField(DictField):
@@ -912,16 +984,17 @@ class KVField(DictField):
     #: If this kind of field can have sub-fields, this attribute should be True
     has_subfields = True
     
-    def __init__(self, key_type, value_type, **kwargs):
+    def __init__(self, key_type, value_type, default_empty=False, **kwargs):
         ''' :param key_type: the Field type to use for the keys
             :param value_type: the Field type to use for the values
         '''
-        super(DictField, self).__init__(**kwargs)
+        super(KVField, self).__init__(value_type, default_empty=default_empty, **kwargs)
         
         if not isinstance(key_type, Field):
             raise BadFieldSpecification("KVField key type is not a field!")
-        if not isinstance(value_type, Field):
-            raise BadFieldSpecification("KVField value type is not a field!")
+        # This is covered by DictField
+        # if not isinstance(value_type, Field):
+        #     raise BadFieldSpecification("KVField value type is not a field!")
         self.key_type = key_type
         self.key_type._name = 'k'
         
@@ -931,6 +1004,9 @@ class KVField(DictField):
     def set_parent_on_subtypes(self, parent):
         self.value_type._set_parent(parent)
         self.key_type._set_parent(parent)
+    @property
+    def has_autoload(self):
+        return self.value_type.has_autoload or self.key_type.has_autoload
     
     def subfields(self):
         ''' Returns the k and v subfields, which can be accessed to do queries
@@ -961,7 +1037,7 @@ class KVField(DictField):
                 self._fail_validation(value, 'Values in a KVField list must be dicts', cause=cause)
             k = value_dict.get('k')
             v = value_dict.get('v')
-            if k == None:
+            if k is None:
                 self._fail_validation(value, 'Value had None for a key')
             try:
                 self.key_type.validate_unwrap(k)
@@ -988,7 +1064,7 @@ class KVField(DictField):
             ret.append( { 'k' : k, 'v' : v })
         return ret
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Expects a list of dictionaries with ``k`` and ``v`` set to the 
             keys and values that will be unwrapped into the output python 
             dictionary should have.  Validates the input and then constructs the
@@ -999,7 +1075,7 @@ class KVField(DictField):
         for value_dict in value:
             k = value_dict['k']
             v = value_dict['v']
-            ret[self.key_type.unwrap(k)] = self.value_type.unwrap(v)
+            ret[self.key_type.unwrap(k, session=session)] = self.value_type.unwrap(v, session=session)
         return ret
 
 class RefField(Field):
@@ -1012,7 +1088,7 @@ class RefField(Field):
     has_autoload = True
 
     def __init__(self, type=None, autoload=False, collection=None,
-                    db=None, simple=False, **kwargs):
+                    db=None, simple=False, namespace='global', **kwargs):
         ''' :param type: (optional) the Field type to use for the values.  It 
                 must be a DocumentField.  If you want to save refs to raw mongo 
                 objects, you can leave this field out
@@ -1029,33 +1105,45 @@ class RefField(Field):
                 object.  This will trigger a database request for each object.
                 It may eventually be optimized to batch requests where 
                 possible.
+            :param namespace: If using the namespace system and using a 
+                collection name instead of a type, selects which namespace to 
+                use
 
         '''
         from mongoalchemy.document import DocumentField
+        if type and not isinstance(type, DocumentField):
+            type = DocumentField(type)
         if type and collection:
             raise BadFieldSpecification('Only one of type and collection can be passed')
-        if type is not None and not isinstance(type, DocumentField):
-            raise BadFieldSpecification("RefField value type is not a DocumentField!")
+        # if type is not None and not isinstance(type, DocumentField):
+        #     raise BadFieldSpecification("RefField value type is not a DocumentField!")
 
         super(RefField, self).__init__(**kwargs)
         self.simple = simple
         self.autoload = autoload
         self.type = type
-        if type is not None:
-            self.collection = self.type.type.get_collection_name()
-        else:
-            self.collection = collection
+        self.namespace = namespace
+        if type is None:
+            self._collection = collection
         self.db = db
-        
+    
+    _collection = None
+    @property
+    def collection(self):
+        if self._collection is None:
+            return self.type.type.get_collection_name()
+        return self._collection
     
     def wrap(self, value):
         ''' Validate ``value`` and then use the value_type to wrap the 
             value'''
+
         self.validate_wrap(value)
         from mongoalchemy.document import Document
         if isinstance(value, DBRef):
+            if self.simple:
+                return value.id
             return value
-
         is_doc = isinstance(value, Document)
 
         if is_doc:
@@ -1073,17 +1161,24 @@ class RefField(Field):
         else:
             doc_id = value['_id']
 
-        ref = DBRef(collection=self.collection, database=self.db, 
+        if self._collection or self.type:
+            collection = self.collection
+        else:
+            collection = value.get_collection_name()        
+
+        ref = DBRef(collection=collection, database=self.db, 
             id=doc_id)
+        ref.type = self.smart_type(ref)
         return ref
             
     def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
-            the object.  If ``RefField.simple`` is True, the loaded object 
-            will be left alone (like an ``AnythingField``).  
+            the object.  
         '''
         database = None
         connection = None
+        # if hasattr(value, '_ma_session'):
+        #     session = value._ma_session
         if session:
             database = session.db
             connection = database.connection
@@ -1091,27 +1186,52 @@ class RefField(Field):
         self.validate_reference(value)
         if not self.autoload:
             if self.simple:
-                return DBRef(database=self.db, 
+                ret = DBRef(database=self.db, 
                     collection=self.collection, 
                     id=value)
-            collection = self.collection
-            if self.type is not None:
-                collection = self.type.type.get_collection_name()
-            assert value.collection == self.collection
-            return DBRef(database=self.db, 
-                    collection=self.collection, 
+                ret.type = self.smart_type(ret)
+                return ret
+            
+            if self._collection or self.type is not None:
+                assert value.collection == self.collection
+
+            ref = DBRef(database=self.db, 
+                    collection=value.collection, 
                     id=value.id)
+            ref.type = self.smart_type(ref)
+            return ref
         if self.db:
             database = connection[self.db]
         if self.simple:
+            assert isinstance(value, ObjectId) or isinstance(value, basestring), value
             raw = database[self.collection].find_one({'_id':value})
         else:
             raw = database.dereference(value)
-        if not self.type:
-            return raw
-        self.validate_unwrap(raw)
-        return self.type.unwrap(raw)
+        if raw is None:
+            raise BadValueException(self._name, value, 'Could not dereference object %s' % value)
+        return self.unwrap_child(value, raw, session=session)
     
+    def unwrap_child(self, ref, raw, session=None):
+        # TODO: this doesn't work quite right if you're using different
+        # collection names
+        type = self.smart_type(ref)
+        # type.validate_unwrap(raw)
+        return type.unwrap(raw, session=session)
+
+
+    def smart_type(self, ref):
+        from mongoalchemy.document import document_type_registry
+        if self.type is not None:
+            return self.type
+        if self.simple:
+            return document_type_registry[self.namespace][self.collection]
+        return document_type_registry[self.namespace][ref.collection]
+
+
+    def set_parent_on_subtypes(self, parent):
+        if self.type is not None:
+            self.type._set_parent(parent)
+
     def validate_reference(self, value):
         if self.simple:
             return True
@@ -1128,15 +1248,19 @@ class RefField(Field):
         elif not isinstance(value, self.type.type):
             self._fail_validation_type(value, self.type.type)
     
-    def validate_unwrap(self, value):
+    def validate_unwrap(self, value, session=None):
         ''' Validates every field in the underlying document type.  If ``fields`` 
             is not ``None``, only the fields in ``fields`` will be checked.
         '''
         if self.simple:
             return True
+        if isinstance(value, DBRef):
+            self.validate_reference(value)
+            return True
         try:
             self.type.validate_unwrap(value)
         except BadValueException, bve:
+            print 'ERROR'
             self._fail_validation(value, 'RefField invalid', cause=bve)
 
 
@@ -1176,7 +1300,7 @@ class ComputedField(Field):
         '''
         super(ComputedField, self).__init__(**kwargs)
         self.computed_type = computed_type
-        if deps == None:
+        if deps is None:
             deps = set()
         self.deps = set(deps)
         self.fun = fun
@@ -1185,7 +1309,7 @@ class ComputedField(Field):
     
     def __get__(self, instance, owner):
         # class method
-        if type(instance) == type(None):
+        if instance is None:
             return QueryField(self)
         
         if self._name in instance._field_values and self.one_time:
@@ -1254,10 +1378,10 @@ class ComputedField(Field):
         self.validate_wrap(value)
         return self.computed_type.wrap(value)
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Validates ``value`` and unwraps it with ``ComputedField.computed_type``'''
         self.validate_unwrap(value)
-        return self.computed_type.unwrap(value)
+        return self.computed_type.unwrap(value, session=session)
 
 class computed_field(object):
     def __init__(self, computed_type, deps=None, **kwargs):
@@ -1267,3 +1391,21 @@ class computed_field(object):
     
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
+
+def CreatedField(name='created'):
+    @computed_field(DateTimeField(), one_time=True)
+    def created(obj):
+        return datetime.utcnow()
+    created.__name__ = name
+    return created
+
+def ModifiedField(name='modified'):
+    @computed_field(DateTimeField())
+    def modified(obj):
+        return datetime.utcnow()
+    modified.__name__ = name
+    return modified
+    
+
+
+

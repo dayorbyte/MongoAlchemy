@@ -28,6 +28,18 @@ def computed_field_db_test():
         break
     assert td.a_plus_b == obj.a_plus_b
 
+def test_created_modified():
+    class TestDoc2(Document):
+        created = CreatedField()
+        modified = ModifiedField()
+    d = TestDoc2()
+    w1 = d.wrap()
+    import time
+    time.sleep(0.01)
+    w2 = d.unwrap(w1).wrap()
+    assert w1['created'] == w2['created']
+    assert w1['modified'] != w2['modified']
+
 def test_no_deps_computed_field():
     class TestDoc2(Document):
         @computed_field(IntField())

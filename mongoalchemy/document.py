@@ -41,7 +41,7 @@ programmatically.  A document can have multiple indexes by adding extra
 import pymongo
 from pymongo import GEO2D
 from collections import defaultdict
-from mongoalchemy.util import classproperty
+from mongoalchemy.util import classproperty, UNSET
 from mongoalchemy.query_expression import QueryField
 from mongoalchemy.fields import ObjectIdField, Field, BadValueException, SCALAR_MODIFIERS
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
@@ -51,8 +51,10 @@ document_type_registry = defaultdict(dict)
 class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
         # Validate Config Options
+        # print '-' * 20, classname, '-' * 20
         
         # Create Class
+        class_dict['_subclasses'] = {}
         new_class = type.__new__(mcs, classname, bases, class_dict)
         
         if new_class.config_extra_fields not in ['error', 'ignore']:
@@ -73,11 +75,17 @@ class DocumentMeta(type):
         
         # 2. create a dict of fields to set on the object
         new_class._fields = {}
-        for name in dir(new_class):
-            field = getattr(new_class, name)
-            if not isinstance(field, QueryField):
+        for b in bases:
+            # print b
+            if not hasattr(b, 'get_fields'):
                 continue
-            new_class._fields[name] = field.get_type()
+            for name, field in b.get_fields().iteritems():    
+                new_class._fields[name] = field
+
+        for name, maybefield in class_dict.iteritems():
+            if not isinstance(maybefield, Field):
+                continue
+            new_class._fields[name] = maybefield
         
         # 3. register type
         if new_class.config_namespace != None:
@@ -86,6 +94,13 @@ class DocumentMeta(type):
                 name = new_class.__name__
             document_type_registry[new_class.config_namespace][name] = new_class
 
+        # 5. Add proxies
+        for name, field in new_class.get_fields().iteritems():
+            if field.proxy is not None:
+                setattr(new_class, field.proxy, Proxy(name))
+            if field.iproxy is not None:
+                setattr(new_class, field.iproxy, IProxy(name))
+        
         # 4.  Add subclasses
 
         for b in bases:
@@ -162,7 +177,7 @@ class Document(object):
                 any missing (but required) fields will raise a :class:`~mongoalchemy.document.MissingValueException`. \
                 Both types of exceptions are subclasses of :class:`~mongoalchemy.document.DocumentException`.
         '''
-        self.partial = retrieved_fields != None
+        self.partial = retrieved_fields is not None
         self.retrieved_fields = self.__normalize(retrieved_fields)
         
         self._dirty = {}
@@ -180,6 +195,10 @@ class Document(object):
             if name in kwargs:
                 getattr(cls, name).set_value(self, kwargs[name], from_db=loading_from_db)
                 continue
+            # DO I NEED THIS?
+            # elif field.default != UNSET:
+            #     getattr(cls, name).set_value(self, field.default, from_db=loading_from_db)
+
         
         for k in kwargs:
             if k not in fields:
@@ -190,7 +209,9 @@ class Document(object):
 
         self.__extra_fields_orig = dict(self.__extra_fields)
     
-    _subclasses = {}
+    def __deepcopy__(self, memo):
+        return type(self).unwrap(self.wrap(), session=self._get_session())
+
     @classmethod
     def add_subclass(cls, subclass):
         ''' Register a subclass of this class.  Maps the subclass to the 
@@ -218,6 +239,7 @@ class Document(object):
         '''
         if cls.config_polymorphic is None:
             return
+
         value = obj.get(cls.config_polymorphic)
         value = cls._subclasses.get(value)
         if value == cls or value is None:
@@ -227,6 +249,11 @@ class Document(object):
         if sub_value is None:
             return value
         return sub_value
+    def __eq__(self, other):
+        try:
+            self.mongo_id == other.mongo_id
+        except:
+            return False
 
     def get_dirty_ops(self, with_required=False):
         ''' Returns a dict with the update operations necessary to make the 
@@ -348,7 +375,7 @@ class Document(object):
             index.ensure(collection)
         id = collection.save(self.wrap(), safe=safe)
         self.mongo_id = id
-    
+        
     def wrap(self):
         ''' Returns a transformation of this document into a form suitable to 
             be saved into a mongo database.  This is done by using the ``wrap()``
@@ -357,28 +384,30 @@ class Document(object):
         for k, v in self.__extra_fields.iteritems():
             res[k] = v
         cls = self.__class__
-        for name in dir(cls):
+        for name in self.get_fields():
             field = getattr(cls, name)
-            if not isinstance(field, QueryField):
-                continue
+            # if not isinstance(field, QueryField):
+            #     continue
             try:
                 value = getattr(self, name)
                 res[field.db_field] = field.wrap(value)
-            except AttributeError:
+            except AttributeError, e:
                 if field.required:
                     raise MissingValueException(name)
         return res
     
     @classmethod
-    def validate_unwrap(cls, obj, fields=None):
+    def validate_unwrap(cls, obj, fields=None, session=None):
         ''' Attempts to unwrap the document, and raises a BadValueException if
             the operation fails. A TODO is to make this function do the checks
             without actually doing the (potentially expensive) 
             deserialization'''
         try:
-            cls.unwrap(obj, fields=fields)
+            cls.unwrap(obj, fields=fields, session=session)
         except Exception, e:
-            raise BadValueException('Document', obj, 'Exception validating document', cause=e)
+            e_type = type(e).__name__
+            cls_name = cls.__name__
+            raise BadValueException(cls_name, obj, '%s Exception validating document' % e_type, cause=e)
     
     @classmethod
     def unwrap(cls, obj, fields=None, session=None):
@@ -394,18 +423,13 @@ class Document(object):
 
         subclass = cls.get_subclass(obj)
         if subclass and subclass != cls:
-            return subclass.unwrap(obj, fields=fields, session=session)
-
-
-        if session:
-            database = session.db
-            connection = database.connection
-
+            unwrapped = subclass.unwrap(obj, fields=fields, session=session)
+            unwrapped._session = session
+            return unwrapped
         # Get reverse name mapping
         name_reverse = {}
         for name, field in cls.get_fields().iteritems():
             name_reverse[field.db_field] = name
-        
         # Unwrap
         params = {}
         for k, v in obj.iteritems():
@@ -432,8 +456,15 @@ class Document(object):
             params['retrieved_fields'] = fields
         obj = cls(loading_from_db=True, **params)
         obj.__mark_clean()
+        obj._session = session
         return obj
-    
+
+    _session = None
+    def _get_session(self):
+        return self._session
+    def _set_session(self, session):
+        self._session = session
+
     def __mark_clean(self):
         self._dirty.clear()
         
@@ -552,7 +583,7 @@ class DocumentField(Field):
     def unwrap(self, value, fields=None, session=None):
         ''' Validate ``value`` and then use the document's class to unwrap the 
             value'''
-        self.validate_unwrap(value, fields=fields)
+        self.validate_unwrap(value, fields=fields, session=session)
         return self.type.unwrap(value, fields=fields, session=session)
     
     def validate_wrap(self, value):
@@ -560,15 +591,15 @@ class DocumentField(Field):
             if it is, then validation on its fields has already been done and
             no further validation is needed.
         '''
-        if value.__class__ != self.type:
+        if not isinstance(value, self.type):
             self._fail_validation_type(value, self.type)
     
-    def validate_unwrap(self, value, fields=None):
+    def validate_unwrap(self, value, fields=None, session=None):
         ''' Validates every field in the underlying document type.  If ``fields`` 
             is not ``None``, only the fields in ``fields`` will be checked.
         '''
         try:
-            self.type.validate_unwrap(value, fields=fields)
+            self.type.validate_unwrap(value, fields=fields, session=session)
         except BadValueException, bve:
             self._fail_validation(value, 'Bad value for DocumentField field', cause=bve)
 
@@ -671,3 +702,32 @@ class Index(object):
             drop_dups=self.__drop_dups, **extras)
         return self
         
+class Proxy(object):
+    def __init__(self, name):
+        self.name = name
+    def __get__(self, instance, owner):
+        if instance is None:
+            return getattr(owner, self.name)
+        session = instance._get_session()
+        ref = getattr(instance, self.name)
+        if ref is None:
+            return None
+        return session.dereference(ref)
+    def __set__(self, instance, value):
+        assert instance is not None
+        setattr(instance, self.name, value)
+
+class IProxy(object):
+    def __init__(self, name):
+        self.name = name
+    def __get__(self, instance, owner):
+        if instance is None:
+            return getattr(owner, self.name)
+        session = instance._get_session()
+        def iterator():
+            for v in getattr(instance, self.name):
+                if v is None:
+                    yield v
+                    continue
+                yield session.dereference(v)
+        return iterator()

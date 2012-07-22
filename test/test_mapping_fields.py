@@ -49,7 +49,23 @@ def bad_key_dot_unwrap_test():
 def bad_key_dollar_unwrap_test():
     DictField(StringField()).unwrap({'a$b' : 'b'})
 
+def dict_default_test():
+    s = DictField(StringField(), default_empty=True)
+    assert s.default == {}
+
+
 # KVField
+
+def kv_test_autoload():
+    s = KVField(IntField(), RefField(), default_empty=True)
+    assert s.has_autoload
+    # assert s.default == {}
+
+def kv_default_test():
+    s = KVField(StringField(), StringField(), default_empty=True)
+    assert s.default == {}
+    s = KVField(StringField(), StringField(), default={'a':1})
+    assert s.default == {'a':1}
 
 @raises(BadValueException)
 def kv_wrong_type_test_wrap():
@@ -82,6 +98,10 @@ def kv_wrong_key_type_test_unwrap():
 @raises(BadFieldSpecification)
 def kv_bad_key_type_test():
     KVField(int, IntField())
+
+@raises(BadFieldSpecification)
+def kv_bad_key_type_test2():
+    KVField(IntField(), int)
 
 @raises(BadValueException)
 def kv_bad_key_value_none_test():

@@ -374,7 +374,6 @@ class Query(object):
         ''' Refer to:  :func:`~mongoalchemy.update_expression.UpdateExpression.pop_last`'''
         return UpdateExpression(self).pop_last(qfield)
 
-
 class QueryResult(object):
     def __init__(self, session, cursor, type, raw_output=False, fields=None):
         self.cursor = cursor
@@ -388,7 +387,11 @@ class QueryResult(object):
         if not self.raw_output:
             db = self.cursor.collection.database
             conn = db.connection
+            obj = self.session.cache_read(value['_id'])
+            if obj:
+                return obj
             value = self.type.unwrap(value, fields=self.fields, session=self.session)
+            self.session.cache_write(value)
         return value
     
     def __getitem__(self, index):
@@ -396,7 +399,11 @@ class QueryResult(object):
         if not self.raw_output:
             db = self.cursor.collection.database
             conn = db.connection
+            obj = self.session.cache_read(value['_id'])
+            if obj:
+                return obj
             value = self.type.unwrap(value, session=self.session)
+            self.session.cache_write(value)
             # value = self.session.localize(session, value)
         return value
     
