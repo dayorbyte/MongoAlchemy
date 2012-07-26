@@ -147,13 +147,12 @@ class Document(object):
     ''' Use the base class collection name for the subclasses.  Default: False
     '''
 
-
     config_polymorphic_identity = None
     ''' When using a string value with ``config_polymorphic_on`` in a parent 
         class, this is the value that the attribute is compared to when 
         determining 
     '''
-
+    
     config_full_name = None
     ''' If namespaces are being used, the key for a class is normally
         the class name.  In some cases the same class name may be used in 
@@ -251,7 +250,7 @@ class Document(object):
         return sub_value
     def __eq__(self, other):
         try:
-            self.mongo_id == other.mongo_id
+            return self.mongo_id == other.mongo_id
         except:
             return False
 

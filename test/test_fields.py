@@ -192,6 +192,12 @@ def objectid_wrong_type_unwrap_test():
     from bson.objectid import ObjectId
     ObjectIdField().unwrap(1)
 
+def test_object_id_auto():
+    from mongoalchemy.document import Document
+    class A(Document):
+        idf = ObjectIdField(auto=True, required=False)
+    assert 'idf' in A().wrap()
+
 #ObjectID Field
 @raises(BadValueException)
 def objectid_wrong_hex_length_test():

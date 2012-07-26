@@ -355,13 +355,11 @@ class Session(object):
         self.clear()
 
     def dereference(self, ref):
-        print 'DEREF', ref
         if isinstance(ref, Document):
             return ref
         assert hasattr(ref, 'type')
                 
         obj = self.cache_read(ref.id)
-        print 'CACHE READ', obj
         if obj is not None:
             return obj
         value = self.db.dereference(ref)

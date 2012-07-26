@@ -856,9 +856,18 @@ class ObjectIdField(Field):
     
     valid_modifiers = SCALAR_MODIFIERS 
     
-    def __init__(self, session=None, **kwargs):
+    def __init__(self, session=None, auto=False, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
-    
+        self.auto = auto
+
+    def set_default(self, value):
+        self._default = value
+    def get_default(self):
+        if self.auto:
+            self._default = ObjectId()
+        return self._default
+    default = property(get_default, set_default)
+
     def gen(self):
         return ObjectId()
 
