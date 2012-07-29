@@ -2,6 +2,7 @@ from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, DocumentField
 from mongoalchemy.fields import *
+from mongoalchemy.exceptions import *
 from test.util import known_failure
 from pymongo.errors import DuplicateKeyError
 
@@ -49,6 +50,11 @@ def test_tz():
         assert x.created.tzinfo is not None
         assert x.modified.tzinfo is not None
 
+@raises(TransactionException)
+def test_find_and_modify_in_session():
+    s = Session.connect('unit-testing')
+    with s:
+        s.execute_find_and_modify({})
 
 def test_session():
     s = Session.connect('unit-testing')

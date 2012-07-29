@@ -39,3 +39,6 @@ class BadFieldSpecification(Exception):
         field'''
     pass
 
+
+class TransactionException(Exception):
+    pass

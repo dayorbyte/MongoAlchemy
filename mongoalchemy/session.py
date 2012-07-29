@@ -47,8 +47,8 @@ from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import FieldNotRetrieved, Document
 from mongoalchemy.query_expression import FreeFormDoc
+from mongoalchemy.exceptions import TransactionException
 from mongoalchemy.ops import *
-from itertools import chain
 
 class Session(object):
 
@@ -72,9 +72,14 @@ class Session(object):
         self.timezone = timezone
         self.cache_size = cache_size
         self.cache = {}
-        self.autoflush = True
-        self.in_transation = True
-
+        
+        self.transactions = []
+    @property
+    def autoflush(self):
+        return not self.in_transaction
+    @property
+    def in_transaction(self):
+        return len(self.transactions) > 0
     @property
     def tz_aware(self):
         return self.timezone is not None
@@ -138,12 +143,12 @@ class Session(object):
         item._set_session(self)
         if safe is None:
             safe = self.safe
-        self.queue.append(Save(self, item, safe))
+        self.queue.append(SaveOp(self, item, safe))
         # after the save op is recorded, the document has an _id and can be 
         # cached
         self.cache_write(item)
         if self.autoflush:
-            self.flush()
+            return self.flush()
 
     def update(self, item, id_expression=None, upsert=False, update_ops={}, safe=None, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
@@ -171,28 +176,13 @@ class Session(object):
                 This operation is **experimental** and **not fully tested**,
                 although it does have code coverage.  
             '''
-        item._set_session(self)
-        if id_expression:
-            db_key = Query(type(item), self).filter(id_expression).query
-        else:
-            db_key = {'_id' : item.mongo_id}
-
-        dirty_ops = item.get_dirty_ops(with_required=upsert)
-        for key, op in chain(update_ops.items(), kwargs.items()):
-            key = str(key)
-            for current_op, keys in dirty_ops.items():
-                if key not in keys:
-                    continue
-                dirty_ops.setdefault(op,{})[key] = keys[key]
-                del dirty_ops[current_op][key]
-                if len(dirty_ops[current_op]) == 0:
-                    del dirty_ops[current_op]
         if safe is None:
             safe = self.safe
-        self.flush(safe=safe)
-        self.db[item.get_collection_name()].update(db_key, dirty_ops, upsert=upsert, safe=safe)
+        self.queue.append(UpdateDocumentOp(self, item, safe, id_expression=id_expression, 
+                          upsert=upsert, update_ops=update_ops, **kwargs))
+        if self.autoflush:
+            return self.flush()
         
-    
     def query(self, type):
         ''' Begin a query on the database's collection for `type`.  If `type`
             is an instance of basesting, the query will be in raw query mode
@@ -211,7 +201,10 @@ class Session(object):
         obj._set_session(self)
     
     def execute_query(self, query, session):
-        ''' Get the results of ``query``.  This method will flush the queue '''
+        ''' Get the results of ``query``.  This method does flush in a 
+            transaction, so any objects retrieved which are not in the cache
+            which would be updated when the transaction finishes will be 
+            stale '''
         collection = self.db[query.type.get_collection_name()]
         for index in query.type.get_indexes():
             index.ensure(collection)
@@ -250,42 +243,40 @@ class Session(object):
         '''
         if safe is None:
             safe = self.safe
-        remove = RemoveObject(self, obj, safe)
+        remove = RemoveDocumentOp(self, obj, safe)
         self.queue.append(remove)
         if self.autoflush:
-            self.flush()
+            return self.flush()
     
     def execute_remove(self, remove):
         ''' Execute a remove expression.  Should generally only be called implicitly.
         '''
-        self.flush()
+
         safe = self.safe
-        if remove.safe != None:
+        if remove.safe is not None:
             safe = remove.safe
         
-        collection = self.db[remove.type.get_collection_name()]
-        for index in remove.type.get_indexes():
-            index.ensure(collection)
-
-        return self.db[remove.type.get_collection_name()].remove(remove.query, safe=safe)
+        self.queue.append(RemoveOp(self, remove.type, safe, remove))
+        if self.autoflush:
+            return self.flush()
     
     def execute_update(self, update, safe=False):
         ''' Execute an update expression.  Should generally only be called implicitly.
         '''
         
-        self.flush()
+        # safe = self.safe
+        # if update.safe is not None:
+        #     safe = remove.safe
+
         assert len(update.update_data) > 0
-        collection = self.db[update.query.type.get_collection_name()]
-        for index in update.query.type.get_indexes():
-            index.ensure(collection)
-        kwargs = dict(
-            upsert=update.get_upsert(), 
-            multi=update.get_multi(),
-            safe=safe,
-        )
-        collection.update(update.query.query, update.update_data, **kwargs)
+        self.queue.append(UpdateOp(self, update.query.type, safe, update))
+        if self.autoflush:
+            return self.flush()
+
     
     def execute_find_and_modify(self, fm_exp):
+        if self.in_transaction:
+            raise TransactionException('Cannot find and modify in a transaction.')
         self.flush()
         # assert len(fm_exp.update_data) > 0
         collection = self.db[fm_exp.query.type.get_collection_name()]
@@ -345,18 +336,22 @@ class Session(object):
         ''' Clear all objects from the collections associated with the 
             objects in `*cls`. **use with caution!**'''
         for c in classes:
-            self.db[c.get_collection_name()].remove()
+            self.queue.append(ClearCollectionOp(self, c))
+        if self.autoflush:
+            self.flush()
     
     def flush(self, safe=None):
         ''' Perform all database operations currently in the queue'''
+        result = None
         for index, op in enumerate(self.queue):
             try:
-                op.execute()
+                result = op.execute()
             except:
                 self.cache = {}
                 self.clear()
                 raise
         self.clear()
+        return result
 
     def dereference(self, ref):
         if isinstance(ref, Document):
@@ -393,11 +388,11 @@ class Session(object):
         return type(document).unwrap(wrapped, session=self)
         
     def __enter__(self):
-        self.in_transation = True
+        self.transactions.append(None)
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.in_transation = False
+        self.transactions.pop()
         self.flush()
         self.end()
         return False

@@ -1,3 +1,4 @@
+from itertools import chain
 from bson.objectid import ObjectId
 from abc import ABCMeta, abstractmethod
 
@@ -8,13 +9,66 @@ class Operation(object):
 
     def update_cache(self): pass
 
+    @property
+    def collection(self):
+        return self.session.db[self.type.get_collection_name()]
+
     def ensure_indexes(self):
         c = self.collection
         for index in self.type.get_indexes():
             index.ensure(c)
 
+class ClearCollectionOp(Operation):
+    def __init__(self, session, kind):
+        self.session = session
+        self.type = kind
+    def execute(self):
+        self.collection.remove()
 
-class Save(Operation):
+class UpdateDocumentOp(Operation):
+    def __init__(self, session, document, safe, id_expression=None, upsert=False, update_ops={}, **kwargs):
+        from mongoalchemy.query import Query
+        self.session = session
+        self.type = type(document)
+        self.safe = safe
+        self.upsert = upsert
+
+        if id_expression:
+            self.db_key = Query(self.type, session).filter(id_expression).query
+        else:
+            self.db_key = {'_id' : document.mongo_id}
+
+        self.dirty_ops = document.get_dirty_ops(with_required=upsert)
+        for key, op in chain(update_ops.items(), kwargs.items()):
+            key = str(key)
+            for current_op, keys in self.dirty_ops.items():
+                if key not in keys:
+                    continue
+                self.dirty_ops.setdefault(op,{})[key] = keys[key]
+                del self.dirty_ops[current_op][key]
+                if len(self.dirty_ops[current_op]) == 0:
+                    del self.dirty_ops[current_op]
+
+    def execute(self):
+        self.ensure_indexes()
+        return self.collection.update(self.db_key, self.dirty_ops, upsert=self.upsert, safe=self.safe)
+
+class UpdateOp(Operation):
+    def __init__(self, session, kind, safe, update_obj):
+        self.session = session
+        self.type = kind
+        self.safe = safe
+        self.query = update_obj.query.query
+        self.update_data = update_obj.update_data
+        self.upsert = update_obj.get_upsert()
+        self.multi = update_obj.get_multi()
+        
+    def execute(self):
+        return self.collection.update(self.query, self.update_data, multi=self.multi, 
+                               upsert=self.upsert, safe=self.safe)
+
+
+class SaveOp(Operation):
     def __init__(self, session, document, safe):
         self.session = session
         self.data = document.wrap()
@@ -24,15 +78,24 @@ class Save(Operation):
         if '_id' not in self.data:
             self.data['_id'] = ObjectId()
             document.mongo_id = self.data['_id']
-    @property
-    def collection(self):
-        return self.session.db[self.type.get_collection_name()]
 
     def execute(self):
         self.ensure_indexes()
-        self.collection.save(self.data, safe=self.safe)
+        return self.collection.save(self.data, safe=self.safe)
+
+class RemoveOp(Operation):
+    def __init__(self, session, kind, safe, query):
+        self.session = session
+        self.query = query.query
+        self.safe = safe
+        self.type = kind
+
+    def execute(self):
+        self.ensure_indexes()
+        return self.collection.remove(self.query, safe=self.safe)
+
         
-class RemoveObject(Operation):
+class RemoveDocumentOp(Operation):
     def __init__(self, session, obj, safe):
         self.session = session
         self.type = type(obj)
@@ -40,9 +103,6 @@ class RemoveObject(Operation):
         self.id = None
         if obj.has_id():
             self.id = obj.mongo_id
-    @property
-    def collection(self):
-        return self.session.db[self.type.get_collection_name()]
 
     def execute(self):
         if self.id is None:
@@ -51,5 +111,5 @@ class RemoveObject(Operation):
         self.ensure_indexes()
 
         collection = db[self.type.get_collection_name()]
-        collection.remove(self.id, safe=self.safe)
+        return collection.remove(self.id, safe=self.safe)
 
