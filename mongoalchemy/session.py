@@ -47,6 +47,7 @@ from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import FieldNotRetrieved, Document
 from mongoalchemy.query_expression import FreeFormDoc
+from mongoalchemy.ops import *
 from itertools import chain
 
 class Session(object):
@@ -71,6 +72,12 @@ class Session(object):
         self.timezone = timezone
         self.cache_size = cache_size
         self.cache = {}
+        self.autoflush = True
+        self.in_transation = True
+
+    @property
+    def tz_aware(self):
+        return self.timezone is not None
     
     @classmethod
     def connect(self, database, timezone=None, cache_size=0, *args, **kwds):
@@ -103,9 +110,6 @@ class Session(object):
                 break
             del self.cache[key]
         assert isinstance(obj.mongo_id, ObjectId), 'Currently, cached objects must use mongo_id as an ObjectId'
-        # if not isinstance(obj.mongo_id, ObjectId):
-        #     self.cache[ObjectId(obj.mongo_id)] = obj
-        # else:
         self.cache[obj.mongo_id] = obj
 
     def cache_read(self, id):
@@ -126,14 +130,21 @@ class Session(object):
         self.db.connection.end_request()
     
     def insert(self, item, safe=None):
-        ''' Insert an item into the queue and flushes.  Later this function should be smart and delay 
-            insertion until the _id field is actually accessed'''
+        ''' Insert an item into the work queue and flushes.'''
+        self.add(item, safe=safe)
+    
+    def add(self, item, safe=None):
+        ''' Add an item into the queue of things to be inserted.  Does not flush.'''
         item._set_session(self)
         if safe is None:
             safe = self.safe
-        self.queue.append(item)
-        self.flush(safe=safe)
-    
+        self.queue.append(Save(self, item, safe))
+        # after the save op is recorded, the document has an _id and can be 
+        # cached
+        self.cache_write(item)
+        if self.autoflush:
+            self.flush()
+
     def update(self, item, id_expression=None, upsert=False, update_ops={}, safe=None, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
             field to decide which operations to do, or.  
@@ -237,16 +248,12 @@ class Session(object):
             :param safe: whether to wait for the operation to complete.  Defaults \
                 to the session's ``safe`` value.
         '''
-        obj._set_session(self)
-        self.flush()
         if safe is None:
             safe = self.safe
-        if not obj.has_id():
-            return None
-        collection = self.db[obj.get_collection_name()]
-        for index in obj.get_indexes():
-            index.ensure(collection)
-        return self.db[obj.get_collection_name()].remove(obj.mongo_id, safe=safe)
+        remove = RemoveObject(self, obj, safe)
+        self.queue.append(remove)
+        if self.autoflush:
+            self.flush()
     
     def execute_remove(self, remove):
         ''' Execute a remove expression.  Should generally only be called implicitly.
@@ -342,12 +349,9 @@ class Session(object):
     
     def flush(self, safe=None):
         ''' Perform all database operations currently in the queue'''
-        if safe is None:
-            safe = self.safe
-        for index, item in enumerate(self.queue):
+        for index, op in enumerate(self.queue):
             try:
-                item.commit(self.db, safe=safe)
-                self.cache_write(item)
+                op.execute()
             except:
                 self.cache = {}
                 self.clear()
@@ -389,8 +393,11 @@ class Session(object):
         return type(document).unwrap(wrapped, session=self)
         
     def __enter__(self):
+        self.in_transation = True
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.in_transation = False
+        self.flush()
         self.end()
         return False

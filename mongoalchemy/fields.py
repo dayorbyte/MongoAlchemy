@@ -474,7 +474,12 @@ class DateTimeField(PrimitiveField):
         return value
     def unwrap(self, value, session=None):
         self.validate_unwrap(value)
-        return self.constructor(value)
+        value = self.constructor(value)
+        if value.tzinfo is not None:
+            import pytz
+            value = value.replace(tzinfo=pytz.utc)
+        return value
+
     def localize(self, session, value):
         if not self.use_tz:
             return value
@@ -1401,16 +1406,22 @@ class computed_field(object):
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
 
-def CreatedField(name='created'):
+def CreatedField(name='created', tz_aware=False):
     @computed_field(DateTimeField(), one_time=True)
     def created(obj):
+        if tz_aware:
+            import pytz
+            return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
     created.__name__ = name
     return created
 
-def ModifiedField(name='modified'):
+def ModifiedField(name='modified', tz_aware=False):
     @computed_field(DateTimeField())
     def modified(obj):
+        if tz_aware:
+            import pytz
+            return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
     modified.__name__ = name
     return modified

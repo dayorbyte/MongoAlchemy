@@ -26,6 +26,29 @@ class TExtraDocFieldList(Document):
 class TIntListDoc(Document):
     intlist = ListField(IntField())
 
+def test_tz():
+    import pytz
+    from datetime import datetime
+    class DT(Document):
+        dt = DateTimeField()
+        created = CreatedField(tz_aware=True)
+        modified = ModifiedField(tz_aware=True)
+        created1 = CreatedField(tz_aware=False)
+        modified1 = ModifiedField(tz_aware=False)
+    
+    session = Session.connect('unit-testing', timezone=pytz.utc)
+    assert session.tz_aware
+    session.clear_collection(DT)
+    d = DT(dt=pytz.utc.localize(datetime(2012, 1, 1)))
+    assert d.created1.tzinfo is None
+    assert d.modified1.tzinfo is None
+
+    session.insert(d)
+    for x in session.query(DT):
+        assert x.dt.tzinfo is not None
+        assert x.created.tzinfo is not None
+        assert x.modified.tzinfo is not None
+
 
 def test_session():
     s = Session.connect('unit-testing')

@@ -363,18 +363,6 @@ class Document(object):
             return False
         return True 
     
-    def commit(self, db, safe=True):
-        ''' Save this object to the database and set the ``_id`` field of this
-            document to the returned id.
-            
-            :param db: The pymongo database to write to
-        '''
-        collection = db[self.get_collection_name()]
-        for index in self.get_indexes():
-            index.ensure(collection)
-        id = collection.save(self.wrap(), safe=safe)
-        self.mongo_id = id
-        
     def wrap(self):
         ''' Returns a transformation of this document into a form suitable to 
             be saved into a mongo database.  This is done by using the ``wrap()``
