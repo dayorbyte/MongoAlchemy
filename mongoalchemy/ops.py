@@ -19,16 +19,20 @@ class Operation(object):
             index.ensure(c)
 
 class ClearCollectionOp(Operation):
-    def __init__(self, session, kind):
+    def __init__(self, trans_id, session, kind):
+        self.trans_id = trans_id
         self.session = session
         self.type = kind
     def execute(self):
+        print 'CLEAROP', self.collection
         self.collection.remove()
+        print 'CLEAROP', self.collection.count()
 
 class UpdateDocumentOp(Operation):
-    def __init__(self, session, document, safe, id_expression=None, upsert=False, update_ops={}, **kwargs):
+    def __init__(self, trans_id, session, document, safe, id_expression=None, upsert=False, update_ops={}, **kwargs):
         from mongoalchemy.query import Query
         self.session = session
+        self.trans_id = trans_id
         self.type = type(document)
         self.safe = safe
         self.upsert = upsert
@@ -54,8 +58,9 @@ class UpdateDocumentOp(Operation):
         return self.collection.update(self.db_key, self.dirty_ops, upsert=self.upsert, safe=self.safe)
 
 class UpdateOp(Operation):
-    def __init__(self, session, kind, safe, update_obj):
+    def __init__(self, trans_id, session, kind, safe, update_obj):
         self.session = session
+        self.trans_id = trans_id
         self.type = kind
         self.safe = safe
         self.query = update_obj.query.query
@@ -69,8 +74,9 @@ class UpdateOp(Operation):
 
 
 class SaveOp(Operation):
-    def __init__(self, session, document, safe):
+    def __init__(self, trans_id, session, document, safe):
         self.session = session
+        self.trans_id = trans_id
         self.data = document.wrap()
         self.type = type(document)
         self.safe = safe
@@ -84,8 +90,9 @@ class SaveOp(Operation):
         return self.collection.save(self.data, safe=self.safe)
 
 class RemoveOp(Operation):
-    def __init__(self, session, kind, safe, query):
+    def __init__(self, trans_id, session, kind, safe, query):
         self.session = session
+        self.trans_id = trans_id
         self.query = query.query
         self.safe = safe
         self.type = kind
@@ -96,7 +103,8 @@ class RemoveOp(Operation):
 
         
 class RemoveDocumentOp(Operation):
-    def __init__(self, session, obj, safe):
+    def __init__(self, trans_id, session, obj, safe):
+        self.trans_id = trans_id
         self.session = session
         self.type = type(obj)
         self.safe = safe

@@ -60,7 +60,7 @@ def test_session():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
     s.insert(T(i=1))
-    s.clear()
+    s.clear_queue()
     s.end()
 
 def test_context_manager():
@@ -137,6 +137,61 @@ def test_cache_miss():
     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
     # assert id(t) == id(t2)
 
+def test_transactions():
+    class Doc(Document):
+        i = IntField()
+    s = Session.connect('unit-testing')
+    s.clear_collection(Doc)
+    assert s.query(Doc).count() == 0
+    with s:
+        assert s.query(Doc).count() == 0
+        s.add(Doc(i=4))
+        assert s.query(Doc).count() == 0
+        with s:
+            assert s.query(Doc).count() == 0
+            s.add(Doc(i=2))
+            assert s.query(Doc).count() == 0
+        assert s.query(Doc).count() == 0, s.query(Doc).count()
+    assert s.query(Doc).count() == 2
+
+def test_transactions2():
+    class Doc(Document):
+        i = IntField()
+    s = Session.connect('unit-testing')
+    s.clear_collection(Doc)
+    assert s.query(Doc).count() == 0
+    try:
+        with s:
+            assert s.query(Doc).count() == 0
+            s.add(Doc(i=4))
+            assert s.query(Doc).count() == 0
+            with s:
+                assert s.query(Doc).count() == 0
+                s.add(Doc(i=2))
+                assert s.query(Doc).count() == 0
+                raise Exception()
+            assert s.query(Doc).count() == 0, s.query(Doc).count()
+    except:
+        assert s.query(Doc).count() == 0, s.query(Doc).count()
+
+def test_transactions3():
+    class Doc(Document):
+        i = IntField()
+    s = Session.connect('unit-testing')
+    s.clear_collection(Doc)
+    assert s.query(Doc).count() == 0
+    with s:
+        s.add(Doc(i=4))
+        try:
+
+            with s:
+                s.add(Doc(i=2))
+                print 'RAISE'
+                raise Exception()
+        except:
+            print 'CAUGHT'
+            assert s.query(Doc).count() == 0, s.query(Doc).count()
+    assert s.query(Doc).count() == 1, s.query(Doc).count()
 
 
 def test_cache_max():

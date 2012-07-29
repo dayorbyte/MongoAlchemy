@@ -41,7 +41,7 @@
     anything intelligent for ordering.
 '''
 
-
+from uuid import uuid4
 from pymongo.connection import Connection
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
@@ -72,7 +72,6 @@ class Session(object):
         self.timezone = timezone
         self.cache_size = cache_size
         self.cache = {}
-        
         self.transactions = []
     @property
     def autoflush(self):
@@ -131,7 +130,8 @@ class Session(object):
         ''' End the session.  Flush all pending operations and ending the 
             *pymongo* request'''
         self.cache = {}
-        self.flush()
+        if not self.transactions:
+            self.flush()
         self.db.connection.end_request()
     
     def insert(self, item, safe=None):
@@ -143,7 +143,7 @@ class Session(object):
         item._set_session(self)
         if safe is None:
             safe = self.safe
-        self.queue.append(SaveOp(self, item, safe))
+        self.queue.append(SaveOp(self.transaction_id, self, item, safe))
         # after the save op is recorded, the document has an _id and can be 
         # cached
         self.cache_write(item)
@@ -178,7 +178,7 @@ class Session(object):
             '''
         if safe is None:
             safe = self.safe
-        self.queue.append(UpdateDocumentOp(self, item, safe, id_expression=id_expression, 
+        self.queue.append(UpdateDocumentOp(self.transaction_id, self, item, safe, id_expression=id_expression, 
                           upsert=upsert, update_ops=update_ops, **kwargs))
         if self.autoflush:
             return self.flush()
@@ -243,7 +243,7 @@ class Session(object):
         '''
         if safe is None:
             safe = self.safe
-        remove = RemoveDocumentOp(self, obj, safe)
+        remove = RemoveDocumentOp(self.transaction_id, self, obj, safe)
         self.queue.append(remove)
         if self.autoflush:
             return self.flush()
@@ -256,7 +256,7 @@ class Session(object):
         if remove.safe is not None:
             safe = remove.safe
         
-        self.queue.append(RemoveOp(self, remove.type, safe, remove))
+        self.queue.append(RemoveOp(self.transaction_id, self, remove.type, safe, remove))
         if self.autoflush:
             return self.flush()
     
@@ -269,7 +269,7 @@ class Session(object):
         #     safe = remove.safe
 
         assert len(update.update_data) > 0
-        self.queue.append(UpdateOp(self, update.query.type, safe, update))
+        self.queue.append(UpdateOp(self.transaction_id, self, update.query.type, safe, update))
         if self.autoflush:
             return self.flush()
 
@@ -320,23 +320,42 @@ class Session(object):
             self.cache_write(obj)
         return obj
 
-    
+    @property
+    def transaction_id(self):
+        if not self.transactions:
+            return None
+        return self.transactions[-1]
+
     def get_indexes(self, cls):
         ''' Get the index information for the collection associated with 
         `cls`.  Index information is returned in the same format as *pymongo*.
         '''
         return self.db[cls.get_collection_name()].index_information()
     
-    def clear(self):
+    def clear_queue(self, trans_id=None):
         ''' Clear the queue of database operations without executing any of 
              the pending operations'''
-        self.queue = []
+        if not self.queue:
+            return
+        if trans_id is None:
+            self.queue = []
+            return
+        
+        for index, op in enumerate(self.queue):
+            if op.trans_id == trans_id:
+                break
+        print 'GOT INDEX', index
+        self.queue = self.queue[:index]
+        print '\t', self.queue
+
+    def clear_cache(self):
+        self.cache = {}
         
     def clear_collection(self, *classes):
         ''' Clear all objects from the collections associated with the 
             objects in `*cls`. **use with caution!**'''
         for c in classes:
-            self.queue.append(ClearCollectionOp(self, c))
+            self.queue.append(ClearCollectionOp(self.transaction_id, self, c))
         if self.autoflush:
             self.flush()
     
@@ -347,10 +366,10 @@ class Session(object):
             try:
                 result = op.execute()
             except:
-                self.cache = {}
-                self.clear()
+                self.clear_queue()
+                self.clear_cache()
                 raise
-        self.clear()
+        self.clear_queue()
         return result
 
     def dereference(self, ref):
@@ -386,13 +405,29 @@ class Session(object):
         if '_id' in wrapped:
             del wrapped['_id']
         return type(document).unwrap(wrapped, session=self)
-        
+    
     def __enter__(self):
-        self.transactions.append(None)
+        self.transactions.append(uuid4())
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.transactions.pop()
-        self.flush()
-        self.end()
+        # Pop this level of transaction from the stack
+        id = self.transactions.pop()
+
+        # If exception, set us as being in an error state
+        if exc_type:
+            self.clear_queue(trans_id=id)
+
+        # If we aren't at the top level, return
+        if self.transactions:
+            return False
+
+        if not exc_type:
+            self.flush()
+            self.end()
+        else:
+            self.clear_queue()
+            self.clear_cache()
         return False
+
+
