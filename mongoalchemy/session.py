@@ -406,11 +406,17 @@ class Session(object):
             del wrapped['_id']
         return type(document).unwrap(wrapped, session=self)
     
-    def __enter__(self):
+    def begin_trans(self):
         self.transactions.append(uuid4())
         return self
-    
+
+    def __enter__(self):
+        return self.begin_trans()
+
     def __exit__(self, exc_type, exc_val, exc_tb):
+        return self.end_trans(exc_type, exc_val, exc_tb)
+
+    def end_trans(self, exc_type=None, exc_val=None, exc_tb=None):
         # Pop this level of transaction from the stack
         id = self.transactions.pop()
 
