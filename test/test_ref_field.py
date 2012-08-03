@@ -62,6 +62,31 @@ def test_proxy():
     a_set = A()
     a_set.x = b
 
+def test_proxy_ignore_missing():
+    class B(Document):
+        b = IntField(default=3)
+    class A(Document):
+        x_ids = ListField(RefField(B), iproxy='xs', default_empty=True, 
+                          ignore_missing=True)
+        x_id = RefField(B, proxy='x')
+    
+    s = get_session()
+    a = A()
+    for i in range(0, 3):
+        b = B(b=i)
+        b.mongo_id = ObjectId()
+        if i > 0:
+            s.insert(b)
+
+        a.x_id = b
+        a.x_ids.append(b)
+
+    s.insert(a)
+    aa = s.query(A).one()
+    
+    assert len(list(aa.xs)) == 2, len(list(aa.xs))
+
+
 def test_reffield():
     class A(Document):
         x = IntField()

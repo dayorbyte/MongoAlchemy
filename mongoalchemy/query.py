@@ -391,7 +391,8 @@ class QueryResult(object):
             if obj:
                 return obj
             value = self.type.unwrap(value, fields=self.fields, session=self.session)
-            self.session.cache_write(value)
+            if not isinstance(value, dict):
+                self.session.cache_write(value)
         return value
     
     def __getitem__(self, index):

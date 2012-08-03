@@ -52,7 +52,7 @@ from mongoalchemy.ops import *
 
 class Session(object):
 
-    def __init__(self, database, timezone=None, safe=False, cache_size=0):
+    def __init__(self, database, tz_aware=False, timezone=None, safe=False, cache_size=0):
         '''
         Create a session connecting to `database`.  
         
@@ -65,11 +65,18 @@ class Session(object):
             * db: the underlying pymongo database object
             * queue: the queue of unflushed database commands (currently useless \
                 since there aren't any operations which defer flushing)
+            * cache_size: The size of the identity map to keep.  When objects \
+                            are pulled from the DB they are checked against this \
+                            map and if present, the existing object is used.  \
+                            Defaults to 0, use None to only clear at session end.
+
         '''
         self.db = database
         self.queue = []
         self.safe = safe
         self.timezone = timezone
+        self.tz_aware = bool(tz_aware or timezone)
+
         self.cache_size = cache_size
         self.cache = {}
         self.transactions = []
@@ -79,9 +86,6 @@ class Session(object):
     @property
     def in_transaction(self):
         return len(self.transactions) > 0
-    @property
-    def tz_aware(self):
-        return self.timezone is not None
     
     @classmethod
     def connect(self, database, timezone=None, cache_size=0, *args, **kwds):
@@ -104,17 +108,20 @@ class Session(object):
         db = conn[database]
         return Session(db, timezone=timezone, safe=safe, cache_size=cache_size)
     
-    def cache_write(self, obj):
+    def cache_write(self, obj, mongo_id=None):
+        if mongo_id is None:
+            mongo_id = obj.mongo_id
+
         if self.cache_size == 0:
             return
-        if obj.mongo_id in self.cache:
+        if mongo_id in self.cache:
             return
-        if len(self.cache) >= self.cache_size:
+        if self.cache_size is not None and len(self.cache) >= self.cache_size:
             for key in self.cache:
                 break
             del self.cache[key]
-        assert isinstance(obj.mongo_id, ObjectId), 'Currently, cached objects must use mongo_id as an ObjectId'
-        self.cache[obj.mongo_id] = obj
+        assert isinstance(mongo_id, ObjectId), 'Currently, cached objects must use mongo_id as an ObjectId.  Got: %s' % type(mongo_id)
+        self.cache[mongo_id] = obj
 
     def cache_read(self, id):
         if self.cache_size == 0:
@@ -372,7 +379,7 @@ class Session(object):
         self.clear_queue()
         return result
 
-    def dereference(self, ref):
+    def dereference(self, ref, allow_none=False):
         if isinstance(ref, Document):
             return ref
         assert hasattr(ref, 'type')
@@ -381,8 +388,12 @@ class Session(object):
         if obj is not None:
             return obj
         value = self.db.dereference(ref)
-        obj = ref.type.unwrap(value, session=self)
-        self.cache_write(obj)
+        if value is None and allow_none:
+            obj = None
+            self.cache_write(obj, mongo_id=ref.id)
+        else:
+            obj = ref.type.unwrap(value, session=self)
+            self.cache_write(obj)
         return obj
 
     def refresh(self, document):

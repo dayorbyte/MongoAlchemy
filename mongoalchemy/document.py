@@ -99,7 +99,7 @@ class DocumentMeta(type):
             if field.proxy is not None:
                 setattr(new_class, field.proxy, Proxy(name))
             if field.iproxy is not None:
-                setattr(new_class, field.iproxy, IProxy(name))
+                setattr(new_class, field.iproxy, IProxy(name, field.ignore_missing))
         
         # 4.  Add subclasses
 
@@ -705,8 +705,9 @@ class Proxy(object):
         setattr(instance, self.name, value)
 
 class IProxy(object):
-    def __init__(self, name):
+    def __init__(self, name, ignore_missing):
         self.name = name
+        self.ignore_missing = ignore_missing
     def __get__(self, instance, owner):
         if instance is None:
             return getattr(owner, self.name)
@@ -716,5 +717,8 @@ class IProxy(object):
                 if v is None:
                     yield v
                     continue
-                yield session.dereference(v)
+                value = session.dereference(v, allow_none=self.ignore_missing)
+                if value is None and self.ignore_missing:
+                    continue
+                yield value
         return iterator()

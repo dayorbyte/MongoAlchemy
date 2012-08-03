@@ -138,7 +138,7 @@ class Field(object):
 
     def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
             validator=None, unwrap_validator=None, wrap_validator=None, _id=False,
-            proxy=None, iproxy=None):
+            proxy=None, iproxy=None, ignore_missing=False):
         '''
             :param required: The field must be passed when constructing a document (optional. default: ``True``)
             :param default:  Default value to use if one is not given (optional.)
@@ -170,6 +170,7 @@ class Field(object):
         
         self.proxy = proxy
         self.iproxy = iproxy
+        self.ignore_missing = ignore_missing
 
         self.validator = validator
         self.unwrap_validator = unwrap_validator
@@ -448,6 +449,9 @@ class FloatField(NumberField):
 
 class DateTimeField(PrimitiveField):
     ''' Field for datetime objects. '''
+    
+    has_autoload = True
+
     def __init__(self, min_date=None, max_date=None, use_tz=False, **kwargs):
         ''' :param max_date: maximum date
             :param min_date: minimum date
@@ -478,6 +482,8 @@ class DateTimeField(PrimitiveField):
         if value.tzinfo is not None:
             import pytz
             value = value.replace(tzinfo=pytz.utc)
+            if session and session.timezone:
+                value = value.astimezone(session.timezone)
         return value
 
     def localize(self, session, value):
