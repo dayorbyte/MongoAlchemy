@@ -382,20 +382,7 @@ class Document(object):
                 if field.required:
                     raise MissingValueException(name)
         return res
-    
-    @classmethod
-    def validate_unwrap(cls, obj, fields=None, session=None):
-        ''' Attempts to unwrap the document, and raises a BadValueException if
-            the operation fails. A TODO is to make this function do the checks
-            without actually doing the (potentially expensive) 
-            deserialization'''
-        try:
-            cls.unwrap(obj, fields=fields, session=session)
-        except Exception, e:
-            e_type = type(e).__name__
-            cls_name = cls.__name__
-            raise BadValueException(cls_name, obj, '%s Exception validating document' % e_type, cause=e)
-    
+        
     @classmethod
     def unwrap(cls, obj, fields=None, session=None):
         ''' Returns an instance of this document class based on the mongo object 
@@ -547,18 +534,14 @@ class DocumentField(Field):
         return self.type
     
     def is_valid_unwrap(self, value, fields=None):
-        ''' Called before wrapping.  Calls :func:`~DocumentField.is_valid_unwrap` and 
-            raises a :class:`BadValueException` if validation fails            
+        ''' Always True.  Document-level validation errors will 
+            be handled during unwrappingself.
             
             :param value: The value to validate
             :param fields: The fields being returned if this is a partial \
                 document. They will be ignored when validating the fields \
                 of ``value``
         '''
-        try:
-            self.validate_unwrap(value, fields=fields)
-        except BadValueException, bve:
-            return False
         return True
     
     def wrap(self, value):
@@ -585,10 +568,7 @@ class DocumentField(Field):
         ''' Validates every field in the underlying document type.  If ``fields`` 
             is not ``None``, only the fields in ``fields`` will be checked.
         '''
-        try:
-            self.type.validate_unwrap(value, fields=fields, session=session)
-        except BadValueException, bve:
-            self._fail_validation(value, 'Bad value for DocumentField field', cause=bve)
+        return
 
 class BadIndexException(Exception):
     pass
