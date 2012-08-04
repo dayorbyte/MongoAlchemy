@@ -88,7 +88,7 @@ class DocumentMeta(type):
             new_class._fields[name] = maybefield
         
         # 3. register type
-        if new_class.config_namespace != None:
+        if new_class.config_namespace is not None:
             name = new_class.config_full_name
             if name == None:
                 name = new_class.__name__

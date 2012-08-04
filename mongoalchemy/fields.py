@@ -249,7 +249,7 @@ class Field(object):
             the value is the name which this field was assigned to on the owning
             document.
         '''
-        if self.__db_field != None:
+        if self.__db_field is not None:
             return self.__db_field
         return self._name
     
@@ -375,9 +375,9 @@ class StringField(PrimitiveField):
         ''' Validates the type and length of ``value`` '''
         if not isinstance(value, basestring):
             self._fail_validation_type(value, basestring)
-        if self.max != None and len(value) > self.max:
+        if self.max is not None and len(value) > self.max:
             self._fail_validation(value, 'Value too long (%d)' % len(value))
-        if self.min != None and len(value) < self.min:
+        if self.min is not None and len(value) < self.min:
             self._fail_validation(value, 'Value too short (%d)' % len(value))
 
 class BinaryField(PrimitiveField):
@@ -418,9 +418,9 @@ class NumberField(PrimitiveField):
         else:
             self._fail_validation_type(value, *types)
 
-        if self.min != None and value < self.min:
+        if self.min is not None and value < self.min:
             self._fail_validation(value, 'Value too small')
-        if self.max != None and value > self.max:
+        if self.max is not None and value > self.max:
             self._fail_validation(value, 'Value too large')
 
 class IntField(NumberField):
@@ -506,9 +506,9 @@ class DateTimeField(PrimitiveField):
             return
 
         # min/max
-        if self.min != None and value < self.min:
+        if self.min is not None and value < self.min:
             self._fail_validation(value, 'DateTime too old')
-        if self.max != None and value > self.max:
+        if self.max is not None and value > self.max:
             self._fail_validation(value, 'DateTime too new')
 
 class TupleField(Field):
@@ -714,9 +714,9 @@ class SequenceField(Field):
             self.item_type.validate_unwrap(value)
     
     def _length_valid(self, value):
-        if self.min != None and len(value) < self.min: 
+        if self.min is not None and len(value) < self.min: 
             self._fail_validation(value, 'Value has too few elements')
-        if self.max != None and len(value) > self.max: 
+        if self.max is not None and len(value) > self.max: 
             self._fail_validation(value, 'Value has too many elements')
     
     def validate_wrap(self, value):
