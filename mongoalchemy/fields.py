@@ -195,7 +195,7 @@ class Field(object):
             return QueryField(self)
         if self._name in instance._field_values:
             return instance._field_values[self._name]
-        if self.default != UNSET:
+        if self.default is not UNSET:
             self.set_value(instance, self.default)
             return instance._field_values[self._name]
         if instance.partial and self.db_field not in instance.retrieved_fields:
@@ -214,6 +214,7 @@ class Field(object):
         instance._dirty[self._name] = '$unset'
     
     def set_value(self, instance, value, from_db=False):
+        self.validate_wrap(value)
         instance._field_values[self._name] = value
         if self.on_update != 'ignore':
             instance._dirty[self._name] = self.on_update
@@ -1277,11 +1278,8 @@ class RefField(Field):
         if isinstance(value, DBRef):
             self.validate_reference(value)
             return True
-        try:
-            self.type.validate_unwrap(value)
-        except BadValueException, bve:
-            print 'ERROR'
-            self._fail_validation(value, 'RefField invalid', cause=bve)
+        if not isinstance(value, self.type.type):
+            self._fail_validation(value, 'RefField invalid')
 
 
 

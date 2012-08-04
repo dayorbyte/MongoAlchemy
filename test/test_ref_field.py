@@ -39,8 +39,8 @@ def test_proxy():
     class B(Document):
         b = IntField(default=3)
     class A(Document):
-        x_ids = ListField(RefField(B), iproxy='xs', default_empty=True)
-        x_id = RefField(B, proxy='x')
+        x_ids = ListField(RefField(B, allow_none=True), iproxy='xs', default_empty=True, allow_none=True)
+        x_id = RefField(B, proxy='x', allow_none=True)
     
     s = get_session()
     a = A()
@@ -56,6 +56,7 @@ def test_proxy():
     assert [z.b for z in aa.xs] == range(0, 3)
 
     a_none = A(x_id=None, x_ids=[None])
+    a_none._set_session(s)
     assert a_none.x == None
     assert list(a_none.xs) == [None]
 
@@ -249,13 +250,7 @@ def test_unwrap_bad_type():
 def test_unwrap_bad_type_extra():
     class A(Document):
         x = IntField()
-    class AA(Document):
-        x = IntField()
-    class B(Document):
-        y = RefField(DocumentField(A))
-    class C(Document):
-        y = RefField(DocumentField(A), autoload=True)
-
+    
     s = get_session()
     
     a = A(x=5)
@@ -264,7 +259,7 @@ def test_unwrap_bad_type_extra():
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
 
-    ret = RefField(DocumentField(A)).validate_unwrap(5)
+    ret = RefField(A).validate_unwrap(5)
 
 def test_simple():
     class A(Document):

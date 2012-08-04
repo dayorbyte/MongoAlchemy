@@ -1,1 +1,1 @@
-nosetests --cover-erase --with-coverage --cover-package mongoalchemy
+nosetests --cover-tests --cover-erase --with-coverage --cover-package mongoalchemy

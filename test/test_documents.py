@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField, MissingValueException, DocumentException, DictDoc, document_type_registry
+from mongoalchemy.document import *
 from mongoalchemy.fields import *
 from test.util import known_failure
 
@@ -236,6 +236,8 @@ def test_doc_field():
     wrapped = doca.wrap()
     unwrapped = DocA.unwrap(wrapped)
     assert unwrapped == doca
+    assert DocA.test_doc.is_valid_unwrap(wrapped)
+
 
 @raises(BadValueException)
 def wrong_wrap_type_test():
@@ -250,13 +252,13 @@ def wrong_wrap_type_test2():
     doca = DocA(test_doc2=doc2)
     doca.wrap()
 
-def is_valid_unwrap_test_true():
-    assert DocA.test_doc.is_valid_unwrap({ 'int1' : 1 }) == True
+# def is_valid_unwrap_test_true():
+#     assert DocA.test_doc.is_valid_unwrap({ 'int1' : 1 }) == True
 
-def is_valid_unwrap_test_false():
-    assert DocA.test_doc2.is_valid_unwrap({ 'int1' : 1 }) == False
+# def is_valid_unwrap_test_false():
+#     assert DocA.test_doc2.is_valid_unwrap({ 'int1' : 1 }) == False
 
-@raises(BadValueException) 
+@raises(ExtraValueException) 
 def wrong_unwrap_type_test():
     DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
 
