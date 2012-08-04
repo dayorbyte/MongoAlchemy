@@ -18,7 +18,7 @@ class Event(Document):
     def __init__(self, name, parent=None):
         Document.__init__(self, name=name)
         self.children = []
-        if parent != None:
+        if parent is not None:
             parent.children.append(self)
     def __enter__(self):
         self.begin = datetime.utcnow()

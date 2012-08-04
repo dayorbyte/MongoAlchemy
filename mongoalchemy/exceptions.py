@@ -7,7 +7,7 @@ class BadValueException(Exception):
         self.value = value
         self.cause = cause
         message = 'Bad value for field of type "%s".  Reason: "%s".' % (name, reason)
-        if cause != None:
+        if cause is not None:
             message = '%s Cause: %s' % (message, cause)
         Exception.__init__(self, message)
 

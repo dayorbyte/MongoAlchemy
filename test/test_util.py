@@ -13,4 +13,4 @@ def test_UNSET():
     # for coverage
     r = repr(UNSET)
     assert UNSET == UNSET
-    assert UNSET != None
+    assert UNSET is not None

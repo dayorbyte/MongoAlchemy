@@ -225,9 +225,9 @@ class Session(object):
             cursor.sort(query.sort)
         if query.hints:
             cursor.hint(query.hints)
-        if query.get_limit() != None:
+        if query.get_limit() is not None:
             cursor.limit(query.get_limit())
-        if query.get_skip() != None:
+        if query.get_skip() is not None:
             cursor.skip(query.get_skip())
         return QueryResult(session, cursor, query.type, raw_output=query._raw_output, fields=query.get_fields())
     
