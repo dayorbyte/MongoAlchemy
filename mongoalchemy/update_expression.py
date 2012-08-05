@@ -24,7 +24,7 @@ from functools import wraps
 from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
-from mongoalchemy.fields import BadValueException
+from mongoalchemy.exceptions import BadValueException
 from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
 
 class UpdateExpression(object):
