@@ -3,7 +3,7 @@ from mongoalchemy.fields import *
 
 from mongoalchemy.exceptions import DocumentException, MissingValueException, \
         ExtraValueException, FieldNotRetrieved, BadFieldSpecification
-from mongoalchemy.document import Document, DocumentField, document_type_registry
+from mongoalchemy.document import Document, document_type_registry
 from mongoalchemy.session import Session
 from test.util import known_failure
 from datetime import datetime

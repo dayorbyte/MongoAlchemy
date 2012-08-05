@@ -84,7 +84,7 @@ Mapping Type Fields
 Document Field Objects
 --------------------------------------------------------
 
-.. autoclass:: mongoalchemy.document.DocumentField
+.. autoclass:: mongoalchemy.fields.DocumentField
    :members:
    :undoc-members:
 

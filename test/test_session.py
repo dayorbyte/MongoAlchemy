@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.document import Document, Index
 from mongoalchemy.fields import *
 from mongoalchemy.exceptions import *
 from test.util import known_failure

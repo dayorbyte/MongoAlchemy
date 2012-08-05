@@ -1,6 +1,6 @@
 from nose.tools import *
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField, FieldNotRetrieved
+from mongoalchemy.document import Document, Index, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.update_expression import InvalidModifierException, UpdateException
 from mongoalchemy.query import BadQueryException, Query, BadResultException, RemoveQuery

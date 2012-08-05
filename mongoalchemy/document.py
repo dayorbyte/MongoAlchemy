@@ -44,7 +44,8 @@ from pymongo import GEO2D
 from collections import defaultdict
 from mongoalchemy.util import classproperty, UNSET
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.fields import ObjectIdField, Field, BadValueException, SCALAR_MODIFIERS
+from mongoalchemy.fields import (ObjectIdField, Field, BadValueException, 
+                                 SCALAR_MODIFIERS, DocumentField)
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
 
 document_type_registry = defaultdict(dict)
@@ -487,93 +488,6 @@ class DictDoc(object):
             return False
         return True
         
-
-class DocumentField(Field):
-    ''' A field which wraps a :class:`Document`'''
-    
-    has_subfields = True
-    has_autoload = True
-    
-    def __init__(self, document_class, **kwargs):
-        super(DocumentField, self).__init__(**kwargs)
-        self.__type = document_class
-    
-    @property
-    def type(self):
-        if not isinstance(self.__type, basestring) and issubclass(self.__type, Document):
-            return self.__type
-        if self.parent.config_namespace == None:
-            raise BadFieldSpecification('Document namespace is None.  Strings are not allowed for DocumentFields')
-        type = document_type_registry[self.parent.config_namespace].get(self.__type)
-        if type == None or not issubclass(type, Document):
-            raise BadFieldSpecification('No type found for %s.  Maybe it has not been imported yet and is not registered?' % self.__type)
-        return type
-    
-    def dirty_ops(self, instance):
-        ''' Returns a dict of the operations needed to update this object.  
-            See :func:`Document.get_dirty_ops` for more details.'''
-        try:
-            document = getattr(instance, self._name)
-        except AttributeError:
-            return {}
-        if len(document._dirty) == 0 and \
-           self.__type.config_extra_fields != 'ignore':
-            return {}
-        
-        ops = document.get_dirty_ops()
-        
-        ret = {}
-        for op, values in ops.iteritems():
-            ret[op] = {}
-            for key, value in values.iteritems():
-                name = '%s.%s' % (self._name, key)
-                ret[op][name] = value
-        return ret
-    
-    def subfields(self):
-        ''' Returns the fields that can be retrieved from the enclosed 
-            document.  This function is mainly used internally'''
-        return self.type.get_fields()
-    
-    def sub_type(self):
-        return self.type
-    
-    def is_valid_unwrap(self, value, fields=None):
-        ''' Always True.  Document-level validation errors will 
-            be handled during unwrappingself.
-            
-            :param value: The value to validate
-            :param fields: The fields being returned if this is a partial \
-                document. They will be ignored when validating the fields \
-                of ``value``
-        '''
-        return True
-    
-    def wrap(self, value):
-        ''' Validate ``value`` and then use the document's class to wrap the 
-            value'''
-        self.validate_wrap(value)
-        return self.type.wrap(value)
-    
-    def unwrap(self, value, fields=None, session=None):
-        ''' Validate ``value`` and then use the document's class to unwrap the 
-            value'''
-        self.validate_unwrap(value, fields=fields, session=session)
-        return self.type.unwrap(value, fields=fields, session=session)
-    
-    def validate_wrap(self, value):
-        ''' Checks that ``value`` is an instance of ``DocumentField.type``.
-            if it is, then validation on its fields has already been done and
-            no further validation is needed.
-        '''
-        if not isinstance(value, self.type):
-            self._fail_validation_type(value, self.type)
-    
-    def validate_unwrap(self, value, fields=None, session=None):
-        ''' Validates every field in the underlying document type.  If ``fields`` 
-            is not ``None``, only the fields in ``fields`` will be checked.
-        '''
-        return
 
 class BadIndexException(Exception):
     pass
