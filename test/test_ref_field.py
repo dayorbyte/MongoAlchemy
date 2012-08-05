@@ -19,7 +19,6 @@ def get_session(cache_size=0):
 def test_setup():
     document_type_registry.clear()
 
-
 class A(Document):
     x = IntField()
 class AA(Document):
