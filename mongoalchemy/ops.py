@@ -24,9 +24,7 @@ class ClearCollectionOp(Operation):
         self.session = session
         self.type = kind
     def execute(self):
-        print 'CLEAROP', self.collection
         self.collection.remove()
-        print 'CLEAROP', self.collection.count()
 
 class UpdateDocumentOp(Operation):
     def __init__(self, trans_id, session, document, safe, id_expression=None, upsert=False, update_ops={}, **kwargs):
