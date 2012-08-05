@@ -22,7 +22,7 @@
 
 from pprint import pprint
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.document import Document, Index
 from mongoalchemy.fields import *
 
 def main():

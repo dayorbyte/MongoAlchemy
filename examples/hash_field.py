@@ -1,4 +1,4 @@
-from mongoalchemy.document import Document, DocumentField
+from mongoalchemy.document import Document
 from mongoalchemy.fields import *
 from datetime import datetime
 from pprint import pprint

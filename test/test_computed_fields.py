@@ -2,7 +2,7 @@ from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
 from mongoalchemy.session import Session
-from mongoalchemy.document import Document, Index, DocumentField
+from mongoalchemy.document import Document, Index
 from mongoalchemy.query import Query
 
 def get_session():
