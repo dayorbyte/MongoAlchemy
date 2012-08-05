@@ -39,6 +39,7 @@ programmatically.  A document can have multiple indexes by adding extra
 
 '''
 import pymongo
+from bson import DBRef
 from pymongo import GEO2D
 from collections import defaultdict
 from mongoalchemy.util import classproperty, UNSET
@@ -362,7 +363,10 @@ class Document(object):
         except AttributeError:
             return False
         return True 
-    
+    def to_ref(self, db=None):
+        return DBRef(id=self.mongo_id, 
+                     collection=self.get_collection_name(),
+                     database=db)
     def wrap(self):
         ''' Returns a transformation of this document into a form suitable to 
             be saved into a mongo database.  This is done by using the ``wrap()``
@@ -379,6 +383,7 @@ class Document(object):
                 value = getattr(self, name)
                 res[field.db_field] = field.wrap(value)
             except AttributeError, e:
+                print e
                 if field.required:
                     raise MissingValueException(name)
         return res
@@ -682,7 +687,7 @@ class Proxy(object):
         return session.dereference(ref)
     def __set__(self, instance, value):
         assert instance is not None
-        setattr(instance, self.name, value)
+        setattr(instance, self.name, value.to_ref())
 
 class IProxy(object):
     def __init__(self, name, ignore_missing):

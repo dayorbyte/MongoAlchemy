@@ -207,12 +207,6 @@ class Field(object):
     def __set__(self, instance, value):
         self.set_value(instance, value)
     
-    def __delete__(self, instance):
-        if self._name not in instance._field_values:
-            raise AttributeError(self._name)
-        del instance._field_values[self._name]
-        instance._dirty[self._name] = '$unset'
-    
     def set_value(self, instance, value, from_db=False):
         self.validate_wrap(value)
         instance._field_values[self._name] = value
@@ -230,6 +224,12 @@ class Field(object):
                 self.db_field : self.wrap(instance._field_values[self._name])
             }
         }
+    
+    def __delete__(self, instance):
+        if self._name not in instance._field_values:
+            raise AttributeError(self._name)
+        del instance._field_values[self._name]
+        instance._dirty[self._name] = '$unset'
     
     def update_ops(self, instance):
         if self._name not in instance._field_values:
@@ -1099,6 +1099,34 @@ class KVField(DictField):
             ret[self.key_type.unwrap(k, session=session)] = self.value_type.unwrap(v, session=session)
         return ret
 
+class SRefField(Field):
+    ''' A Simple RefField (SRefField) looks like an ObjectIdField in the 
+        database, but acts like a mongo DBRef.  It uses the passed in type to 
+        determine where to look for the object (and assumes the current 
+        database).
+    '''
+    has_subfields = True
+    has_autoload = True
+    def __init__(self, type, **kwargs):
+        from mongoalchemy.document import DocumentField
+
+        super(SRefField, self).__init__(**kwargs)
+        
+        self.type = type
+        if not isinstance(type, DocumentField):
+            self.type = DocumentField(type)
+    def wrap(self, value):
+        self.validate_wrap(value)
+        return value
+    def unwrap(self, value, fields=None, session=None):
+        self.validate_unwrap(value)
+        return value
+    def validate_wrap(self, value):
+        if not isinstance(value, ObjectId):
+            self._fail_validation_type(value, ObjectId)
+    validate_unwrap = validate_wrap
+        
+
 class RefField(Field):
     ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
         saving the referenced object or updates to it, but it can handle 
@@ -1108,24 +1136,16 @@ class RefField(Field):
     has_subfields = True
     has_autoload = True
 
-    def __init__(self, type=None, autoload=False, collection=None,
-                    db=None, simple=False, namespace='global', **kwargs):
+    def __init__(self, type=None, db=None, namespace='global', **kwargs):
         ''' :param type: (optional) the Field type to use for the values.  It 
                 must be a DocumentField.  If you want to save refs to raw mongo 
                 objects, you can leave this field out
-            :param simple: (optional) Only save the _id, not a full db ref.  If this
-                option is selected one of type or collection must also be 
-                passed
             :param db: (optional) The database to load the object from.  
                 Defaults to the same database as the object this field is 
                 bound to.
             :param collection: (optional) The collection to load simple 
                 references from. This option is mutually exclusive with the 
                 ``type`` param.
-            :param autoload: Load this reference when loading the parent 
-                object.  This will trigger a database request for each object.
-                It may eventually be optimized to batch requests where 
-                possible.
             :param namespace: If using the namespace system and using a 
                 collection name instead of a type, selects which namespace to 
                 use
@@ -1134,153 +1154,149 @@ class RefField(Field):
         from mongoalchemy.document import DocumentField
         if type and not isinstance(type, DocumentField):
             type = DocumentField(type)
-        if type and collection:
-            raise BadFieldSpecification('Only one of type and collection can be passed')
-        # if type is not None and not isinstance(type, DocumentField):
-        #     raise BadFieldSpecification("RefField value type is not a DocumentField!")
 
         super(RefField, self).__init__(**kwargs)
-        self.simple = simple
-        self.autoload = autoload
         self.type = type
         self.namespace = namespace
-        if type is None:
-            self._collection = collection
         self.db = db
     
-    _collection = None
-    @property
-    def collection(self):
-        if self._collection is None:
-            return self.type.type.get_collection_name()
-        return self._collection
+    # _collection = None
+    # @property
+    # def collection(self):
+    #     if self._collection is None:
+    #         return self.type.type.get_collection_name()
+    #     return self._collection
     
     def wrap(self, value):
         ''' Validate ``value`` and then use the value_type to wrap the 
             value'''
 
         self.validate_wrap(value)
-        from mongoalchemy.document import Document
-        if isinstance(value, DBRef):
-            if self.simple:
-                return value.id
-            return value
-        is_doc = isinstance(value, Document)
+        value.type = self.type
+        return value
 
-        if is_doc:
-            try:
-                value.mongo_id
-            except AttributeError:
-                raise BadValueException(self._name, value, 'No Mongo ID')
+        # from mongoalchemy.document import Document
+        # if isinstance(value, DBRef):
+        #     if self.simple:
+        #         return value.id
+        #     return value
+        # is_doc = isinstance(value, Document)
 
-        if self.simple:
-            if is_doc:
-                return value.mongo_id
-            return value['_id']
-        if is_doc:
-            doc_id = value.mongo_id
-        else:
-            doc_id = value['_id']
+        # if is_doc:
+        #     try:
+        #         value.mongo_id
+        #     except AttributeError:
+        #         raise BadValueException(self._name, value, 'No Mongo ID')
 
-        if self._collection or self.type:
-            collection = self.collection
-        else:
-            collection = value.get_collection_name()        
+        # if self.simple:
+        #     if is_doc:
+        #         return value.mongo_id
+        #     return value['_id']
+        # if is_doc:
+        #     doc_id = value.mongo_id
+        # else:
+        #     doc_id = value['_id']
 
-        ref = DBRef(collection=collection, database=self.db, 
-            id=doc_id)
-        ref.type = self.smart_type(ref)
-        return ref
+        # if self._collection or self.type:
+        #     collection = self.collection
+        # else:
+        #     collection = value.get_collection_name()        
+
+        # ref = DBRef(collection=collection, database=self.db, 
+        #     id=doc_id)
+        # ref.type = self.smart_type(ref)
+        # return ref
             
     def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
             the object.  
         '''
-        database = None
-        connection = None
-        # if hasattr(value, '_ma_session'):
-        #     session = value._ma_session
-        if session:
-            database = session.db
-            connection = database.connection
+        self.validate_unwrap(value)
+        value.type = self.type
+        return value
+                # database = None
+        # connection = None
+        # # if hasattr(value, '_ma_session'):
+        # #     session = value._ma_session
+        # if session:
+        #     database = session.db
+        #     connection = database.connection
 
-        self.validate_reference(value)
-        if not self.autoload:
-            if self.simple:
-                ret = DBRef(database=self.db, 
-                    collection=self.collection, 
-                    id=value)
-                ret.type = self.smart_type(ret)
-                return ret
+        # self.validate_reference(value)
+        # if not self.autoload:
+        #     if self.simple:
+        #         ret = DBRef(database=self.db, 
+        #             collection=self.collection, 
+        #             id=value)
+        #         ret.type = self.smart_type(ret)
+        #         return ret
             
-            if self._collection or self.type is not None:
-                assert value.collection == self.collection
+        #     if self._collection or self.type is not None:
+        #         assert value.collection == self.collection
 
-            ref = DBRef(database=self.db, 
-                    collection=value.collection, 
-                    id=value.id)
-            ref.type = self.smart_type(ref)
-            return ref
-        if self.db:
-            database = connection[self.db]
-        if self.simple:
-            assert isinstance(value, ObjectId) or isinstance(value, basestring), value
-            raw = database[self.collection].find_one({'_id':value})
-        else:
-            raw = database.dereference(value)
-        if raw is None:
-            raise BadValueException(self._name, value, 'Could not dereference object %s' % value)
-        return self.unwrap_child(value, raw, session=session)
+        #     ref = DBRef(database=self.db, 
+        #             collection=value.collection, 
+        #             id=value.id)
+        #     ref.type = self.smart_type(ref)
+        #     return ref
+        # if self.db:
+        #     database = connection[self.db]
+        # if self.simple:
+        #     assert isinstance(value, ObjectId) or isinstance(value, basestring), value
+        #     raw = database[self.collection].find_one({'_id':value})
+        # else:
+        #     raw = database.dereference(value)
+        # if raw is None:
+        #     raise BadValueException(self._name, value, 'Could not dereference object %s' % value)
+        # return self.unwrap_child(value, raw, session=session)
     
-    def unwrap_child(self, ref, raw, session=None):
-        # TODO: this doesn't work quite right if you're using different
-        # collection names
-        type = self.smart_type(ref)
-        # type.validate_unwrap(raw)
-        return type.unwrap(raw, session=session)
+    # def unwrap_child(self, ref, raw, session=None):
+    #     # TODO: this doesn't work quite right if you're using different
+    #     # collection names
+    #     type = self.smart_type(ref)
+    #     # type.validate_unwrap(raw)
+    #     return type.unwrap(raw, session=session)
 
 
-    def smart_type(self, ref):
-        from mongoalchemy.document import document_type_registry
-        if self.type is not None:
-            return self.type
-        if self.simple:
-            return document_type_registry[self.namespace][self.collection]
-        return document_type_registry[self.namespace][ref.collection]
+    # def smart_type(self, ref):
+    #     from mongoalchemy.document import document_type_registry
+    #     if self.type is not None:
+    #         return self.type
+    #     if self.simple:
+    #         return document_type_registry[self.namespace][self.collection]
+    #     return document_type_registry[self.namespace][ref.collection]
 
 
-    def set_parent_on_subtypes(self, parent):
-        if self.type is not None:
-            self.type._set_parent(parent)
+    # def set_parent_on_subtypes(self, parent):
+    #     if self.type is not None:
+    #         self.type._set_parent(parent)
 
-    def validate_reference(self, value):
-        if self.simple:
-            return True
-        if not isinstance(value, DBRef):
-            self._fail_validation_type(value, DBRef)
-
-    def validate_wrap(self, value):
-        ''' Checks that has the fields necessary for a Mongo DBRef
-        '''
-        if not self.type:
-            return
-        if isinstance(value, DBRef):
-            self.validate_reference(value)
-        elif not isinstance(value, self.type.type):
-            self._fail_validation_type(value, self.type.type)
+    # def validate_wrap(self, value):
+    #     ''' Checks that has the fields necessary for a Mongo DBRef
+    #     '''
+    #     if not self.type:
+    #         return
+    #     if isinstance(value, DBRef):
+    #         self.validate_reference(value)
+    #     elif not isinstance(value, self.type.type):
+    #         self._fail_validation_type(value, self.type.type)
     
     def validate_unwrap(self, value, session=None):
-        ''' Validates every field in the underlying document type.  If ``fields`` 
-            is not ``None``, only the fields in ``fields`` will be checked.
+        ''' Validates that the DBRef is valid as well as can be done without
+            retrieving it.
         '''
-        if self.simple:
-            return True
-        if isinstance(value, DBRef):
-            self.validate_reference(value)
-            return True
-        if not isinstance(value, self.type.type):
-            self._fail_validation(value, 'RefField invalid')
-
+        if not isinstance(value, DBRef):
+            self._fail_validation_type(value, DBRef)
+        if self.type:
+            expected = self.type.type.get_collection_name()
+            got = value.collection
+            if expected != got:
+                self._fail_validation(value, '''Wrong collection for reference: '''
+                                      '''got "%s" instead of "%s" ''' % (got, expected))
+        if self.db and self.db != value.database:
+            self._fail_validation(value, '''Wrong database for reference: '''
+                                  ''' got "%s" instead of "%s" ''' % (value.database, self.db) ) 
+    validate_wrap = validate_unwrap
 
 
 class ComputedField(Field):
