@@ -446,15 +446,17 @@ class ComputedField(Field):
         if instance is None:
             return QueryField(self)
         
-        if self._name in instance._field_values and self.one_time:
-            return instance._field_values[self._name]
+        obj_value = instance._values[self._name]
+        if obj_value.set and self.one_time:
+            return obj_value.value
         computed_value = self.compute_value(instance)
         if self.one_time:
-            instance._field_values[self._name] = computed_value
+            self.set_value(instance, computed_value)
         return computed_value
     
     def __set__(self, instance, value):
-        if self._name in instance._field_values and self.one_time:
+        obj_value = instance._values[self._name]
+        if obj_value.set and self.one_time:
             raise BadValueException(self._name, value, 'Cannot set a one-time field once it has been set')
         super(ComputedField, self).__set__(instance, value)
     
@@ -464,7 +466,9 @@ class ComputedField(Field):
     def dirty_ops(self, instance):
         dirty = False
         for dep in self.deps:
-            if dep._name in instance._dirty:
+            dep_value = instance._values[dep._name]
+            if dep_value.dirty:
+                dirty = True
                 break
         else:
             if len(self.deps) > 0:

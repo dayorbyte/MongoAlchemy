@@ -50,6 +50,7 @@ class UpdateDocumentOp(Operation):
                 del self.dirty_ops[current_op][key]
                 if len(self.dirty_ops[current_op]) == 0:
                     del self.dirty_ops[current_op]
+        document._mark_clean()
 
     def execute(self):
         self.ensure_indexes()
@@ -82,6 +83,7 @@ class SaveOp(Operation):
         if '_id' not in self.data:
             self.data['_id'] = ObjectId()
             document.mongo_id = self.data['_id']
+        document._mark_clean()
 
     def execute(self):
         self.ensure_indexes()

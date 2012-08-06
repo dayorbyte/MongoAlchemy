@@ -113,27 +113,23 @@ class SequenceField(Field):
                 self._validate_child_unwrap(v)
 
 
-    def set_value(self, instance, value, from_db=False):
-        super(SequenceField, self).set_value(instance, value, from_db=from_db)
-
-        if from_db:
-            # loaded from db, stash it
-            if 'orig_values' not in instance.__dict__:
-                instance.__dict__['orig_values'] = {}
-            instance.__dict__['orig_values'][self._name] = deepcopy(value)
+    def set_value(self, instance, value):
+        super(SequenceField, self).set_value(instance, value)
+        # TODO:2012
+        # value_obj = instance._values[self._name]
+        # if from_db:
+        #     # loaded from db, stash it
+        #     if 'orig_values' not in instance.__dict__:
+        #         instance.__dict__['orig_values'] = {}
+        #     instance.__dict__['orig_values'][self._name] = deepcopy(value)
 
     def dirty_ops(self, instance):
+        obj_value = instance._values[self._name]
         ops = super(SequenceField, self).dirty_ops(instance)
-        if len(ops) == 0:
-            # see if the underlying sequence has changed.  Overwrite if so
-            try:
-                if instance._field_values[self._name] != instance.__dict__['orig_values'][self._name]:
-                    ops = {'$set': {
-                        self.db_field : self.wrap(instance._field_values[self._name])
-                    }}
-            except KeyError:
-                # required field is missing
-                pass
+        if len(ops) == 0 and obj_value.set:
+            ops = {'$set': {
+                self.db_field : self.wrap(obj_value.value)
+            }}
         return ops
 
 
@@ -157,6 +153,11 @@ class ListField(SequenceField):
             return []
         return self._default
     default = property(get_default, set_default)
+
+    def rel(self, ignore_missing=False):
+        from mongoalchemy.fields import RefBase
+        assert isinstance(self.item_type, RefBase)
+        return ListProxy(self, ignore_missing=ignore_missing)
 
     def _validate_wrap_type(self, value):
         import types
@@ -193,6 +194,9 @@ class SetField(SequenceField):
         return self._default
     default = property(get_default, set_default)
 
+    def rel(self):
+        raise NotImplementedError()
+
     def _validate_wrap_type(self, value):
         if not isinstance(value, set):
             self._fail_validation_type(value, set)
@@ -213,3 +217,22 @@ class SetField(SequenceField):
             returns them in a set'''
         self.validate_unwrap(value)
         return set([self.item_type.unwrap(v, session=session) for v in value])
+
+class ListProxy(object):
+    def __init__(self, field, ignore_missing=False):
+        self.field = field
+        self.ignore_missing = ignore_missing
+    def __get__(self, instance, owner):
+        if instance is None:
+            return getattr(owner, self.field._name)
+        session = instance._get_session()
+        def iterator():
+            for v in getattr(instance, self.field._name):
+                if v is None:
+                    yield v
+                    continue
+                value = session.dereference(v, allow_none=self.ignore_missing)
+                if value is None and self.ignore_missing:
+                    continue
+                yield value
+        return iterator()

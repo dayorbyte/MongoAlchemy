@@ -83,6 +83,7 @@ def nested_field_set_test():
     s.query(T2).set('t.i', 3).upsert().execute()
     assert s.query(T2).one().t.i == 3
 
+
 def test_update_safe():
     s = get_session()
     s.clear_collection(TUnique)

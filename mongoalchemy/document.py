@@ -96,13 +96,6 @@ class DocumentMeta(type):
                 name = new_class.__name__
             document_type_registry[new_class.config_namespace][name] = new_class
 
-        # 5. Add proxies
-        for name, field in new_class.get_fields().iteritems():
-            if field.proxy is not None:
-                setattr(new_class, field.proxy, Proxy(name))
-            if field.iproxy is not None:
-                setattr(new_class, field.iproxy, IProxy(name, field.ignore_missing))
-        
         # 4.  Add subclasses
 
         for b in bases:
@@ -181,25 +174,27 @@ class Document(object):
         self.partial = retrieved_fields is not None
         self.retrieved_fields = self.__normalize(retrieved_fields)
         
-        self._dirty = {}
-        
-        self._field_values = {}
+        # Mapping from attribute names to values.
+        self._values = {}
         self.__extra_fields = {}
         
         cls = self.__class__
                 
         fields = self.get_fields()
         for name, field in fields.iteritems():
+            print name
             if self.partial and field.db_field not in self.retrieved_fields:
-                continue
-            
-            if name in kwargs:
-                getattr(cls, name).set_value(self, kwargs[name], from_db=loading_from_db)
-                continue
-            # DO I NEED THIS?
-            # elif field.default != UNSET:
-            #     getattr(cls, name).set_value(self, field.default, from_db=loading_from_db)
-
+                self._values[name] = Value(field, self, retrieved=False)
+            elif name in kwargs:
+                field = getattr(cls, name)
+                value = kwargs[name]
+                self._values[name] = Value(field, self, 
+                                           from_db=loading_from_db)
+                getattr(cls, name).set_value(self, kwargs[name])
+            elif field.auto:
+                self._values[name] = Value(field, self, from_db=False)
+            else:
+                self._values[name] = Value(field, self, from_db=False)
         
         for k in kwargs:
             if k not in fields:
@@ -255,6 +250,8 @@ class Document(object):
             return self.mongo_id == other.mongo_id
         except:
             return False
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def get_dirty_ops(self, with_required=False):
         ''' Returns a dict with the update operations necessary to make the 
@@ -272,7 +269,7 @@ class Document(object):
                 continue
             dirty_ops = field.dirty_ops(self)
             if not dirty_ops and with_required and field.required:
-                dirty_ops = field.update_ops(self)
+                dirty_ops = field.update_ops(self, force=True)
                 if not dirty_ops:
                     raise MissingValueException(name)
             
@@ -435,7 +432,7 @@ class Document(object):
         if fields is not None:
             params['retrieved_fields'] = fields
         obj = cls(loading_from_db=True, **params)
-        obj.__mark_clean()
+        obj._mark_clean()
         obj._session = session
         return obj
 
@@ -445,8 +442,10 @@ class Document(object):
     def _set_session(self, session):
         self._session = session
 
-    def __mark_clean(self):
-        self._dirty.clear()
+    def _mark_clean(self):
+        print 'CLEAR DIRTY'
+        for k, v in self._values.iteritems():
+            v.clear_dirty()
         
 
 class DictDoc(object):
@@ -456,8 +455,8 @@ class DictDoc(object):
     '''
     def __getitem__(self, name):
         ''' Gets the field ``name`` from the document '''
-        fields = self.get_fields()
-        if name in fields:
+        # fields = self.get_fields()
+        if name in self._values:
             return getattr(self, name)
         raise KeyError(name)
     
@@ -587,37 +586,31 @@ class Index(object):
         collection.ensure_index(self.components, unique=self.__unique, 
             drop_dups=self.__drop_dups, **extras)
         return self
-        
-class Proxy(object):
-    def __init__(self, name):
-        self.name = name
-    def __get__(self, instance, owner):
-        if instance is None:
-            return getattr(owner, self.name)
-        session = instance._get_session()
-        ref = getattr(instance, self.name)
-        if ref is None:
-            return None
-        return session.dereference(ref)
-    def __set__(self, instance, value):
-        assert instance is not None
-        setattr(instance, self.name, value.to_ref())
 
-class IProxy(object):
-    def __init__(self, name, ignore_missing):
-        self.name = name
-        self.ignore_missing = ignore_missing
-    def __get__(self, instance, owner):
-        if instance is None:
-            return getattr(owner, self.name)
-        session = instance._get_session()
-        def iterator():
-            for v in getattr(instance, self.name):
-                if v is None:
-                    yield v
-                    continue
-                value = session.dereference(v, allow_none=self.ignore_missing)
-                if value is None and self.ignore_missing:
-                    continue
-                yield value
-        return iterator()
+class Value(object):
+    def __init__(self, field, document, from_db=False, extra=False,
+                 retrieved=True):
+        # Stuff
+        self.field = field
+        self.doc = document
+        self.value = None
+        
+        # Flags
+        self.from_db = from_db
+        self.set = False
+        self.extra = extra
+        self.dirty = False
+        self.retrieved = retrieved
+        self.update_op = None
+    def clear_dirty(self):
+        self.dirty = False
+        self.update_op = None
+
+    def delete(self):
+        self.value = None
+        self.set = False
+        self.dirty = True
+        self.from_db = False
+        self.update_op = '$unset'
+
+

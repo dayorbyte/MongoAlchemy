@@ -193,12 +193,19 @@ class Field(object):
     def __get__(self, instance, owner):
         if instance is None:
             return QueryField(self)
-        if self._name in instance._field_values:
-            return instance._field_values[self._name]
+        obj_value = instance._values[self._name] 
+        
+        # if the value is set, just return it
+        if obj_value.set:
+            return instance._values[self._name].value
+        
+        # if not, try the default
         if self.default is not UNSET:
             self.set_value(instance, self.default)
-            return instance._field_values[self._name]
-        if instance.partial and self.db_field not in instance.retrieved_fields:
+            return instance._values[self._name].value
+        
+        # If this value wasn't retrieved, raise a specific exception
+        if not obj_value.retrieved:
             raise FieldNotRetrieved(self._name)
             
         raise AttributeError(self._name)
@@ -207,38 +214,48 @@ class Field(object):
     def __set__(self, instance, value):
         self.set_value(instance, value)
     
-    def set_value(self, instance, value, from_db=False):
+    def set_value(self, instance, value):
         self.validate_wrap(value)
-        instance._field_values[self._name] = value
+        obj_value = instance._values[self._name]
+        obj_value.value = value
+        obj_value.dirty = True
+        obj_value.set = True
+        obj_value.from_db = False
         if self.on_update != 'ignore':
-            instance._dirty[self._name] = self.on_update
+            obj_value.update_op = self.on_update
     
     def dirty_ops(self, instance):
-        op = instance._dirty.get(self._name)
-        if op == '$unset':
+        obj_value = instance._values[self._name]
+        # op = instance._dirty.get(self._name)
+        if obj_value.update_op == '$unset':
             return { '$unset' : { self._name : True } }
-        if op is None:
+        if obj_value.update_op is None:
             return {}
         return {
-            op : {
-                self.db_field : self.wrap(instance._field_values[self._name])
+            obj_value.update_op : {
+                self.db_field : self.wrap(obj_value.value)
             }
         }
     
     def __delete__(self, instance):
-        if self._name not in instance._field_values:
+        obj_value = instance._values[self._name]
+        if not obj_value.set:
             raise AttributeError(self._name)
-        del instance._field_values[self._name]
-        instance._dirty[self._name] = '$unset'
+        obj_value.delete()
+        # if self._name not in instance._field_values:
+        #     raise AttributeError(self._name)
+        # del instance._field_values[self._name]
+        # instance._dirty[self._name] = '$unset'
     
-    def update_ops(self, instance):
-        if self._name not in instance._field_values:
-            return {}
-        return {
-            self.on_update : {
-                self._name : self.wrap(instance._field_values[self._name])
+    def update_ops(self, instance, force=False):
+        obj_value = instance._values[self._name]
+        if obj_value.set and (obj_value.dirty or force):
+            return {
+                self.on_update : {
+                    self._name : self.wrap(obj_value.value)
+                }
             }
-        }
+        return {}
     
     def localize(self, session, value):
         return value

@@ -30,12 +30,32 @@ class C(Document):
 
 # Field Tests
 
+def test_simple_dereference():
+    print 1111
+    class A(Document):
+        x = IntField()
+    class B(Document):
+        y_id = SRefField(DocumentField(A))
+        y = y_id.rel()
+
+    s = get_session()
+    a = A(x=4)
+    s.insert(a)
+
+    b = B(y_id=a.mongo_id)
+    s.add_to_session(b)
+    assert b.y.x == 4
+
+
+
 def test_proxy():
     class B(Document):
         b = IntField(default=3)
     class A(Document):
-        x_ids = ListField(RefField(B, allow_none=True), iproxy='xs', default_empty=True, allow_none=True)
-        x_id = RefField(B, proxy='x', allow_none=True)
+        x_ids = ListField(RefField(B, allow_none=True), default_empty=True, allow_none=True)
+        xs = x_ids.rel()
+        x_id = RefField(B, allow_none=True)
+        x = x_id.rel()
     
     s = get_session()
     a = A()
@@ -62,9 +82,10 @@ def test_proxy_ignore_missing():
     class B(Document):
         b = IntField(default=3)
     class A(Document):
-        x_ids = ListField(RefField(B), iproxy='xs', default_empty=True, 
-                          ignore_missing=True)
-        x_id = RefField(B, proxy='x')
+        x_ids = ListField(RefField(B), default_empty=True)
+        xs = x_ids.rel(ignore_missing=True)
+        x_id = RefField(B)
+        x = x_id.rel()
     
     s = get_session()
     a = A()
