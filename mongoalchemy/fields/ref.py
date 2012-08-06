@@ -21,9 +21,12 @@
 # THE SOFTWARE.
 
 from mongoalchemy.fields.base import *
+from bson import DBRef
 
+class RefBase(Field):
+    pass
 
-class SRefField(Field):
+class SRefField(RefBase):
     ''' A Simple RefField (SRefField) looks like an ObjectIdField in the 
         database, but acts like a mongo DBRef.  It uses the passed in type to 
         determine where to look for the object (and assumes the current 
@@ -39,6 +42,12 @@ class SRefField(Field):
         self.type = type
         if not isinstance(type, DocumentField):
             self.type = DocumentField(type)
+    def rel(self):
+        return Proxy(self)
+    def dereference(self, session, ref):
+        ref = DBRef(id=ref, collection=self.type.type.get_collection_name())
+        ref.type = self.type.type
+        return session.dereference(ref)
     def wrap(self, value):
         self.validate_wrap(value)
         return value
@@ -51,7 +60,7 @@ class SRefField(Field):
     validate_unwrap = validate_wrap
         
 
-class RefField(Field):
+class RefField(RefBase):
     ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
         saving the referenced object or updates to it, but it can handle 
         auto-loading.
@@ -97,6 +106,11 @@ class RefField(Field):
         value.type = self.type
         return value
     
+    def rel(self):
+        return Proxy(self)
+    def dereference(self, session, ref):
+        return session.dereference(ref)
+
     def validate_unwrap(self, value, session=None):
         ''' Validates that the DBRef is valid as well as can be done without
             retrieving it.
@@ -113,3 +127,34 @@ class RefField(Field):
             self._fail_validation(value, '''Wrong database for reference: '''
                                   ''' got "%s" instead of "%s" ''' % (value.database, self.db) ) 
     validate_wrap = validate_unwrap
+
+class Proxy(object):
+    def __init__(self, field):
+        self.field = field
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self.field
+        session = instance._get_session()
+        ref = getattr(instance, self.field._name)
+        if ref is None:
+            return None
+        return self.field.dereference(session, ref)
+    def __set__(self, instance, value):
+        assert instance is not None
+        setattr(instance, self.field._name, value.to_ref())
+
+'''
+class Foo(Document):
+    blah_id = RefField('Bar')
+    blah = blah_id.rel()
+
+
+
+
+
+'''
+
+
+
+
+

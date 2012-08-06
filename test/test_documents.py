@@ -184,6 +184,19 @@ def loading_test():
         break
     assert td.int1 == t.int1
 
+def docfield_not_dirty_test():
+    class SuperDoc(Document):
+        int1 = IntField()
+        sub = DocumentField(TestDoc)
+    s = get_session()
+    s.clear_collection(TestDoc, SuperDoc)
+    doc = TestDoc(int1=3)
+    sup = SuperDoc(int1=4, sub=doc)
+    s.insert(sup)
+    s.update(sup)
+
+
+
 def docfield_test():
     class SuperDoc(Document):
         int1 = IntField()
@@ -260,7 +273,7 @@ def wrong_wrap_type_test2():
 
 @raises(ExtraValueException) 
 def wrong_unwrap_type_test():
-    DocA.unwrap({ 'test_doc2' : { 'int1' : 1 } })
+    DocA.unwrap({ 'test_doc2' : { 'int1' : 1 }, 'testdoc' : {'int1' : 1 } })
 
 @raises(MissingValueException)
 def test_upsert_with_required():
@@ -285,6 +298,23 @@ def test_upsert_with_no_changes():
     d = s.query(D).one()
     s.update(d, upsert=True)
 
+def test_deepcopy():
+    import copy
+    a = TestDoc(int1=4)
+    b = copy.deepcopy(a)
+    assert id(a) != id(b)
+    assert a.int1 == b.int1
+
+def test_default_eq():
+    a = TestDoc(int1=4)
+    b = TestDoc(int1=4)
+    assert not (a == b)
+    a.mongo_id = ObjectId()
+    b.mongo_id = ObjectId()
+    assert a != b
+    b.mongo_id = a.mongo_id
+    assert a == b
+
 def test_unwrapped_is_not_dirty():
     class D(Document):
         a = IntField()
@@ -292,7 +322,7 @@ def test_unwrapped_is_not_dirty():
     s.clear_collection(D)
     s.insert(D(a=1))
     d = s.query(D).one()
-    assert len(d.get_dirty_ops()) == 0, len(d.get_dirty_ops())
+    assert len(d.get_dirty_ops()) == 0, d.get_dirty_ops()
 
 def test_update_with_unset():
     class D(Document, DictDoc):

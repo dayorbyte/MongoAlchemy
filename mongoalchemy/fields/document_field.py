@@ -47,15 +47,16 @@ class DocumentField(Field):
     def dirty_ops(self, instance):
         ''' Returns a dict of the operations needed to update this object.  
             See :func:`Document.get_dirty_ops` for more details.'''
-        try:
-            document = getattr(instance, self._name)
-        except AttributeError:
+        print 'check dirty'
+        obj_value = instance._values[self._name]
+        if not obj_value.set:
+            print 'not set'
             return {}
-        if len(document._dirty) == 0 and \
-           self.__type.config_extra_fields != 'ignore':
+
+        if not obj_value.dirty and self.__type.config_extra_fields != 'ignore':
             return {}
         
-        ops = document.get_dirty_ops()
+        ops = obj_value.value.get_dirty_ops()
         
         ret = {}
         for op, values in ops.iteritems():
@@ -63,6 +64,7 @@ class DocumentField(Field):
             for key, value in values.iteritems():
                 name = '%s.%s' % (self._name, key)
                 ret[op][name] = value
+        print 'ret'
         return ret
     
     def subfields(self):

@@ -58,6 +58,11 @@ def set_wrong_type_test_unwrap():
 def set_wrong_child_type_test():
     SetField(StringField()).wrap(set([4]))
 
+@raises(NotImplementedError)
+def set_no_rel_test():
+    SetField(StringField()).rel()
+
+
 @raises(Exception)
 def set_bad_child_type_test():
     SetField(int).wrap(set([4]))
