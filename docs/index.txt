@@ -57,7 +57,7 @@ Interesting Features
 * **Drop into raw Mongo** — Most functions will accept raw pymongo instead of the mongoalchemy objects.  \
   For example:: 
     
-        session.query('SomeClass').filter(SomeClass.name == foo).limit(5)`` 
+        session.query('SomeClass').filter(SomeClass.name == foo).limit(5) 
         
   is perfectly valid, as is:: 
     

@@ -24,7 +24,8 @@ from mongoalchemy.fields.base import *
 from bson import DBRef
 
 class RefBase(Field):
-    pass
+    def rel(self):
+        return Proxy(self)
 
 class SRefField(RefBase):
     ''' A Simple RefField (SRefField) looks like an ObjectIdField in the 
@@ -42,22 +43,24 @@ class SRefField(RefBase):
         self.type = type
         if not isinstance(type, DocumentField):
             self.type = DocumentField(type)
-    def rel(self):
-        return Proxy(self)
-    def dereference(self, session, ref):
+    def _to_ref(self, doc):
+        return doc.mongo_id
+    def dereference(self, session, ref, allow_none=False):
         ref = DBRef(id=ref, collection=self.type.type.get_collection_name())
         ref.type = self.type.type
-        return session.dereference(ref)
+        return session.dereference(ref, allow_none=allow_none)
+    def set_parent_on_subtypes(self, parent):
+        self.type.parent = parent
     def wrap(self, value):
         self.validate_wrap(value)
         return value
     def unwrap(self, value, fields=None, session=None):
         self.validate_unwrap(value)
         return value
-    def validate_wrap(self, value):
+    def validate_unwrap(self, value, session=None):
         if not isinstance(value, ObjectId):
             self._fail_validation_type(value, ObjectId)
-    validate_unwrap = validate_wrap
+    validate_wrap = validate_unwrap
         
 
 class RefField(RefBase):
@@ -88,6 +91,7 @@ class RefField(RefBase):
         self.type = type
         self.namespace = namespace
         self.db = db
+        self.parent = None
     
     def wrap(self, value):
         ''' Validate ``value`` and then use the value_type to wrap the 
@@ -97,7 +101,9 @@ class RefField(RefBase):
         value.type = self.type
         return value
 
-            
+    def _to_ref(self, doc):
+        return doc.to_ref()
+
     def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
             the object.  
@@ -108,8 +114,18 @@ class RefField(RefBase):
     
     def rel(self):
         return Proxy(self)
-    def dereference(self, session, ref):
-        return session.dereference(ref)
+    def dereference(self, session, ref, allow_none=False):
+        from mongoalchemy.document import collection_registry
+        # TODO: namespace support
+        ref.type = collection_registry['global'][ref.collection]
+        # print ref.type, ref
+        # print '--' * 30
+        obj = session.dereference(ref, allow_none=allow_none)
+        # print '--' * 30
+        return obj
+    def set_parent_on_subtypes(self, parent):
+        if self.type:
+            self.type.parent = parent
 
     def validate_unwrap(self, value, session=None):
         ''' Validates that the DBRef is valid as well as can be done without
@@ -141,20 +157,5 @@ class Proxy(object):
         return self.field.dereference(session, ref)
     def __set__(self, instance, value):
         assert instance is not None
-        setattr(instance, self.field._name, value.to_ref())
-
-'''
-class Foo(Document):
-    blah_id = RefField('Bar')
-    blah = blah_id.rel()
-
-
-
-
-
-'''
-
-
-
-
+        setattr(instance, self.field._name, self.field._to_ref(value))
 

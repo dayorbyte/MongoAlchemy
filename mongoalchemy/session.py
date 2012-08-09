@@ -351,9 +351,9 @@ class Session(object):
         for index, op in enumerate(self.queue):
             if op.trans_id == trans_id:
                 break
-        print 'GOT INDEX', index
+        # print 'GOT INDEX', index
         self.queue = self.queue[:index]
-        print '\t', self.queue
+        # print '\t', self.queue
 
     def clear_cache(self):
         self.cache = {}
@@ -383,7 +383,7 @@ class Session(object):
         if isinstance(ref, Document):
             return ref
         assert hasattr(ref, 'type')
-                
+        
         obj = self.cache_read(ref.id)
         if obj is not None:
             return obj

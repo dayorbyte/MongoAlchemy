@@ -60,6 +60,9 @@ class SequenceField(Field):
         ''' Returns the names of the value type's sub-fields'''
         return self.item_type.subfields()
     
+    def dereference(self, session, ref, allow_none=False):
+        return self.item_type.dereference(session, ref, allow_none=allow_none)
+
     def wrap_value(self, value):
         ''' A function used to wrap a value used in a comparison.  It will 
             first try to wrap as the sequence's sub-type, and then as the 
@@ -194,9 +197,9 @@ class SetField(SequenceField):
         return self._default
     default = property(get_default, set_default)
 
-    def rel(self):
-        raise NotImplementedError()
-
+    def rel(self, ignore_missing=False):
+        return ListProxy(self, ignore_missing=ignore_missing)
+    
     def _validate_wrap_type(self, value):
         if not isinstance(value, set):
             self._fail_validation_type(value, set)
@@ -231,7 +234,8 @@ class ListProxy(object):
                 if v is None:
                     yield v
                     continue
-                value = session.dereference(v, allow_none=self.ignore_missing)
+                value = self.field.dereference(session, v, 
+                                               allow_none=self.ignore_missing)
                 if value is None and self.ignore_missing:
                     continue
                 yield value
