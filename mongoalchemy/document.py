@@ -49,6 +49,7 @@ from mongoalchemy.fields import (ObjectIdField, Field, BadValueException,
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
 
 document_type_registry = defaultdict(dict)
+collection_registry = defaultdict(dict)
 
 class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
@@ -89,22 +90,33 @@ class DocumentMeta(type):
                 continue
             new_class._fields[name] = maybefield
         
-        # 3. register type
-        if new_class.config_namespace is not None:
-            name = new_class.config_full_name
-            if name == None:
-                name = new_class.__name__
-            document_type_registry[new_class.config_namespace][name] = new_class
-
-        # 4.  Add subclasses
-
+        # 3.  Add subclasses
         for b in bases:
             if 'Document' in globals() and issubclass(b, Document):
                 b.add_subclass(new_class)
             if not hasattr(b, 'config_polymorphic_collection'):
                 continue
-            if b.config_polymorphic_collection and 'config_collection' not in class_dict:
+            if b.config_polymorphic_collection and 'config_collection_name' not in class_dict:
                 new_class.config_collection_name = b.get_collection_name()
+        
+        # 4. register type
+        if new_class.config_namespace is not None:
+            name = new_class.config_full_name
+            if name == None:
+                name = new_class.__name__
+
+            ns = new_class.config_namespace
+            document_type_registry[ns][name] = new_class
+
+            # if the new class uses a polymorphic collection we should only
+            # set up the collection name to refer to the base class
+            # TODO: if non-polymorphic classes use the collection registry they
+            # will just overwrite for now.
+            collection = new_class.get_collection_name()
+            current = collection_registry[ns].get(collection)
+            if current is None or issubclass(current, new_class):
+                collection_registry[ns][collection] = new_class
+
 
 
         return new_class
@@ -182,7 +194,7 @@ class Document(object):
                 
         fields = self.get_fields()
         for name, field in fields.iteritems():
-            print name
+            # print name
             if self.partial and field.db_field not in self.retrieved_fields:
                 self._values[name] = Value(field, self, retrieved=False)
             elif name in kwargs:
@@ -443,7 +455,7 @@ class Document(object):
         self._session = session
 
     def _mark_clean(self):
-        print 'CLEAR DIRTY'
+        # print 'CLEAR DIRTY'
         for k, v in self._values.iteritems():
             v.clear_dirty()
         

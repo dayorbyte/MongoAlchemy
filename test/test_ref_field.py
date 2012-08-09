@@ -32,65 +32,84 @@ class C(Document):
 
 def test_simple_dereference():
     print 1111
-    class A(Document):
+    class ASD(Document):
         x = IntField()
-    class B(Document):
-        y_id = SRefField(DocumentField(A))
+    class BSD(Document):
+        y_id = SRefField(DocumentField(ASD))
         y = y_id.rel()
 
     s = get_session()
-    a = A(x=4)
+    s.clear_collection(ASD)
+    s.clear_collection(BSD)
+    a = ASD(x=4)
     s.insert(a)
 
-    b = B(y_id=a.mongo_id)
+    b = BSD()
+    b.y = a
     s.add_to_session(b)
     assert b.y.x == 4
 
+def test_poly_ref():
+    class PRef(Document):
+        config_polymorphic_collection = True
+        x = IntField()
+    
+    class PRef2(PRef):
+        y = IntField()
+    r2 = PRef2()
+    r2.mongo_id = ObjectId()
+    assert RefField()._to_ref(r2).collection == 'PRef'
 
 
 def test_proxy():
-    class B(Document):
+    class TPB(Document):
         b = IntField(default=3)
-    class A(Document):
-        x_ids = ListField(RefField(B, allow_none=True), default_empty=True, allow_none=True)
+    class TPA(Document):
+        x_ids = ListField(RefField(TPB, allow_none=True), default_empty=True, allow_none=True)
         xs = x_ids.rel()
-        x_id = RefField(B, allow_none=True)
+        x_id = RefField(TPB, allow_none=True)
         x = x_id.rel()
     
     s = get_session()
-    a = A()
+    s.clear_collection(TPA)
+    s.clear_collection(TPB)
+
+    a = TPA()
     for i in range(0, 3):
-        b = B(b=i)
+        b = TPB(b=i)
         s.insert(b)
         a.x_id = b.to_ref()
         a.x_ids.append(b.to_ref())
 
     s.insert(a)
-    aa = s.query(A).one()
+    aa = s.query(TPA).one()
     assert aa.x.b == 2, aa.x.b
     assert [z.b for z in aa.xs] == range(0, 3)
 
-    a_none = A(x_id=None, x_ids=[None])
+    a_none = TPA(x_id=None, x_ids=[None])
     a_none._set_session(s)
     assert a_none.x == None
     assert list(a_none.xs) == [None]
 
-    a_set = A()
+    a_set = TPA()
     a_set.x = b
 
 def test_proxy_ignore_missing():
-    class B(Document):
+    class TPIMB(Document):
         b = IntField(default=3)
-    class A(Document):
-        x_ids = ListField(RefField(B), default_empty=True)
+    class TPIMA(Document):
+        x_ids = ListField(RefField(TPIMB), default_empty=True)
         xs = x_ids.rel(ignore_missing=True)
-        x_id = RefField(B)
+        x_id = RefField(TPIMB)
         x = x_id.rel()
     
     s = get_session()
-    a = A()
+    s.clear_collection(TPIMA)
+    s.clear_collection(TPIMB)
+
+    a = TPIMA()
     for i in range(0, 3):
-        b = B(b=i)
+        b = TPIMB(b=i)
         b.mongo_id = ObjectId()
         if i > 0:
             s.insert(b)
@@ -99,7 +118,7 @@ def test_proxy_ignore_missing():
         a.x_ids.append(b.to_ref())
 
     s.insert(a)
-    aa = s.query(A).one()
+    aa = s.query(TPIMA).one()
     
     assert len(list(aa.xs)) == 2, len(list(aa.xs))
 

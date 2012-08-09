@@ -37,7 +37,7 @@ class DocumentField(Field):
         from mongoalchemy.document import Document, document_type_registry
         if not isinstance(self.__type, basestring) and issubclass(self.__type, Document):
             return self.__type
-        if self.parent.config_namespace == None:
+        if self.parent and self.parent.config_namespace == None:
             raise BadFieldSpecification('Document namespace is None.  Strings are not allowed for DocumentFields')
         type = document_type_registry[self.parent.config_namespace].get(self.__type)
         if type == None or not issubclass(type, Document):
@@ -47,10 +47,10 @@ class DocumentField(Field):
     def dirty_ops(self, instance):
         ''' Returns a dict of the operations needed to update this object.  
             See :func:`Document.get_dirty_ops` for more details.'''
-        print 'check dirty'
+        # print 'check dirty'
         obj_value = instance._values[self._name]
         if not obj_value.set:
-            print 'not set'
+            # print 'not set'
             return {}
 
         if not obj_value.dirty and self.__type.config_extra_fields != 'ignore':
@@ -64,7 +64,7 @@ class DocumentField(Field):
             for key, value in values.iteritems():
                 name = '%s.%s' % (self._name, key)
                 ret[op][name] = value
-        print 'ret'
+        # print 'ret'
         return ret
     
     def subfields(self):
