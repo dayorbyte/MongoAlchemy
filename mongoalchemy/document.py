@@ -194,19 +194,32 @@ class Document(object):
                 
         fields = self.get_fields()
         for name, field in fields.iteritems():
-            # print name
             if self.partial and field.db_field not in self.retrieved_fields:
-                self._values[name] = Value(field, self, retrieved=False)
-            elif name in kwargs:
-                field = getattr(cls, name)
-                value = kwargs[name]
-                self._values[name] = Value(field, self, 
-                                           from_db=loading_from_db)
-                getattr(cls, name).set_value(self, kwargs[name])
-            elif field.auto:
-                self._values[name] = Value(field, self, from_db=False)
+                retrieved = False
+                value = None
+                value_set = False
+            elif name not in kwargs:
+                value_set = False
+                value = None
+                retrieved = True
             else:
-                self._values[name] = Value(field, self, from_db=False)
+                value_set = True
+                value = kwargs[name]
+                retrieved = True
+            
+            field.set_value(self, value, dirty=loading_from_db, 
+                            from_db=loading_from_db, retrieved=retrieved,
+                            value_set=value_set)
+            ##elif name in kwargs:
+            ##    field = getattr(cls, name)
+            ##    value = kwargs[name]
+            ##    self._values[name] = Value(field, self, 
+            ##                               from_db=loading_from_db)
+            ##    getattr(cls, name).set_value(self, kwargs[name])
+            ##elif field.auto:
+            ##    self._values[name] = Value(field, self, from_db=False)
+            ##else:
+            ##    self._values[name] = Value(field, self, from_db=False)
         
         for k in kwargs:
             if k not in fields:
@@ -599,30 +612,5 @@ class Index(object):
             drop_dups=self.__drop_dups, **extras)
         return self
 
-class Value(object):
-    def __init__(self, field, document, from_db=False, extra=False,
-                 retrieved=True):
-        # Stuff
-        self.field = field
-        self.doc = document
-        self.value = None
-        
-        # Flags
-        self.from_db = from_db
-        self.set = False
-        self.extra = extra
-        self.dirty = False
-        self.retrieved = retrieved
-        self.update_op = None
-    def clear_dirty(self):
-        self.dirty = False
-        self.update_op = None
-
-    def delete(self):
-        self.value = None
-        self.set = False
-        self.dirty = True
-        self.from_db = False
-        self.update_op = '$unset'
 
 

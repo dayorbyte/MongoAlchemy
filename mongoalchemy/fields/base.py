@@ -214,13 +214,19 @@ class Field(object):
     def __set__(self, instance, value):
         self.set_value(instance, value)
     
-    def set_value(self, instance, value):
+    def set_value(self, instance, value, dirty=True, value_set=True, 
+                  from_db=False, retrieved=True):
         self.validate_wrap(value)
+        if self._name not in instance._values:
+            val = Value(self, instance, from_db=from_db, 
+                        retrieved=retrieved)
+            instance._values[self._name] = val
+        
         obj_value = instance._values[self._name]
         obj_value.value = value
-        obj_value.dirty = True
-        obj_value.set = True
-        obj_value.from_db = False
+        obj_value.dirty = dirty
+        obj_value.set = value_set
+        obj_value.from_db = from_db
         if self.on_update != 'ignore':
             obj_value.update_op = self.on_update
     
@@ -361,3 +367,28 @@ class Field(object):
         return True
 
 
+class Value(object):
+    def __init__(self, field, document, from_db=False, extra=False,
+                 retrieved=True):
+        # Stuff
+        self.field = field
+        self.doc = document
+        self.value = None
+        
+        # Flags
+        self.from_db = from_db
+        self.set = False
+        self.extra = extra
+        self.dirty = False
+        self.retrieved = retrieved
+        self.update_op = None
+    def clear_dirty(self):
+        self.dirty = False
+        self.update_op = None
+
+    def delete(self):
+        self.value = None
+        self.set = False
+        self.dirty = True
+        self.from_db = False
+        self.update_op = '$unset'
