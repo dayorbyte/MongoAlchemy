@@ -131,3 +131,9 @@ def kv_broken_kv_obj_test2():
     s = KVField(StringField(), IntField())
     s.unwrap([('a', 5)])
 
+
+def kv_docuent_test():
+    from mongoalchemy.document import Document
+    class Blah(Document):
+        i = IntField()
+    s = KVField(Blah, Blah)

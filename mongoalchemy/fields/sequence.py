@@ -37,6 +37,9 @@ class SequenceField(Field):
             :param default_empty: the default is an empty sequence.
         '''
         super(SequenceField, self).__init__(**kwargs)
+        from mongoalchemy.document import Document, DocumentField
+        if isinstance(item_type, type) and issubclass(item_type, Document):
+            item_type = DocumentField(item_type)
         self.item_type = item_type
         self.min = min_capacity
         self.max = max_capacity
@@ -199,7 +202,7 @@ class SetField(SequenceField):
 
     def rel(self, ignore_missing=False):
         return ListProxy(self, ignore_missing=ignore_missing)
-    
+
     def _validate_wrap_type(self, value):
         if not isinstance(value, set):
             self._fail_validation_type(value, set)

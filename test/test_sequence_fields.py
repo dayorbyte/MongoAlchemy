@@ -2,6 +2,14 @@ from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
 
+# Sequence Field
+def sequence_document_test():
+    from mongoalchemy.document import Document
+    class Blah(Document):
+        i = IntField()
+    a = ListField(Blah)
+
+
 # List Field
 @raises(BadValueException)
 def list_wrong_type_test():

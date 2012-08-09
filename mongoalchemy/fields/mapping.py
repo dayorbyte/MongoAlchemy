@@ -35,6 +35,9 @@ class DictField(Field):
         ''' :param value_type: the Field type to use for the values
         '''
         super(DictField, self).__init__(**kwargs)
+        from mongoalchemy.document import Document, DocumentField
+        if isinstance(value_type, type) and issubclass(value_type, Document):
+            value_type = DocumentField(value_type)
         self.value_type = value_type
         self.default_empty = default_empty
         if not isinstance(value_type, Field):
@@ -123,15 +126,17 @@ class KVField(DictField):
         '''
         super(KVField, self).__init__(value_type, default_empty=default_empty, **kwargs)
         
+        from mongoalchemy.document import Document, DocumentField
+        if isinstance(key_type, type) and issubclass(key_type, Document):
+            key_type = DocumentField(key_type)
+
         if not isinstance(key_type, Field):
             raise BadFieldSpecification("KVField key type is not a field!")
-        # This is covered by DictField
-        # if not isinstance(value_type, Field):
-        #     raise BadFieldSpecification("KVField value type is not a field!")
+
+
         self.key_type = key_type
         self.key_type._name = 'k'
         
-        self.value_type = value_type
         self.value_type._name = 'v'
     
     def set_parent_on_subtypes(self, parent):
