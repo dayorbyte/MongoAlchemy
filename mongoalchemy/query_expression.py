@@ -193,6 +193,11 @@ class QueryField(object):
         return QueryExpression({
             self : { '$nin' : [self.get_type().wrap_value(value) for value in values] }
         })
+
+    def exists(self, exists=True):
+        ''' Create a MongoDB query to check if a field exists on a Document.
+        '''
+        return QueryExpression({self: {'$exists': exists}})
     
     def __str__(self):
         return self.get_absolute_name()

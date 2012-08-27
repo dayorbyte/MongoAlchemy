@@ -241,6 +241,11 @@ def test_nin():
     assert q.nin(T.i, 1, 2, 3).query == {'i' : {'$nin' : [1,2,3]}}, q.nin(T.i, 1, 2, 3).query
     assert q.filter(T.i.nin(1, 2, 3)).query == {'i' : {'$nin' : [1,2,3]}}
 
+def test_exists():
+    q = Query(T, None)
+    assert q.filter(T.i.exists(False)).query == {'i': {'$exists': False}}
+    assert q.filter(T.i.exists(True)).query == {'i': {'$exists': True}}
+
 
 # free-form queries
 
