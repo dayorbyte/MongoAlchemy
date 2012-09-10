@@ -11,6 +11,9 @@ class BadValueException(Exception):
             message = '%s Cause: %s' % (message, cause)
         Exception.__init__(self, message)
 
+class BadReferenceException(Exception):
+    pass
+
 class InvalidConfigException(Exception):
     ''' Raised when a bad value is passed in for a configuration that expects
         its values to obey certain constraints.'''

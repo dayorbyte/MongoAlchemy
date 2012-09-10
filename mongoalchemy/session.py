@@ -45,9 +45,9 @@ from uuid import uuid4
 from pymongo.connection import Connection
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
-from mongoalchemy.document import FieldNotRetrieved, Document
+from mongoalchemy.document import FieldNotRetrieved, Document, collection_registry
 from mongoalchemy.query_expression import FreeFormDoc
-from mongoalchemy.exceptions import TransactionException
+from mongoalchemy.exceptions import TransactionException, BadReferenceException
 from mongoalchemy.ops import *
 
 class Session(object):
@@ -382,15 +382,24 @@ class Session(object):
     def dereference(self, ref, allow_none=False):
         if isinstance(ref, Document):
             return ref
+        if not hasattr(ref, 'type'):
+            if ref.collection in collection_registry['global']:
+                ref.type = collection_registry['global'][ref.collection]
         assert hasattr(ref, 'type')
         
         obj = self.cache_read(ref.id)
         if obj is not None:
             return obj
-        value = self.db.dereference(ref)
+        if ref.database and self.db.name != ref.database:
+            db = self.db.connection[ref.database]
+        else:
+            db = self.db
+        value = db.dereference(ref)
         if value is None and allow_none:
             obj = None
             self.cache_write(obj, mongo_id=ref.id)
+        elif value is None:
+            raise BadReferenceException('Bad reference: %r' % ref)
         else:
             obj = ref.type.unwrap(value, session=self)
             self.cache_write(obj)

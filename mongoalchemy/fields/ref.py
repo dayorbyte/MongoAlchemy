@@ -35,7 +35,7 @@ class SRefField(RefBase):
     '''
     has_subfields = True
     has_autoload = True
-    def __init__(self, type, **kwargs):
+    def __init__(self, type, db=None, **kwargs):
         from mongoalchemy.fields import DocumentField
 
         super(SRefField, self).__init__(**kwargs)
@@ -43,10 +43,12 @@ class SRefField(RefBase):
         self.type = type
         if not isinstance(type, DocumentField):
             self.type = DocumentField(type)
+        self.db = db
     def _to_ref(self, doc):
         return doc.mongo_id
     def dereference(self, session, ref, allow_none=False):
-        ref = DBRef(id=ref, collection=self.type.type.get_collection_name())
+        ref = DBRef(id=ref, collection=self.type.type.get_collection_name(),
+                    database=self.db)
         ref.type = self.type.type
         return session.dereference(ref, allow_none=allow_none)
     def set_parent_on_subtypes(self, parent):
@@ -72,7 +74,7 @@ class RefField(RefBase):
     has_subfields = True
     has_autoload = True
 
-    def __init__(self, type=None, db=None, namespace='global', **kwargs):
+    def __init__(self, type=None, db=None, db_required=False, namespace='global', **kwargs):
         ''' :param type: (optional) the Field type to use for the values.  It 
                 must be a DocumentField.  If you want to save refs to raw mongo 
                 objects, you can leave this field out
@@ -88,6 +90,7 @@ class RefField(RefBase):
             type = DocumentField(type)
 
         super(RefField, self).__init__(**kwargs)
+        self.db_required = db_required
         self.type = type
         self.namespace = namespace
         self.db = db
@@ -102,7 +105,7 @@ class RefField(RefBase):
         return value
 
     def _to_ref(self, doc):
-        return doc.to_ref()
+        return doc.to_ref(db=self.db)
 
     def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
@@ -118,10 +121,7 @@ class RefField(RefBase):
         from mongoalchemy.document import collection_registry
         # TODO: namespace support
         ref.type = collection_registry['global'][ref.collection]
-        # print ref.type, ref
-        # print '--' * 30
         obj = session.dereference(ref, allow_none=allow_none)
-        # print '--' * 30
         return obj
     def set_parent_on_subtypes(self, parent):
         if self.type:
@@ -139,7 +139,9 @@ class RefField(RefBase):
             if expected != got:
                 self._fail_validation(value, '''Wrong collection for reference: '''
                                       '''got "%s" instead of "%s" ''' % (got, expected))
-        if self.db and self.db != value.database:
+        if self.db_required and not value.database:
+            self._fail_validation(value, 'db_required=True, but not database specified')
+        if self.db and value.database and self.db != value.database:
             self._fail_validation(value, '''Wrong database for reference: '''
                                   ''' got "%s" instead of "%s" ''' % (value.database, self.db) ) 
     validate_wrap = validate_unwrap

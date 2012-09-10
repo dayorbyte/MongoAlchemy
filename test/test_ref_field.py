@@ -2,7 +2,8 @@ from nose.tools import *
 from mongoalchemy.fields import *
 
 from mongoalchemy.exceptions import DocumentException, MissingValueException, \
-        ExtraValueException, FieldNotRetrieved, BadFieldSpecification
+        ExtraValueException, FieldNotRetrieved, BadFieldSpecification, \
+        BadReferenceException
 from mongoalchemy.document import Document, document_type_registry
 from mongoalchemy.session import Session
 from test.util import known_failure
@@ -183,6 +184,57 @@ def test_unwrap_bad_type():
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
 
     ret = RefField(DocumentField(A)).unwrap(5)
+
+@raises(BadValueException)
+def test_unwrap_missing_db():
+    class A(Document):
+        x = IntField()
+    s = get_session()
+    
+    a = A(x=5)
+    s.insert(a)
+    
+    aref = {'$id':a.mongo_id, '$ref':'A'}
+    dbaref = DBRef(collection='A', id=a.mongo_id)
+
+    ret = RefField(DocumentField(A), db_required=True).unwrap(dbaref)
+
+def test_dereference_doc():
+    class A(Document):
+        x = IntField()
+    
+    s = Session.connect('unit-testing', cache_size=0)
+    s.clear_collection(A)
+
+    a = A(x=5)
+    s.insert(a)
+    dbaref = DBRef(collection='A', id=a.mongo_id, database='unit-testing')
+    s2 = Session.connect('unit-testing2', cache_size=0)
+    assert s2.dereference(a).x == 5
+
+def test_dereference():
+    class A(Document):
+        x = IntField()
+    
+    s = Session.connect('unit-testing', cache_size=0)
+    s.clear_collection(A)
+
+    a = A(x=5)
+    s.insert(a)
+    dbaref = DBRef(collection='A', id=a.mongo_id, database='unit-testing')
+    s2 = Session.connect('unit-testing2', cache_size=0)
+    assert s2.dereference(dbaref).x == 5
+
+@raises(BadReferenceException)
+def test_bad_dereference():
+    class A(Document):
+        x = IntField()
+    
+    s = Session.connect('unit-testing', cache_size=0)
+    s.clear_collection(A)
+    dbaref = DBRef(collection='A', id=ObjectId(), database='unit-testing')
+    s.dereference(dbaref)
+
 
 def test_simple():
     class A(Document):
