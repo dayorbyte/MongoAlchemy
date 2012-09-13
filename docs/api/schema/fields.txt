@@ -88,6 +88,13 @@ Document Field Objects
    :members:
    :undoc-members:
 
+Reference Field Objects
+--------------------------------------------------------
+
+.. autoclass:: mongoalchemy.fields.RefField
+   :members:
+   :undoc-members:
+
 Computed Field Objects
 --------------------------------------------------------
 
