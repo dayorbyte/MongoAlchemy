@@ -24,8 +24,8 @@ from mongoalchemy.fields.base import *
 from bson import DBRef
 
 class RefBase(Field):
-    def rel(self):
-        return Proxy(self)
+    def rel(self, allow_none=False):
+        return Proxy(self, allow_none=allow_none)
 
 class SRefField(RefBase):
     ''' A Simple RefField (SRefField) looks like an ObjectIdField in the 
@@ -115,8 +115,6 @@ class RefField(RefBase):
         value.type = self.type
         return value
     
-    def rel(self):
-        return Proxy(self)
     def dereference(self, session, ref, allow_none=False):
         from mongoalchemy.document import collection_registry
         # TODO: namespace support
@@ -147,7 +145,8 @@ class RefField(RefBase):
     validate_wrap = validate_unwrap
 
 class Proxy(object):
-    def __init__(self, field):
+    def __init__(self, field, allow_none=False):
+        self.allow_none = allow_none
         self.field = field
     def __get__(self, instance, owner):
         if instance is None:
@@ -156,7 +155,7 @@ class Proxy(object):
         ref = getattr(instance, self.field._name)
         if ref is None:
             return None
-        return self.field.dereference(session, ref)
+        return self.field.dereference(session, ref, allow_none=self.allow_none)
     def __set__(self, instance, value):
         assert instance is not None
         setattr(instance, self.field._name, self.field._to_ref(value))
