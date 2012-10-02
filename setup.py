@@ -2,7 +2,7 @@
 
 from distutils.core import setup
 
-VERSION = '0.13.2'
+VERSION = '0.13.3'
 DESCRIPTION = 'Document-Object Mapper/Toolkit for Mongo Databases'
 
 setup(
@@ -13,7 +13,7 @@ setup(
     license='MIT',
     author_email='jeff@qcircles.net',
     url='http://mongoalchemy.org/',
-    packages=['mongoalchemy'],
+    packages=['mongoalchemy', 'mongoalchemy.fields'],
     install_requires=['pymongo'],
     classifiers = [
         'Development Status :: 3 - Alpha',
