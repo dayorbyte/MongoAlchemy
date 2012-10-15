@@ -61,6 +61,24 @@ class StringField(PrimitiveField):
         if self.min is not None and len(value) < self.min:
             self._fail_validation(value, 'Value too short (%d)' % len(value))
 
+class RegExStringField(PrimitiveField):
+    ''' Unicode Strings.  ``unicode`` is used to wrap and unwrap values,
+        and any subclass of basestring is an acceptable input, as long as
+        it matches the provided regex.'''
+    def __init__(self, regex, **kwargs):
+        ''' :param regex: instance of :class: `RegexObject` to match against
+            :param kwargs: arguments for :class:`Field`
+        '''
+        self.regex = regex
+        super(RegExStringField, self).__init__(constructor=unicode, **kwargs)
+
+    def validate_wrap(self, value):
+        ''' Validates the type and length of ``value`` '''
+        if not isinstance(value, basestring):
+            self._fail_validation_type(value, basestring)
+        if self.regex.match(value) is None:
+            self._fail_validation(value, 'Value does not match regular expression')
+
 class BinaryField(PrimitiveField):
     def __init__(self, **kwargs):
         super(BinaryField, self).__init__(constructor=Binary, **kwargs)

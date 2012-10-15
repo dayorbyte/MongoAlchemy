@@ -52,7 +52,8 @@ from mongoalchemy.ops import *
 
 class Session(object):
 
-    def __init__(self, database, tz_aware=False, timezone=None, safe=False, cache_size=0):
+    def __init__(self, database, tz_aware=False, timezone=None, safe=False, cache_size=0,
+                 auto_ensure=True):
         '''
         Create a session connecting to `database`.  
         
@@ -60,6 +61,8 @@ class Session(object):
             :class:`pymongo.database.Database`
         :param safe: Whether the "safe" option should be used on mongo writes, \
             blocking to make sure there are no errors.
+        :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
+            operations.
         
         **Fields**:
             * db: the underlying pymongo database object
@@ -76,6 +79,7 @@ class Session(object):
         self.safe = safe
         self.timezone = timezone
         self.tz_aware = bool(tz_aware or timezone)
+        self.auto_ensure = auto_ensure
 
         self.cache_size = cache_size
         self.cache = {}
@@ -88,7 +92,7 @@ class Session(object):
         return len(self.transactions) > 0
     
     @classmethod
-    def connect(self, database, timezone=None, cache_size=0, *args, **kwds):
+    def connect(self, database, timezone=None, cache_size=0, auto_ensure=True, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the 
             database connection that the session will use.
             
@@ -96,6 +100,8 @@ class Session(object):
                     :class:`basestring`
             :param safe: The value for the "safe" parameter of the Session \ 
                 init function
+            :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
+                operations.
             :param args: arguments for :class:`pymongo.connection.Connection`
             :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
         '''
@@ -106,7 +112,7 @@ class Session(object):
             kwds['tz_aware'] = True
         conn = Connection(*args, **kwds)
         db = conn[database]
-        return Session(db, timezone=timezone, safe=safe, cache_size=cache_size)
+        return Session(db, timezone=timezone, safe=safe, cache_size=cache_size, auto_ensure=auto_ensure)
     
     def cache_write(self, obj, mongo_id=None):
         if mongo_id is None:
@@ -212,13 +218,13 @@ class Session(object):
             transaction, so any objects retrieved which are not in the cache
             which would be updated when the transaction finishes will be 
             stale '''
-        collection = self.db[query.type.get_collection_name()]
-        for index in query.type.get_indexes():
-            index.ensure(collection)
+        self.auto_ensure_indexes(query.type)
 
         kwargs = dict()
         if query.get_fields():
             kwargs['fields'] = [str(f) for f in query.get_fields()]
+
+        collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
         
         if query.sort:
@@ -285,10 +291,9 @@ class Session(object):
         if self.in_transaction:
             raise TransactionException('Cannot find and modify in a transaction.')
         self.flush()
+        self.auto_ensure_indexes(fm_exp.query.type)
         # assert len(fm_exp.update_data) > 0
         collection = self.db[fm_exp.query.type.get_collection_name()]
-        for index in fm_exp.query.type.get_indexes():
-            index.ensure(collection)
         kwargs = {
             'query' : fm_exp.query.query, 
             'update' : fm_exp.update_data, 
@@ -338,7 +343,16 @@ class Session(object):
         `cls`.  Index information is returned in the same format as *pymongo*.
         '''
         return self.db[cls.get_collection_name()].index_information()
-    
+
+    def ensure_indexes(self, cls):
+        collection = self.db[cls.get_collection_name()]
+        for index in cls.get_indexes():
+            index.ensure(collection)
+
+    def auto_ensure_indexes(self, cls):
+        if self.auto_ensure:
+            self.ensure_indexes(cls)
+
     def clear_queue(self, trans_id=None):
         ''' Clear the queue of database operations without executing any of 
              the pending operations'''

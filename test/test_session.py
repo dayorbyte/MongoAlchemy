@@ -349,7 +349,6 @@ def test_update_docfield_list_extras():
         else:
             assert False
 
-
 def test_update_list():
     s = Session.connect('unit-testing')
     s.clear_collection(TIntListDoc)
@@ -378,3 +377,32 @@ def test_update_list():
     tFetched = s.query(TIntListDoc).one()
 
     assert sorted([2,3]) == sorted(tFetched.intlist)
+
+def test_ensure_indexes():
+    s = Session.connect('unit-testing', auto_ensure=False)
+    s.db.drop_collection(TUnique.get_collection_name())
+
+    s.insert(TUnique(i=1))
+
+    indexes = s.get_indexes(TUnique)
+    assert len(indexes) == 1
+    assert "_id_" in indexes
+
+    s.ensure_indexes(TUnique)
+
+    indexes = s.get_indexes(TUnique)
+    assert len(indexes) == 2
+    assert "_id_" in indexes
+    assert "i_1" in indexes
+
+def test_auto_ensure_indexes():
+    s = Session.connect('unit-testing', auto_ensure=True)
+    s.db.drop_collection(TUnique.get_collection_name())
+
+    s.insert(TUnique(i=1))
+
+    indexes = s.get_indexes(TUnique)
+
+    assert len(indexes) == 2
+    assert "_id_" in indexes
+    assert "i_1" in indexes
