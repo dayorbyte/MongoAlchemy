@@ -3,6 +3,7 @@ from mongoalchemy.fields import *
 from test.util import known_failure
 from datetime import datetime
 from bson.binary import Binary
+import re
 
 # Field Tests
 
@@ -84,6 +85,21 @@ def string_value_test():
     s = StringField()
     assert s.wrap('foo') == 'foo'
     assert s.unwrap('bar') == 'bar'
+
+# RegEx String Tests
+IP_ADDR_RE = re.compile(r"^" + r"\.".join([r"([01]?\d\d?|2[0-4]\d|25[0-5])"]*4) + r"$")
+@raises(BadValueException)
+def regex_wrong_type_test():
+    RegExStringField(IP_ADDR_RE).wrap(4)
+
+@raises(BadValueException)
+def regex_no_match_test():
+    RegExStringField(IP_ADDR_RE).wrap('192.168.1.260')
+
+def regex_value_test():
+    s = RegExStringField(IP_ADDR_RE)
+    assert s.wrap('192.168.1.127') == '192.168.1.127'
+    assert s.unwrap('192.168.1.127') == '192.168.1.127'
 
 # Bool Field
 @raises(BadValueException)

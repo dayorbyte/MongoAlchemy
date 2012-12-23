@@ -14,9 +14,7 @@ class Operation(object):
         return self.session.db[self.type.get_collection_name()]
 
     def ensure_indexes(self):
-        c = self.collection
-        for index in self.type.get_indexes():
-            index.ensure(c)
+        self.session.auto_ensure_indexes(self.type)
 
 class ClearCollectionOp(Operation):
     def __init__(self, trans_id, session, kind):

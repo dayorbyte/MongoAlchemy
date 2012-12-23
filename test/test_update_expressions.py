@@ -42,7 +42,7 @@ def test_find_and_modify():
     s.clear_collection(T, T2)
     # insert
     value = s.query(T).filter_by(i=12341).find_and_modify().set(i=12341).upsert().execute()
-    assert value == {}, value
+    assert value is None or value == {}, value # Mongo 2.2 now returns None instead of an empty document
     assert s.query(T).one().i == 12341
     
     # update
