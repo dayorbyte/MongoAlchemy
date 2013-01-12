@@ -202,6 +202,41 @@ def test_field_filter_non_retrieved_subdocument_field():
         break
     assert t2.t.j == 2
 
+@raises(FieldNotRetrieved)
+def test_save_partial_subdocument_fail():
+    class Foo(Document):
+        a = DocumentField('Bar')
+    class Bar(Document):
+        b = IntField()
+        c = IntField()
+    s = get_session()
+    s.clear_collection(Foo)
+    s.clear_collection(Bar)
+    bar = Bar(b=1432, c=1112)
+    s.insert(bar)
+    bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
+    # print bar.c, bar.b
+    s.insert(Foo(a=bar))
+    s.query(Foo).filter(Foo.a.c==1112).one()
+
+
+def test_save_partial_subdocument():
+    class Foo(Document):
+        a = DocumentField('Bar')
+    class Bar(Document):
+        b = IntField(required=False)
+        c = IntField()
+    s = get_session()
+    s.clear_collection(Foo)
+    s.clear_collection(Bar)
+    bar = Bar(b=1432, c=1112)
+    s.insert(bar)
+    bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
+    # print bar.c, bar.b
+    s.insert(Foo(a=bar))
+    s.query(Foo).filter(Foo.a.c==1112).one()
+
+
 @raises(Exception)
 def repeated_field_query_test():
     s = get_session()

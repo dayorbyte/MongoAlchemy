@@ -395,6 +395,9 @@ class Document(object):
             except AttributeError, e:
                 if field.required:
                     raise MissingValueException(name)
+            except FieldNotRetrieved, fne:
+                if field.required:
+                    raise
         return res
         
     @classmethod
