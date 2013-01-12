@@ -3,7 +3,7 @@
 Documentation
 ======================
 
-**NOTE: Over the next few weeks (starting July 22) I'm going to be making significant internal changes for efficiency and flexibilty.  The interface should be basically the same when I'm done, but you may want to keep this in mind!**
+**NOTE: Over the next few weeks (starting Jan 12) I'm going to be making significant internal changes for efficiency and flexibilty.  The interface should be basically the same when I'm done, but you may want to keep this in mind!**
 
 
 See: http://mongoalchemy.org/
