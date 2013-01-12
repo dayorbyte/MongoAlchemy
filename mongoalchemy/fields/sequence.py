@@ -43,7 +43,13 @@ class SequenceField(Field):
         self.default_empty = default_empty
         if not isinstance(item_type, Field):
             raise BadFieldSpecification("List item_type is not a field!")
-        
+    def schema_json(self):
+        super_schema = super(SequenceField, self).schema_json()
+        return dict(item_type=self.item_type.schema_json(),
+                    min_capacity=self.min,
+                    max_capacity=self.max,
+                    default_empty=self.default_empty, **super_schema)
+
     @property
     def has_subfields(self):
         ''' Returns True if the sequence's value type has subfields. '''
@@ -148,7 +154,6 @@ class ListField(SequenceField):
             :param default_empty: the default is an empty sequence.
         '''
         super(ListField, self).__init__(item_type, **kwargs)
-
     def set_default(self, value):
         self._default = value
     def get_default(self):
@@ -188,7 +193,6 @@ class SetField(SequenceField):
     ''' Field representing a python set.
         
         .. seealso:: :class:`SequenceField`'''
-    
     def set_default(self, value):
         self._default = value
     def get_default(self):

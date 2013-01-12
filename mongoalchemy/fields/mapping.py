@@ -46,6 +46,11 @@ class DictField(Field):
             return {}
         return self._default
     default = property(get_default, set_default)
+    def schema_json(self):
+        super_schema = super(DictField, self).schema_json()
+        return dict(value_type=self.value_type.schema_json(), 
+                    default_empty=self.default_empty,
+                    **super_schema)
     
     @property
     def has_autoload(self):
@@ -133,6 +138,9 @@ class KVField(DictField):
         
         self.value_type = value_type
         self.value_type._name = 'v'
+    def schema_json(self):
+        super_schema = super(KVField, self).schema_json()
+        return dict(key_type=self.key_type.schema_json(), **super_schema)
     
     def set_parent_on_subtypes(self, parent):
         self.value_type._set_parent(parent)

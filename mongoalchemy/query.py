@@ -390,7 +390,7 @@ class QueryResult(object):
             obj = self.session.cache_read(value['_id'])
             if obj:
                 return obj
-            value = self.type.unwrap(value, fields=self.fields, session=self.session)
+            value = self.session._unwrap(self.type, value, fields=self.fields)
             if not isinstance(value, dict):
                 self.session.cache_write(value)
         return value
@@ -403,7 +403,7 @@ class QueryResult(object):
             obj = self.session.cache_read(value['_id'])
             if obj:
                 return obj
-            value = self.type.unwrap(value, session=self.session)
+            value = self.session._unwrap(self.type, value)
             self.session.cache_write(value)
             # value = self.session.localize(session, value)
         return value

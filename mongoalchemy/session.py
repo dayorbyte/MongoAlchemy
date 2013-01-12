@@ -324,13 +324,15 @@ class Session(object):
         # obj = self.cache_read(value['_id'])
         # if obj is not None:
         #     return obj
-        obj = fm_exp.query.type.unwrap(value, 
-                fields=fm_exp.query.get_fields(),
-                session=self,
-            )
+        obj = self._unwrap(fm_exp.query.type, value, 
+                           fields=fm_exp.query.get_fields())
         if not fm_exp.query.get_fields():
             self.cache_write(obj)
         return obj
+
+    def _unwrap(self, type, obj, **kwargs):
+        obj = type.transform_incoming(obj, session=self)
+        return type.unwrap(obj, session=self, **kwargs)
 
     @property
     def transaction_id(self):
@@ -415,7 +417,7 @@ class Session(object):
         elif value is None:
             raise BadReferenceException('Bad reference: %r' % ref)
         else:
-            obj = ref.type.unwrap(value, session=self)
+            obj = self._unwrap(ref.type, value)
             self.cache_write(obj)
         return obj
 
@@ -469,5 +471,3 @@ class Session(object):
             self.clear_queue()
             self.clear_cache()
         return False
-
-

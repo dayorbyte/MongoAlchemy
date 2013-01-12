@@ -217,6 +217,19 @@ class Document(object):
 
         self.__extra_fields_orig = dict(self.__extra_fields)
     
+    @classmethod
+    def schema_json(cls):
+        ret = dict(fields={},
+                   config_namespace=cls.config_namespace,
+                   config_polymorphic=cls.config_polymorphic,
+                   config_polymorphic_collection=cls.config_polymorphic_collection,
+                   config_polymorphic_identity=cls.config_polymorphic_identity,
+                   config_full_name=cls.config_full_name,
+                   config_extra_fields=cls.config_extra_fields)
+        for f in cls.get_fields():
+            ret['fields'][f] = getattr(cls, f).schema_json()
+        return ret
+
     def __deepcopy__(self, memo):
         return type(self).unwrap(self.wrap(), session=self._get_session())
 
@@ -352,7 +365,16 @@ class Document(object):
             if isinstance(field, Index):
                 ret.append(field)
         return ret
-    
+    @classmethod
+    def transform_incoming(self, obj, session):
+        """ Tranform the SON object into one which will be able to be 
+            unwrapped by this document class.  
+
+            This method is designed for schema migration systems.
+        """
+        return obj
+
+
     @classmethod
     def __normalize(cls, fields):
         if not fields:
@@ -387,8 +409,6 @@ class Document(object):
         cls = self.__class__
         for name in self.get_fields():
             field = getattr(cls, name)
-            # if not isinstance(field, QueryField):
-            #     continue
             try:
                 value = getattr(self, name)
                 res[field.db_field] = field.wrap(value)

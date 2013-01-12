@@ -136,9 +136,10 @@ class Field(object):
     
     valid_modifiers = SCALAR_MODIFIERS
 
-    def __init__(self, required=True, default=UNSET, db_field=None, allow_none=False, on_update='$set', 
-            validator=None, unwrap_validator=None, wrap_validator=None, _id=False,
-            proxy=None, iproxy=None, ignore_missing=False):
+    def __init__(self, required=True, default=UNSET, db_field=None, 
+                 allow_none=False, on_update='$set', 
+                 validator=None, unwrap_validator=None, wrap_validator=None, 
+                 _id=False, proxy=None, iproxy=None, ignore_missing=False):
         '''
             :param required: The field must be passed when constructing a document (optional. default: ``True``)
             :param default:  Default value to use if one is not given (optional.)
@@ -190,6 +191,25 @@ class Field(object):
 
         self._name =  'Unbound_%s' % self.__class__.__name__
     
+    def schema_json(self):
+        schema = dict(
+            type=type(self).__name__,
+            required=self.required,
+            db_field=self.__db_field,
+            allow_none=self._allow_none,
+            on_update=self.on_update,
+            validator_set=self.validator is not None,
+            unwrap_validator=self.unwrap_validator is not None,
+            wrap_validator=self.wrap_validator is not None,
+            ignore_missing=self.ignore_missing,
+        )
+        if self.default == UNSET:
+            schema['default_unset'] = True
+        else:
+            schema['default'] = self.wrap(self.default)
+        return schema
+
+
     def __get__(self, instance, owner):
         if instance is None:
             return QueryField(self)

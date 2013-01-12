@@ -44,6 +44,10 @@ class SRefField(RefBase):
         if not isinstance(type, DocumentField):
             self.type = DocumentField(type)
         self.db = db
+    def schema_json(self):
+        super_schema = super(SRefField, self).schema_json()
+        return dict(subtype=self.type.schema_json(),
+                    db=self.db, **super_schema)
     def _to_ref(self, doc):
         return doc.mongo_id
     def dereference(self, session, ref, allow_none=False):
@@ -96,6 +100,16 @@ class RefField(RefBase):
         self.db = db
         self.parent = None
     
+    def schema_json(self):
+        super_schema = super(RefField, self).schema_json()
+        subtype = self.type
+        if subtype is not None:
+            subtype = subtype.schema_json()
+        return dict(db_required=self.db_required,
+                    subtype=subtype,
+                    namespace=self.namespace,
+                    db=self.db, **super_schema)
+
     def wrap(self, value):
         ''' Validate ``value`` and then use the value_type to wrap the 
             value'''

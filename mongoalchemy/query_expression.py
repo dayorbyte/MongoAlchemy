@@ -57,6 +57,8 @@ class FreeFormDoc(object):
         return value
     def get_collection_name(self):
         return self.__name
+    def transform_incoming(self, obj, session):
+        return obj
     def get_indexes(self):
         return []        
     mongo_id = FreeFormField(name='_id')

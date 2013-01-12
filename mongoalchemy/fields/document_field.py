@@ -32,6 +32,13 @@ class DocumentField(Field):
         super(DocumentField, self).__init__(**kwargs)
         self.__type = document_class
     
+    def schema_json(self):
+        super_schema = super(DocumentField, self).schema_json()
+        subtype = str(self.type.__name__)
+        namespace = self.type.config_namespace
+        type = u'%s:%s' % (namespace, subtype)
+        return dict(subtype=type, **super_schema)
+
     @property
     def type(self):
         from mongoalchemy.document import Document, document_type_registry

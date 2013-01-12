@@ -108,6 +108,11 @@ class NumberField(PrimitiveField):
         super(NumberField, self).__init__(constructor=constructor, **kwargs)
         self.min = min_value
         self.max = max_value
+    
+    def schema_json(self):
+        super_schema = super(NumberField, self).schema_json()
+        return dict(min_value=self.min, 
+                    max_value=self.max, **super_schema)
         
     def validate_wrap(self, value, *types):
         ''' Validates the type and value of ``value`` '''
@@ -168,7 +173,12 @@ class DateTimeField(PrimitiveField):
             import pytz
             self.utc = pytz.utc
             assert self.min is None and self.max is None
-    
+    def schema_json(self):
+        super_schema = super(DateTimeField, self).schema_json()
+        return dict(min_date=self.min, 
+                    max_date=self.max,
+                    use_tz=self.use_tz, **super_schema)
+
     def wrap(self, value):
         self.validate_wrap(value)
         value = self.constructor(value)
@@ -229,6 +239,11 @@ class TupleField(Field):
         self.size = len(item_types)
         self.types = item_types
     
+    def schema_json(self):
+        super_schema = super(TupleField, self).schema_json()
+        types = [t.schema_json() for t in self.types]
+        return dict(types=types, **super_schema)
+
     def set_parent_on_subtypes(self, parent):
         for type in self.types:
             type._set_parent(parent)
@@ -282,6 +297,10 @@ class GeoField(TupleField):
             :param kwargs: arguments for :class:`Field`
         '''
         super(GeoField, self).__init__(FloatField(), FloatField(), **kwargs)
+    def schema_json(self):
+        super_schema = super(GeoField, self).schema_json()
+        return dict(**super_schema)
+
 
 class EnumField(Field):
     ''' Represents a single value out of a list of possible values, all 
@@ -308,7 +327,12 @@ class EnumField(Field):
         #
         # for value in values:
         #     self.item_type.validate_wrap(value)
-    
+    def schema_json(self):
+        super_schema = super(EnumField, self).schema_json()
+        return dict(item_type=self.item_type.schema_json(),
+                    values=[self.item_type.wrap(v) for v in self.values], 
+                    **super_schema)
+
     def set_parent_on_subtypes(self, parent):
         self.item_type._set_parent(parent)
     
@@ -353,7 +377,9 @@ class AnythingField(Field):
         for free-form objects '''
     
     valid_modifiers = ANY_MODIFIER
-    
+    def schema_json(self):
+        return super(AnythingField, self).schema_json()
+
     def wrap(self, value):
         ''' Always returns the value passed in'''
         return value
@@ -378,6 +404,9 @@ class ObjectIdField(Field):
     def __init__(self, session=None, auto=False, **kwargs):
         super(ObjectIdField, self).__init__(**kwargs)
         self.auto = auto
+    def schema_json(self):
+        super_schema = super(ObjectIdField, self).schema_json()
+        return dict(auth=self.auto, **super_schema)
 
     def set_default(self, value):
         self._default = value
@@ -404,7 +433,7 @@ class ObjectIdField(Field):
         if len(value) != 24:
             self._fail_validation(value, 'hex object ID is the wrong length')
     
-    def wrap(self, value):
+    def wrap(self, value, session=None):
         ''' Validates that ``value`` is an ObjectId (or hex representation 
             of one), then returns it '''
         self.validate_wrap(value)
@@ -412,7 +441,7 @@ class ObjectIdField(Field):
             return ObjectId(value)
         return value
     
-    def unwrap(self, value):
+    def unwrap(self, value, session=None):
         ''' Validates that ``value`` is an ObjectId, then returns it '''
         self.validate_unwrap(value)
         return value
@@ -459,6 +488,13 @@ class ComputedField(Field):
         self.one_time = one_time
         self.__cached_value = UNSET
     
+    def schema_json(self):
+        super_schema = super(ComputedField, self).schema_json()
+        return dict(computed_type=self.computed_type.schema_json(),
+                    one_time=self.one_time,
+                    deps=list(self.deps), **super_schema)
+
+
     def __get__(self, instance, owner):
         # class method
         if instance is None:
