@@ -548,6 +548,7 @@ class Index(object):
         self.components = []
         self.__unique = False
         self.__drop_dups = False
+        self.__sparse = False
         
         self.__min = None
         self.__max = None
@@ -603,6 +604,10 @@ class Index(object):
         self.__unique = True
         self.__drop_dups = drop_dups
         return self
+
+    def sparse(self):
+        self.__sparse = True
+        return self
     
     def ensure(self, collection):
         ''' Call the pymongo method ``ensure_index`` on the passed collection.
@@ -617,6 +622,8 @@ class Index(object):
             extras['max'] = self.__max
         if self.__bucket_size is not None:
             extras['bucket_size'] = self.__bucket_size
+        if self.__sparse:
+            extras['sparse'] = True
         collection.ensure_index(self.components, unique=self.__unique, 
             drop_dups=self.__drop_dups, **extras)
         return self
