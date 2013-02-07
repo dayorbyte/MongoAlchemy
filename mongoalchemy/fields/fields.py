@@ -584,24 +584,24 @@ class computed_field(object):
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
 
-def CreatedField(name='created', tz_aware=False):
-    @computed_field(DateTimeField(), one_time=True)
+def CreatedField(db_field='created', tz_aware=False):
+    @computed_field(DateTimeField(), db_field=db_field, one_time=True)
     def created(obj):
         if tz_aware:
             import pytz
             return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
-    created.__name__ = name
+    created.__name__ = db_field
     return created
 
-def ModifiedField(name='modified', tz_aware=False):
-    @computed_field(DateTimeField())
+def ModifiedField(db_field='modified', tz_aware=False):
+    @computed_field(DateTimeField(), db_field=db_field)
     def modified(obj):
         if tz_aware:
             import pytz
             return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
-    modified.__name__ = name
+    modified.__name__ = db_field
     return modified
     
 
