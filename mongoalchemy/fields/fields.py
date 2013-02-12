@@ -473,7 +473,7 @@ class ComputedField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     auto = True
-    def __init__(self, computed_type, fun, one_time=False, deps=None, **kwargs):
+    def __init__(self, computed_type, fun, one_time=False, deps=None, compute_on_update=False, **kwargs):
         ''' :param fun: the function to compute the value of the computed field
             :param computed_type: the type to use when wrapping the computed field
             :param deps: the names of fields on the current object which should be \
@@ -486,6 +486,7 @@ class ComputedField(Field):
         self.deps = set(deps)
         self.fun = fun
         self.one_time = one_time
+        self.compute_on_update = compute_on_update
         self.__cached_value = UNSET
     
     def schema_json(self):
@@ -501,7 +502,7 @@ class ComputedField(Field):
             return QueryField(self)
         
         obj_value = instance._values[self._name]
-        if obj_value.set and self.one_time:
+        if obj_value.set and (self.one_time or self.compute_on_update):
             return obj_value.value
         computed_value = self.compute_value(instance)
         if self.one_time:
@@ -518,21 +519,33 @@ class ComputedField(Field):
         self.computed_type._set_parent(parent)
     
     def dirty_ops(self, instance):
-        dirty = False
-        for dep in self.deps:
-            dep_value = instance._values[dep._name]
-            if dep_value.dirty:
-                dirty = True
-                break
+        if self.compute_on_update:
+            print "self.compute_on_update"
+            newval = self.compute_value(None)
+            self.set_value(instance, newval)
+
+            ops = {'$set': {
+                self.db_field : self.wrap(newval)
+            }}
+
+            print "ops=", ops
+            return ops
         else:
-            if len(self.deps) > 0:
-                return {}
-        
-        return {
-            self.on_update : {
-                self._name : self.wrap(getattr(instance, self._name))
+            dirty = False
+            for dep in self.deps:
+                dep_value = instance._values[dep._name]
+                if dep_value.dirty:
+                    dirty = True
+                    break
+            else:
+                if len(self.deps) > 0:
+                    return {}
+            
+            return {
+                self.on_update : {
+                    self._name : self.wrap(getattr(instance, self._name))
+                }
             }
-        }
     
     def compute_value(self, doc):
         args = {}
@@ -595,7 +608,7 @@ def CreatedField(db_field='created', tz_aware=False):
     return created
 
 def ModifiedField(db_field='modified', tz_aware=False):
-    @computed_field(DateTimeField(), db_field=db_field)
+    @computed_field(DateTimeField(), db_field=db_field, compute_on_update=True)
     def modified(obj):
         if tz_aware:
             import pytz
