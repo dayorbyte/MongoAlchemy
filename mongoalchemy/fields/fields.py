@@ -479,6 +479,9 @@ class ComputedField(Field):
             :param deps: the names of fields on the current object which should be \
                 passed in to compute the value
         '''
+        if one_time and compute_on_update:
+            raise InvalidConfigException('Cannot set one_time and compute_on_update at the same time')
+
         super(ComputedField, self).__init__(**kwargs)
         self.computed_type = computed_type
         if deps is None:
@@ -520,7 +523,6 @@ class ComputedField(Field):
     
     def dirty_ops(self, instance):
         if self.compute_on_update:
-            print "self.compute_on_update"
             newval = self.compute_value(None)
             self.set_value(instance, newval)
 
@@ -528,7 +530,6 @@ class ComputedField(Field):
                 self.db_field : self.wrap(newval)
             }}
 
-            print "ops=", ops
             return ops
         else:
             dirty = False
