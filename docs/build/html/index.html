@@ -97,28 +97,54 @@ as possible without having to perform a load/save cycle since doing so is both
 significantly slower and more likely to cause data loss.</p>
 <p>There&#8217;s more detail in the <a class="reference internal" href="tutorial.html"><em>MongoAlchemy Tutorial</em></a>, but a small example is on
 this page below the contents of the documentation.</p>
+<p>A Tour of MongoAlchemy&#8217;s Features</p>
 </div>
-<div class="section" id="interesting-features">
-<h2>Interesting Features<a class="headerlink" href="#interesting-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="object-document-mapping">
+<h2>Object-Document Mapping<a class="headerlink" href="#object-document-mapping" title="Permalink to this headline">¶</a></h2>
+<p>Turn MongoDB documents into Python objects and vice-versa, add schemas and
+validatation to your models, and allow the separation of the python and
+mongo representations of your data.</p>
+<ul class="simple">
+<li>Support for all of the basic mongo types.</li>
+<li>Separate Python and Mongo names. Field and collection names can be
+overridden.</li>
+<li>Indexing on dict keys.  MA provides a dict-like field which can have
+arbitrary key and value types as well as allowing indexing on the keys —
+not normally possible in Mongo. See: <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a></li>
+<li>Computed values, generate from other fields.
+See: <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.ComputedField" title="mongoalchemy.fields.ComputedField"><tt class="xref py py-class docutils literal"><span class="pre">ComputedField</span></tt></a></li>
+<li>Created and Modified fields based on the computed fields which record the
+date something was first created or last updated.</li>
+<li>Timezone support.  A timezone can be passed using pytz and all dates will
+have timezone data attached and be converted to the given timezone.</li>
+<li>User-defined validation — Provide your own validation functions for
+simple validations of fields.  See <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
+<li>User-defined fields — For more customization, entirely new fields can be
+created</li>
+<li>A field that can hold arbitrary values: <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.AnythingField" title="mongoalchemy.fields.AnythingField"><tt class="xref py py-class docutils literal"><span class="pre">AnythingField</span></tt></a></li>
+<li>Validation happens at assignment time, so you&#8217;ll know exactly where</li>
+<li>Indexes are defined on the class</li>
+</ul>
+</div>
+<div class="section" id="sessions-and-query-language">
+<h2>Sessions and Query Language<a class="headerlink" href="#sessions-and-query-language" title="Permalink to this headline">¶</a></h2>
 <ul>
-<li><p class="first"><strong>Object-Document-Mapping</strong>: Turn MongoDB documents into Python objects and vice-versa.</p>
+<li><p class="first">Type-safe queries. Queries are validated to make sure the values passed are
+allowed in the query fields.</p>
 </li>
-<li><p class="first"><strong>A rich expression language</strong>: which can be used to do queries for loading documents as well as updating documents without loading them.</p>
+<li><p class="first">Faux-Transactions. When using the session with the <tt class="docutils literal"><span class="pre">with</span></tt> statement updates
+are accumulated until the block is done, making it much less likely that a
+python error will leave your database in a bad state.</p>
 </li>
-<li><p class="first"><strong>Use Any Collection and Field Names</strong> — Configuration allows collection names and field names to be different from their python names.</p>
+<li><p class="first">Automatically Calculated Updates — The session object has an <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">mongoalchemy.session.Session.update()</span></tt></a>
+function which determines which fields are dirty and will execute the
+appropriate update operations to update the object in the database.</p>
 </li>
-<li><p class="first"><strong>Computed Fields</strong> <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.ComputedField" title="mongoalchemy.fields.ComputedField"><tt class="xref py py-class docutils literal"><span class="pre">ComputedField</span></tt></a> fields allow a function to be used to generate the value for a field.  Extremely useful for fields where the value is a function (like a last-updated field), or where the field is generated from other fields (like a set of keywords generated or the components of a URL)</p>
-</li>
-<li><p class="first"><strong>User-defined validation</strong> — for values being wrapped for the database or unwrapped into a python object, as well as validators which happen for both.  See <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> </p>
-</li>
-<li><p class="first"><strong>Arbitrary Value Fields</strong> — A field that can hold arbitrary values: <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.AnythingField" title="mongoalchemy.fields.AnythingField"><tt class="xref py py-class docutils literal"><span class="pre">AnythingField</span></tt></a></p>
-</li>
-<li><p class="first"><strong>More Flexible Mapping Type</strong> A dict-like field which can have arbitrary key and value types as well as allowing indexing on the keys — not normally possible in Mongo — by storing them in a different format than how they appear when accessed in python a plain dict. <a class="reference internal" href="api/schema/fields.html#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a></p>
-</li>
-<li><p class="first"><strong>Automatically Calculated Updates</strong> — The session object has an <a class="reference internal" href="api/session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">mongoalchemy.session.Session.update()</span></tt></a> function which determines which fields are dirty and will execute the appropriate update operations to update the object in the database. The operations used for updating can be overriden at the field definition level as well as in the <tt class="docutils literal"><span class="pre">update</span></tt> call.</p>
-</li>
-<li><p class="first"><strong>Drop into raw Mongo</strong> — Most functions will accept raw pymongo instead of the mongoalchemy objects.  For example:</p>
-<div class="highlight-python"><pre>session.query('SomeClass').filter(SomeClass.name == foo).limit(5)``</pre>
+<li><p class="first">Drop into raw Mongo. Most functions will accept raw pymongo instead of
+the mongoalchemy objects. Type safety will be maintained either way</p>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&#39;SomeClass&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">SomeClass</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">foo</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
 </div>
 <p>is perfectly valid, as is:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">({</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;foo&#39;</span><span class="p">})</span>
@@ -129,7 +155,7 @@ this page below the contents of the documentation.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">easy_install</span> <span class="pre">MongoAlchemy</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">MongoAlchemy</span></tt></p>
 <p>You can also download the source code from the Python Package index or GitHub:</p>
 <p>The source code is available at: <a class="reference external" href="http://github.com/jeffjenkins/MongoAlchemy">http://github.com/jeffjenkins/MongoAlchemy</a></p>
 <p>The PyPi page is located here: <a class="reference external" href="http://pypi.python.org/pypi/MongoAlchemy/">http://pypi.python.org/pypi/MongoAlchemy/</a></p>
@@ -137,7 +163,7 @@ this page below the contents of the documentation.</p>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.session</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Index</span><span class="p">,</span> <span class="n">DocumentField</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.document</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Index</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">mongoalchemy.fields</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Subclasses of Document both provide the mapping needed for</span>
 <span class="gp">... </span><span class="c"># queries as well as the classes for loading/saving objects.</span>
@@ -224,7 +250,8 @@ this page below the contents of the documentation.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#interesting-features">Interesting Features</a></li>
+<li><a class="reference internal" href="#object-document-mapping">Object-Document Mapping</a></li>
+<li><a class="reference internal" href="#sessions-and-query-language">Sessions and Query Language</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
