@@ -227,8 +227,8 @@ class Session(object):
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
         
-        if query.sort:
-            cursor.sort(query.sort)
+        if query._sort:
+            cursor.sort(query._sort)
         elif query.type.config_default_sort:
             cursor.sort(query.type.config_default_sort)
         if query.hints:
@@ -306,8 +306,8 @@ class Session(object):
             kwargs['fields'] = {}
             for f in fm_exp.query.get_fields():
                 kwargs['fields'][str(f)] = True
-        if fm_exp.query.sort:
-            kwargs['sort'] = fm_exp.query.sort
+        if fm_exp.query._sort:
+            kwargs['sort'] = fm_exp.query._sort
         if fm_exp.get_new():
             kwargs['new'] = fm_exp.get_new()
         if fm_exp.get_remove():

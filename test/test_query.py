@@ -285,9 +285,22 @@ def test_sort():
     from pymongo import ASCENDING, DESCENDING
     s = get_session()
     sorted_query = s.query(T).ascending(T.i).descending(T.j)
-    assert sorted_query.sort == [('i', ASCENDING),('j', DESCENDING)], sorted_query.sort
+    assert sorted_query._sort == [('i', ASCENDING),('j', DESCENDING)], sorted_query._sort
     for obj in sorted_query:
         pass
+
+def test_sort2():
+    from pymongo import ASCENDING, DESCENDING
+    s = get_session()
+    sorted_query = s.query(T).sort((T.i, ASCENDING), ('j', DESCENDING))
+    assert sorted_query._sort == [('i', ASCENDING),('j', DESCENDING)], sorted_query._sort
+
+@raises(BadQueryException)
+def test_sort_bad_dir():
+    from pymongo import ASCENDING, DESCENDING
+    s = get_session()
+    sorted_query = s.query(T).sort((T.i, ASCENDING), ('j', 4))
+    assert sorted_query._sort == [('i', ASCENDING),('j', DESCENDING)], sorted_query._sort
 
 @raises(BadQueryException)
 def test_sort_by_same_key():

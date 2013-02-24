@@ -48,7 +48,7 @@ class Query(object):
         self.session = session
         self.type = type
         self.__query = {}
-        self.sort = []
+        self._sort = []
         self._fields = None
         self.hints = []
         self._limit = None
@@ -101,7 +101,7 @@ class Query(object):
         '''
         qclone = Query(self.type, self.session)
         qclone.__query = deepcopy(self.__query)
-        qclone.sort = deepcopy(self.sort)
+        qclone._sort = deepcopy(self._sort)
         qclone._fields = deepcopy(self._fields)
         qclone._hints = deepcopy(self.hints)
         qclone._limit = deepcopy(self._limit)
@@ -257,13 +257,29 @@ class Query(object):
         '''
         return self.__sort(qfield, DESCENDING)
     
+    def sort(self, *sort_tuples):
+        ''' pymongo-style sorting.  Accepts a list of tuples.
+
+            :param sort_tuples: varargs of sort tuples.
+        '''
+        query = self
+        for name, direction in sort_tuples:
+            field = resolve_name(self.type, name)
+            if direction in (ASCENDING, 1):
+                query = query.ascending(field)
+            elif direction in (DESCENDING, -1):
+                query = query.descending(field)
+            else:
+                raise BadQueryException('Bad sort direction: %s' % direction)
+        return query
+
     def __sort(self, qfield, direction):
         qfield = resolve_name(self.type, qfield)
         name = str(qfield)
-        for n, _ in self.sort:
+        for n, _ in self._sort:
             if n == name:
                 raise BadQueryException('Already sorting by %s' % name)
-        self.sort.append((name, direction))
+        self._sort.append((name, direction))
         return self
     
     def not_(self, *query_expressions):
