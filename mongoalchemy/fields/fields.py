@@ -474,12 +474,15 @@ class ComputedField(Field):
     valid_modifiers = SCALAR_MODIFIERS
     
     auto = True
-    def __init__(self, computed_type, fun, one_time=False, deps=None, **kwargs):
+    def __init__(self, computed_type, fun, one_time=False, deps=None, compute_on_update=False, **kwargs):
         ''' :param fun: the function to compute the value of the computed field
             :param computed_type: the type to use when wrapping the computed field
             :param deps: the names of fields on the current object which should be \
                 passed in to compute the value
         '''
+        if one_time and compute_on_update:
+            raise InvalidConfigException('Cannot set one_time and compute_on_update at the same time')
+
         super(ComputedField, self).__init__(**kwargs)
         self.computed_type = computed_type
         if deps is None:
@@ -487,6 +490,7 @@ class ComputedField(Field):
         self.deps = set(deps)
         self.fun = fun
         self.one_time = one_time
+        self.compute_on_update = compute_on_update
         self.__cached_value = UNSET
     
     def schema_json(self):
@@ -502,7 +506,7 @@ class ComputedField(Field):
             return QueryField(self)
         
         obj_value = instance._values[self._name]
-        if obj_value.set and self.one_time:
+        if obj_value.set and (self.one_time or self.compute_on_update):
             return obj_value.value
         computed_value = self.compute_value(instance)
         if self.one_time:
@@ -519,21 +523,31 @@ class ComputedField(Field):
         self.computed_type._set_parent(parent)
     
     def dirty_ops(self, instance):
-        dirty = False
-        for dep in self.deps:
-            dep_value = instance._values[dep._name]
-            if dep_value.dirty:
-                dirty = True
-                break
+        if self.compute_on_update:
+            newval = self.compute_value(None)
+            self.set_value(instance, newval)
+
+            ops = {'$set': {
+                self.db_field : self.wrap(newval)
+            }}
+
+            return ops
         else:
-            if len(self.deps) > 0:
-                return {}
-        
-        return {
-            self.on_update : {
-                self._name : self.wrap(getattr(instance, self._name))
+            dirty = False
+            for dep in self.deps:
+                dep_value = instance._values[dep._name]
+                if dep_value.dirty:
+                    dirty = True
+                    break
+            else:
+                if len(self.deps) > 0:
+                    return {}
+            
+            return {
+                self.on_update : {
+                    self._name : self.wrap(getattr(instance, self._name))
+                }
             }
-        }
     
     def compute_value(self, doc):
         args = {}
@@ -585,24 +599,24 @@ class computed_field(object):
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
 
-def CreatedField(name='created', tz_aware=False):
-    @computed_field(DateTimeField(), one_time=True)
+def CreatedField(db_field='created', tz_aware=False):
+    @computed_field(DateTimeField(), db_field=db_field, one_time=True)
     def created(obj):
         if tz_aware:
             import pytz
             return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
-    created.__name__ = name
+    created.__name__ = db_field
     return created
 
-def ModifiedField(name='modified', tz_aware=False):
-    @computed_field(DateTimeField())
+def ModifiedField(db_field='modified', tz_aware=False):
+    @computed_field(DateTimeField(), db_field=db_field, compute_on_update=True)
     def modified(obj):
         if tz_aware:
             import pytz
             return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
-    modified.__name__ = name
+    modified.__name__ = db_field
     return modified
     
 
