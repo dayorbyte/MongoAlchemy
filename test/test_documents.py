@@ -17,6 +17,7 @@ class TestDoc2(Document):
         return 'TestDoc(int1=%s)' % self.sfield
 
 class T(Document, DictDoc):
+    config_default_sort = [('i', 1)]
     i = IntField()
     j = IntField(required=False)
     s = StringField(required=False)
@@ -37,11 +38,45 @@ class DocA(Document):
 
 # Tests
 
+
 def test_setup():
     document_type_registry.clear()
 
 def get_session():
     return Session.connect('unit-testing')
+
+def test_default_config():
+    s = get_session()
+    s.clear_collection(T)
+    t = T(i=4)
+    s.insert(t)
+    for x in s.query(T).filter(T.i == 4):
+        pass
+
+
+@raises(BadFieldSpecification)
+def test_default_sort_bad_name():
+    class Foo(Document):
+        config_default_sort = [('a', 1)]
+    try:
+        f = Foo()
+    except BadFieldSpecification, e:
+        assert 'resolve field' in str(e)
+        raise
+
+@raises(BadFieldSpecification)
+def test_default_sort_bad_dir():
+    class Foo(Document):
+        a = IntField()
+        config_default_sort = [('a', 3)]
+    try:
+        f = Foo()
+    except BadFieldSpecification, e:
+        print e
+        assert 'sort direction' in str(e)
+        raise
+    assert False
+
 
 def test_basic():
     class Doc(Document):

@@ -27,6 +27,7 @@ from copy import copy, deepcopy
 from mongoalchemy.exceptions import BadValueException
 from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
 from mongoalchemy.update_expression import UpdateExpression, FindAndModifyExpression
+from mongoalchemy.util import resolve_name
 
 class BadResultException(Exception):
     ''' Only raised right now when .one() finds more than one object '''
@@ -56,15 +57,7 @@ class Query(object):
     
     def __iter__(self):
         return self.__get_query_result()
-    
-    def resolve_name(self, name):
-        if not isinstance(name, basestring) or name[0] == '$':
-            return name
-        ret = self.type
-        for part in name.split('.'):
-            ret = getattr(ret, part)
-        return ret
-    
+        
     @property
     def query(self):
         return flatten(self.__query)
@@ -157,7 +150,7 @@ class Query(object):
         return self.__hint(qfield, DESCENDING)
     
     def __hint(self, qfield, direction):
-        qfield = self.resolve_name(qfield)
+        qfield = resolve_name(self.type, qfield)
         name = str(qfield)
         for n, _ in self.hints:
             if n == name:
@@ -203,7 +196,7 @@ class Query(object):
         ''' Filter for the names in ``filters`` being equal to the associated 
             values.  Cannot be used for sub-objects since keys must be strings'''
         for name, value in filters.iteritems():
-            self.filter(self.resolve_name(name) == value)
+            self.filter(resolve_name(self.type, name) == value)
         return self
     
     def count(self, with_limit_and_skip=False):
@@ -225,7 +218,7 @@ class Query(object):
         if self._fields == None:
             self._fields = set()
         for f in fields:
-            f = self.resolve_name(f)
+            f = resolve_name(self.type, f)
             self._fields.add(f)
         self._fields.add(self.type.mongo_id)
         return self
@@ -237,7 +230,7 @@ class Query(object):
     def _apply_dict(self, qe_dict):
         ''' Apply a query expression, updating the query object '''
         for k, v in qe_dict.iteritems():
-            k = self.resolve_name(k)
+            k = resolve_name(self.type, k)
             if not k in self.__query:
                 self.__query[k] = v
                 continue
@@ -265,7 +258,7 @@ class Query(object):
         return self.__sort(qfield, DESCENDING)
     
     def __sort(self, qfield, direction):
-        qfield = self.resolve_name(qfield)
+        qfield = resolve_name(self.type, qfield)
         name = str(qfield)
         for n, _ in self.sort:
             if n == name:
@@ -307,7 +300,7 @@ class Query(object):
                 understands
         '''
         # TODO: make sure that this field represents a list
-        qfield = self.resolve_name(qfield)
+        qfield = resolve_name(self.type, qfield)
         self.filter(QueryExpression({ qfield : { '$in' : [qfield.wrap_value(value) for value in values]}}))
         return self
 
@@ -319,7 +312,7 @@ class Query(object):
                 understands
         '''
         # TODO: make sure that this field represents a list
-        qfield = self.resolve_name(qfield)
+        qfield = resolve_name(self.type, qfield)
         self.filter(QueryExpression({ qfield : { '$nin' : [qfield.wrap_value(value) for value in values]}}))
         return self
     

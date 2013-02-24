@@ -30,6 +30,7 @@ class BadQueryException(Exception):
 class FreeFormField(object):
     has_subfields = True
     no_real_attributes = True
+
     def __init__(self, name=None):
         self.__name = name
         self.db_field = name
@@ -48,6 +49,7 @@ class FreeFormField(object):
     __contains__ = is_valid_wrap
 
 class FreeFormDoc(object):
+    config_default_sort = None
     def __init__(self, name):
         self.__name = name
     def __getattr__(self, name):

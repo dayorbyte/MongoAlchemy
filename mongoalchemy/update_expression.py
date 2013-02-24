@@ -26,6 +26,7 @@ from copy import copy, deepcopy
 
 from mongoalchemy.exceptions import BadValueException
 from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
+from mongoalchemy.util import resolve_name
 
 class UpdateExpression(object):
     def __init__(self, query):
@@ -136,7 +137,7 @@ class UpdateExpression(object):
         return self._atomic_generic_op('$pop', qfield, -1)
     
     def _atomic_list_op_multivalue(self, op, qfield, *value):
-        qfield = self.query.resolve_name(qfield)
+        qfield = resolve_name(self.query.type, qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         wrapped = []
@@ -148,7 +149,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_list_op(self, op, qfield, value):
-        qfield = self.query.resolve_name(qfield)
+        qfield = resolve_name(self.query.type, qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         
@@ -158,7 +159,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_expression_op(self, op, qfield, value):
-        qfield = self.query.resolve_name(qfield)
+        qfield = resolve_name(self.query.type, qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         
@@ -168,7 +169,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_op(self, op, qfield, value):
-        qfield = self.query.resolve_name(qfield)
+        qfield = resolve_name(self.query.type, qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
 
@@ -178,7 +179,7 @@ class UpdateExpression(object):
         return self
     
     def _atomic_generic_op(self, op, qfield, value):
-        qfield = self.query.resolve_name(qfield)
+        qfield = resolve_name(self.query.type, qfield)
         if op not in qfield.valid_modifiers:
             raise InvalidModifierException(qfield, op)
         

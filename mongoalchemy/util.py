@@ -33,3 +33,18 @@ class UNSET(object):
         return other.__class__ == self.__class__
 UNSET = UNSET()
 
+class FieldNotFoundException(Exception):
+    pass
+
+def resolve_name(type, name):
+    if not isinstance(name, basestring) or name[0] == '$':
+        return name
+    ret = type
+    for part in name.split('.'):
+        try:
+            ret = getattr(ret, part)
+        except AttributeError:
+            raise FieldNotFoundException("Field not found %s (in %s)" % 
+                                         (part, name))
+
+    return ret

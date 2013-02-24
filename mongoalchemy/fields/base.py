@@ -234,7 +234,6 @@ class Field(object):
             return instance._values[self._name].value
         
         # if not, try the default
-        print self._default, self._default_f
         if self._default_f:
             self.set_value(instance, self._default_f())
             return instance._values[self._name].value

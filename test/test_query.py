@@ -280,6 +280,7 @@ def invalid_combination_test():
     s = get_session()
     s.query(T).filter(T.i < 2, T.i == 4)
 
+
 def test_sort():
     from pymongo import ASCENDING, DESCENDING
     s = get_session()

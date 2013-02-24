@@ -229,6 +229,8 @@ class Session(object):
         
         if query.sort:
             cursor.sort(query.sort)
+        elif query.type.config_default_sort:
+            cursor.sort(query.type.config_default_sort)
         if query.hints:
             cursor.hint(query.hints)
         if query.get_limit() is not None:

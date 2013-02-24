@@ -47,6 +47,7 @@ from mongoalchemy.query_expression import QueryField
 from mongoalchemy.fields import (ObjectIdField, Field, BadValueException, 
                                  SCALAR_MODIFIERS, DocumentField)
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
+from mongoalchemy.util import resolve_name, FieldNotFoundException
 
 document_type_registry = defaultdict(dict)
 collection_registry = defaultdict(dict)
@@ -168,6 +169,12 @@ class Document(object):
         representations of the class
     '''
     
+    config_default_sort = None
+    ''' The default sort to use when querying.  If set, this sort will be 
+        applied to any query which a sort isn't used on. The format is the 
+        same as pymongo.  Example ``[('foo', 1), ('bar', -1)]``.
+    '''
+
     config_extra_fields = 'error'
     ''' Controls the method to use when dealing with fields passed in to the
         document constructor.  Possible values are 'error' and 'ignore'. Any 
@@ -216,6 +223,20 @@ class Document(object):
                     raise ExtraValueException(k)
 
         self.__extra_fields_orig = dict(self.__extra_fields)
+
+        # Validate defult sort
+        if self.config_default_sort:
+            for (name, direction) in self.config_default_sort:
+                try:
+                    resolve_name(type(self), name)
+                    dirs = (1, -1, pymongo.ASCENDING, pymongo.DESCENDING)
+                    if direction not in dirs:
+                        m = 'Bad sort direction on %s: %s' % (name, direction)
+                        raise BadFieldSpecification(m)
+                except FieldNotFoundException:
+                    raise BadFieldSpecification("Could not resolve field %s in" 
+                            " config_default_sort" % name)
+
     
     @classmethod
     def schema_json(cls):
