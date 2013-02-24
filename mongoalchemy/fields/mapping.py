@@ -34,18 +34,21 @@ class DictField(Field):
     def __init__(self, value_type, default_empty=False, **kwargs):
         ''' :param value_type: the Field type to use for the values
         '''
+        if default_empty:
+            kwargs['default_f'] = dict
         super(DictField, self).__init__(**kwargs)
         self.value_type = value_type
         self.default_empty = default_empty
+
         if not isinstance(value_type, Field):
             raise BadFieldSpecification("DictField value type is not a field!")
-    def set_default(self, value):
-        self._default = value
-    def get_default(self):
-        if self.default_empty:
-            return {}
-        return self._default
-    default = property(get_default, set_default)
+    # def set_default(self, value):
+    #     return super(DictField, self).set_default(value)
+    # def get_default(self):
+    #     if self.default_empty:
+    #         return {}
+    #     return super(DictField, self).get_default()
+    # default = property(get_default, set_default)
     def schema_json(self):
         super_schema = super(DictField, self).schema_json()
         return dict(value_type=self.value_type.schema_json(), 
@@ -126,8 +129,11 @@ class KVField(DictField):
         ''' :param key_type: the Field type to use for the keys
             :param value_type: the Field type to use for the values
         '''
-        super(KVField, self).__init__(value_type, default_empty=default_empty, **kwargs)
-        
+        if default_empty:
+            kwargs['default_f'] = dict
+        super(KVField, self).__init__(value_type, **kwargs)
+        self.default_empty = default_empty
+                
         if not isinstance(key_type, Field):
             raise BadFieldSpecification("KVField key type is not a field!")
         # This is covered by DictField

@@ -18,6 +18,7 @@ class SchemaTestDoc(BaseDoc):
     enum = EnumField(AnythingField(), "a")
     anyf = AnythingField()
     default_field = IntField(default=2)
+    defaultf_field = IntField(default_f=lambda : 3)
     modified = ModifiedField()
     dict_field = DictField(AnythingField())
     list_field = ListField(AnythingField())
@@ -66,6 +67,7 @@ def test_schema():
     # assert False, 
     
     contains(fields['default_field'], {'default' : 2})
+    'function' in fields['defaultf_field'].get('default_f', '')
     
     # Computed Field
     mod = fields['modified']

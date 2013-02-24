@@ -42,6 +42,10 @@ def test_id_attr():
     assert IntField(_id=True).is_id == True
 
 @raises(InvalidConfigException)
+def test_double_default():
+    IntField(default=1, default_f=lambda: 1)
+
+@raises(InvalidConfigException)
 def test_bad_id_attr():
     IntField(db_field='foo', _id=True)
 
@@ -212,6 +216,7 @@ def test_object_id_auto():
     from mongoalchemy.document import Document
     class A(Document):
         idf = ObjectIdField(auto=True, required=False)
+    print A().idf
     assert 'idf' in A().wrap()
 
 #ObjectID Field

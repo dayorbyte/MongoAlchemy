@@ -402,19 +402,20 @@ class ObjectIdField(Field):
     valid_modifiers = SCALAR_MODIFIERS 
     
     def __init__(self, session=None, auto=False, **kwargs):
+        if auto:
+            kwargs['default_f'] = lambda : ObjectId()
         super(ObjectIdField, self).__init__(**kwargs)
-        self.auto = auto
     def schema_json(self):
         super_schema = super(ObjectIdField, self).schema_json()
         return dict(auth=self.auto, **super_schema)
 
-    def set_default(self, value):
-        self._default = value
-    def get_default(self):
-        if self.auto:
-            self._default = ObjectId()
-        return self._default
-    default = property(get_default, set_default)
+    # def set_default(self, value):
+    #     super(ObjectIdField, self).set_default(value)
+    # def get_default(self):
+    #     if self.auto:
+    #         self.set_default(ObjectId())
+    #     return super(ObjectIdField, self).get_default()
+    # default = property(get_default, set_default)
 
     def gen(self):
         return ObjectId()

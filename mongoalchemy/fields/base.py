@@ -136,8 +136,8 @@ class Field(object):
     
     valid_modifiers = SCALAR_MODIFIERS
 
-    def __init__(self, required=True, default=UNSET, db_field=None, 
-                 allow_none=False, on_update='$set', 
+    def __init__(self, required=True, default=UNSET, default_f=None,
+                 db_field=None, allow_none=False, on_update='$set', 
                  validator=None, unwrap_validator=None, wrap_validator=None, 
                  _id=False, proxy=None, iproxy=None, ignore_missing=False):
         '''
@@ -180,16 +180,28 @@ class Field(object):
         self._allow_none = allow_none
         
         self.required = required
-        self.default = default
+        self._default = default
+        self._default_f = default_f
+        if self._default_f and self._default != UNSET:
+            raise InvalidConfigException('Only one of default and default_f '
+                                         'is allowed')
+
         if default is None:
             self._allow_none = True
         self._owner = None
         
         if on_update not in self.valid_modifiers and on_update != 'ignore':
-            raise InvalidConfigException('Unsupported update operation: %s' % on_update)
+            raise InvalidConfigException('Unsupported update operation: %s' 
+                                         % on_update)
         self.on_update = on_update
 
         self._name =  'Unbound_%s' % self.__class__.__name__
+
+    @property
+    def default(self):
+        if self._default_f:
+            return self._default_f()
+        return self._default
     
     def schema_json(self):
         schema = dict(
@@ -203,10 +215,12 @@ class Field(object):
             wrap_validator=self.wrap_validator is not None,
             ignore_missing=self.ignore_missing,
         )
-        if self.default == UNSET:
+        if self._default == UNSET and self._default_f is None:
             schema['default_unset'] = True
+        elif self._default_f:
+            schema['default_f'] = repr(self._default_f)
         else:
-            schema['default'] = self.wrap(self.default)
+            schema['default'] = self.wrap(self._default)
         return schema
 
 
@@ -220,8 +234,12 @@ class Field(object):
             return instance._values[self._name].value
         
         # if not, try the default
-        if self.default is not UNSET:
-            self.set_value(instance, self.default)
+        print self._default, self._default_f
+        if self._default_f:
+            self.set_value(instance, self._default_f())
+            return instance._values[self._name].value
+        elif self._default is not UNSET:
+            self.set_value(instance, self._default)
             return instance._values[self._name].value
         
         # If this value wasn't retrieved, raise a specific exception

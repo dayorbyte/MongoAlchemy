@@ -153,14 +153,16 @@ class ListField(SequenceField):
             :param max_capacity: maximum number of items contained in values 
             :param default_empty: the default is an empty sequence.
         '''
+        if kwargs.get('default_empty'):
+            kwargs['default_f'] = list
         super(ListField, self).__init__(item_type, **kwargs)
-    def set_default(self, value):
-        self._default = value
-    def get_default(self):
-        if self.default_empty:
-            return []
-        return self._default
-    default = property(get_default, set_default)
+    # def set_default(self, value):
+    #     return super(ListField, self).set_default(value)
+    # def get_default(self):
+    #     if self.default_empty:
+    #         return []
+    #     return super(ListField, self).get_default()
+    # default = property(get_default, set_default)
 
     def rel(self, ignore_missing=False):
         from mongoalchemy.fields import RefBase
@@ -193,13 +195,23 @@ class SetField(SequenceField):
     ''' Field representing a python set.
         
         .. seealso:: :class:`SequenceField`'''
-    def set_default(self, value):
-        self._default = value
-    def get_default(self):
-        if self.default_empty:
-            return set()
-        return self._default
-    default = property(get_default, set_default)
+    def __init__(self, item_type, **kwargs):
+        ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
+            :param min_capacity: minimum number of items contained in values
+            :param max_capacity: maximum number of items contained in values 
+            :param default_empty: the default is an empty sequence.
+        '''
+        if kwargs.get('default_empty'):
+            kwargs['default_f'] = set
+        super(SetField, self).__init__(item_type, **kwargs)
+
+    # def set_default(self, value):
+    #     return super(SetField, self).set_default(value)
+    # def get_default(self):
+    #     if self.default_empty:
+    #         return set()
+    #     return super(SetField, self).get_default()
+    # default = property(get_default, set_default)
 
     def rel(self, ignore_missing=False):
         return ListProxy(self, ignore_missing=ignore_missing)
