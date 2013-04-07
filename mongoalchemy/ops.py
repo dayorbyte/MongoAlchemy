@@ -62,8 +62,8 @@ class UpdateOp(Operation):
         self.safe = safe
         self.query = update_obj.query.query
         self.update_data = update_obj.update_data
-        self.upsert = update_obj.get_upsert()
-        self.multi = update_obj.get_multi()
+        self.upsert = update_obj._get_upsert()
+        self.multi = update_obj._get_multi()
         
     def execute(self):
         return self.collection.update(self.query, self.update_data, multi=self.multi, 

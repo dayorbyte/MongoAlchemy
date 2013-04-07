@@ -1,4 +1,4 @@
-MongoAlchemy Tutorial
+A Quick MongoAlchemy Introduction
 ================================
 
 .. note:: This tutorial is incomplete, but hopefully has enough detail that \

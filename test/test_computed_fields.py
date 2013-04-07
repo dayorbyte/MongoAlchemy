@@ -28,6 +28,20 @@ def computed_field_db_test():
         break
     assert td.a_plus_b == obj.a_plus_b
 
+def computed_field_db_test_2():
+    class Doc1(Document):
+        c = IntField()
+    class TestDoc2(Document):
+        a = IntField()
+        b = IntField()
+        @computed_field(DocumentField(Doc1), deps=[a,b])
+        def a_plus_b(obj):
+            return obj['a'] + obj['b']
+    s = get_session()
+    s.clear_collection(Doc1)
+    s.clear_collection(TestDoc2)
+    
+
 def test_created_modified():
     class TestDoc2(Document):
         created = CreatedField()

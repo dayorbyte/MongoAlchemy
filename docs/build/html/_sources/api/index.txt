@@ -8,7 +8,8 @@ Contents:
    :maxdepth: 4
 
    session   
-   schema/index
+   schema/fields
+   schema/document
    expressions/index
    exceptions
 

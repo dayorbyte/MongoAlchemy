@@ -106,6 +106,7 @@ class QueryField(object):
         return QueryField(fields[name], parent=self)
     
     def get_absolute_name(self):
+        """ Returns the full dotted name of this field """
         res = []
         current = self
         
@@ -139,9 +140,10 @@ class QueryField(object):
         return QueryExpression(expr)        
 
     def within_box(self, corner1, corner2):
-        """ Adapted from the Mongo docs:
+        """ 
+            Adapted from the Mongo docs::
 
-            > session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)
+                session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)
         """
         return QueryExpression({
             self : {'$within' : {
@@ -149,9 +151,10 @@ class QueryField(object):
                 }}
             })
     def within_radius(self, x, y, radius):
-        """ Adapted from the Mongo docs:
+        """ 
+            Adapted from the Mongo docs::
 
-            > session.query(Places).filter(Places.loc.within_radius(1, 2, 50)
+                session.query(Places).filter(Places.loc.within_radius(1, 2, 50)
         """
         return QueryExpression({
             self : {'$within' : {
@@ -159,9 +162,10 @@ class QueryField(object):
                 }}
             })
     def within_radius_sphere(self, x, y, radius):
-        """ Adapted from the Mongo docs:
+        """ 
+            Adapted from the Mongo docs::
 
-            > session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)
+                session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)
         """
         return QueryExpression({
             self : {'$within' : {
@@ -169,12 +173,13 @@ class QueryField(object):
                 }}
             })
     def within_polygon(self, polygon):
-        """ Adapted from the Mongo docs:
+        """ 
+            Adapted from the Mongo docs::
 
-            > polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
-            > polygonB = { a : { x : 10, y : 20 }, b : { x : 15, y : 25 }, c : { x : 20, y : 20 } }
-            > session.query(Places).filter(Places.loc.within_polygon(polygonA)
-            > session.query(Places).filter(Places.loc.within_polygon(polygonB)
+                polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
+                polygonB = { a : { x : 10, y : 20 }, b : { x : 15, y : 25 }, c : { x : 20, y : 20 } }
+                session.query(Places).filter(Places.loc.within_polygon(polygonA)
+                session.query(Places).filter(Places.loc.within_polygon(polygonB)
         """
         return QueryExpression({
             self : {'$within' : {

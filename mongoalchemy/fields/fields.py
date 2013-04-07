@@ -418,6 +418,7 @@ class ObjectIdField(Field):
     # default = property(get_default, set_default)
 
     def gen(self):
+        """ Helper method to create a new ObjectId """
         return ObjectId()
 
     def validate_wrap(self, value):
@@ -586,6 +587,14 @@ class computed_field(object):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
 
 def CreatedField(name='created', tz_aware=False):
+    ''' A shortcut field for creation time.  It sets the current date and time
+        when it enters the database and then doesn't update on further saves.
+
+        If you've used the Django ORM, this is the equivalent of auto_now_add
+
+        :param tz_aware: If this is True, the value will be returned in the 
+                         local time of the session.  It is always saved in UTC
+    '''
     @computed_field(DateTimeField(), one_time=True)
     def created(obj):
         if tz_aware:
@@ -596,6 +605,15 @@ def CreatedField(name='created', tz_aware=False):
     return created
 
 def ModifiedField(name='modified', tz_aware=False):
+    ''' A shortcut field for modified time.  It sets the current date and time
+        when it enters the database and then updates when the document is 
+        saved or updated
+
+        If you've used the Django ORM, this is the equivalent of auto_now
+
+        :param tz_aware: If this is True, the value will be returned in the 
+                         local time of the session.  It is always saved in UTC
+    '''
     @computed_field(DateTimeField())
     def modified(obj):
         if tz_aware:

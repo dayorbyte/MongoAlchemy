@@ -23,19 +23,6 @@
 ''' Session objects handles the actual queueing of database operations.
     The primary methods on a session are query, insert, and flush.
     
-    The preferred way to use a session is the `with statement`::
-        
-        s = Session(some_db)
-        with s:
-            s.insert(some_obj)
-            obj = s.query(SomeClass).one()
-            ...
-    
-    The with statement ensures that end_request is called on the 
-    connection which can have a significant performance impact in some 
-    situations because it will allow other threads to make use of the 
-    `socket` connecting to the database.
-    
     The session also responsible for ordering operations and knowing when
     operations need to be flushed, although it does not currently do
     anything intelligent for ordering.
@@ -45,15 +32,18 @@ from uuid import uuid4
 from pymongo.connection import Connection
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
-from mongoalchemy.document import FieldNotRetrieved, Document, collection_registry
+from mongoalchemy.document import (FieldNotRetrieved, Document, 
+                                    collection_registry)
 from mongoalchemy.query_expression import FreeFormDoc
-from mongoalchemy.exceptions import TransactionException, BadReferenceException
+from mongoalchemy.exceptions import (TransactionException, 
+                                     BadReferenceException,
+                                     SessionCacheException)
 from mongoalchemy.ops import *
 
 class Session(object):
 
-    def __init__(self, database, tz_aware=False, timezone=None, safe=False, cache_size=0,
-                 auto_ensure=True):
+    def __init__(self, database, tz_aware=False, timezone=None, safe=False, 
+                 cache_size=0, auto_ensure=True):
         '''
         Create a session connecting to `database`.  
         
@@ -143,8 +133,9 @@ class Session(object):
         ''' End the session.  Flush all pending operations and ending the 
             *pymongo* request'''
         self.cache = {}
-        if not self.transactions:
-            self.flush()
+        if self.transactions:
+            raise TransactionException('Tried to end session with an open '
+                                       'transaction')
         self.db.connection.end_request()
     
     def insert(self, item, safe=None):
@@ -221,8 +212,8 @@ class Session(object):
         self.auto_ensure_indexes(query.type)
 
         kwargs = dict()
-        if query.get_fields():
-            kwargs['fields'] = [str(f) for f in query.get_fields()]
+        if query._get_fields():
+            kwargs['fields'] = [str(f) for f in query._get_fields()]
 
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
@@ -233,11 +224,11 @@ class Session(object):
             cursor.sort(query.type.config_default_sort)
         if query.hints:
             cursor.hint(query.hints)
-        if query.get_limit() is not None:
-            cursor.limit(query.get_limit())
-        if query.get_skip() is not None:
-            cursor.skip(query.get_skip())
-        return QueryResult(session, cursor, query.type, raw_output=query._raw_output, fields=query.get_fields())
+        if query._get_limit() is not None:
+            cursor.limit(query._get_limit())
+        if query._get_skip() is not None:
+            cursor.skip(query._get_skip())
+        return QueryResult(session, cursor, query.type, raw_output=query._raw_output, fields=query._get_fields())
     
     def remove_query(self, type):
         ''' Begin a remove query on the database's collection for `type`.
@@ -299,19 +290,19 @@ class Session(object):
         kwargs = {
             'query' : fm_exp.query.query, 
             'update' : fm_exp.update_data, 
-            'upsert' : fm_exp.get_upsert(), 
+            'upsert' : fm_exp._get_upsert(), 
         }
         
-        if fm_exp.query.get_fields():
+        if fm_exp.query._get_fields():
             kwargs['fields'] = {}
-            for f in fm_exp.query.get_fields():
+            for f in fm_exp.query._get_fields():
                 kwargs['fields'][str(f)] = True
         if fm_exp.query._sort:
             kwargs['sort'] = fm_exp.query._sort
-        if fm_exp.get_new():
-            kwargs['new'] = fm_exp.get_new()
-        if fm_exp.get_remove():
-            kwargs['remove'] = fm_exp.get_remove()
+        if fm_exp._get_new():
+            kwargs['new'] = fm_exp._get_new()
+        if fm_exp._get_remove():
+            kwargs['remove'] = fm_exp._get_remove()
         
         value = collection.find_and_modify(**kwargs)        
         
@@ -327,8 +318,8 @@ class Session(object):
         # if obj is not None:
         #     return obj
         obj = self._unwrap(fm_exp.query.type, value, 
-                           fields=fm_exp.query.get_fields())
-        if not fm_exp.query.get_fields():
+                           fields=fm_exp.query._get_fields())
+        if not fm_exp.query._get_fields():
             self.cache_write(obj)
         return obj
 

@@ -56,6 +56,13 @@ def test_find_and_modify_in_session():
     with s:
         s.execute_find_and_modify({})
 
+@raises(TransactionException)
+def test_end_in_transaction():
+    s = Session.connect('unit-testing')
+    with s:
+        s.end()
+
+
 def test_session():
     s = Session.connect('unit-testing')
     s.clear_collection(T)

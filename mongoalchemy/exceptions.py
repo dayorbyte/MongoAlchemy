@@ -44,4 +44,8 @@ class BadFieldSpecification(Exception):
 
 
 class TransactionException(Exception):
-    pass
+    """ Exception which occurs when an invalid operation is called during a 
+        transaction """
+
+class SessionCacheException(Exception):
+    """ Exception when an error has occured with the MA caching mechanism """

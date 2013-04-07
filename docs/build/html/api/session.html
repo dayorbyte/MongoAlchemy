@@ -1,15 +1,16 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Session &mdash; MongoAlchemy v0.12 documentation</title>
+    <title>Session &mdash; MongoAlchemy 0.12 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,9 +23,9 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.12 documentation" href="../index.html" />
+    <link rel="top" title="MongoAlchemy 0.12 documentation" href="../index.html" />
     <link rel="up" title="API documentation" href="index.html" />
-    <link rel="next" title="Schema — Document-Object Mapper and Schema Definitions" href="schema/index.html" />
+    <link rel="next" title="Field Types" href="schema/fields.html" />
     <link rel="prev" title="API documentation" href="index.html" /> 
   </head>
   <body>
@@ -38,12 +39,12 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+          <a href="schema/fields.html" title="Field Types"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="API documentation"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,18 +58,6 @@
 <span id="session"></span><h1>Session<a class="headerlink" href="#module-mongoalchemy.session" title="Permalink to this headline">¶</a></h1>
 <p>Session objects handles the actual queueing of database operations.
 The primary methods on a session are query, insert, and flush.</p>
-<p>The preferred way to use a session is the <cite>with statement</cite>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">Session</span><span class="p">(</span><span class="n">some_db</span><span class="p">)</span>
-<span class="k">with</span> <span class="n">s</span><span class="p">:</span>
-    <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">some_obj</span><span class="p">)</span>
-    <span class="n">obj</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">SomeClass</span><span class="p">)</span><span class="o">.</span><span class="n">one</span><span class="p">()</span>
-    <span class="o">...</span>
-</pre></div>
-</div>
-<p>The with statement ensures that end_request is called on the 
-connection which can have a significant performance impact in some 
-situations because it will allow other threads to make use of the 
-<cite>socket</cite> connecting to the database.</p>
 <p>The session also responsible for ordering operations and knowing when
 operations need to be flushed, although it does not currently do
 anything intelligent for ordering.</p>
@@ -80,7 +69,7 @@ anything intelligent for ordering.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>database</strong> &#8211; the database to connect to.  Should be an instance of             <tt class="xref py py-class docutils literal"><span class="pre">pymongo.database.Database</span></tt></li>
 <li><strong>safe</strong> &#8211; Whether the &#8220;safe&#8221; option should be used on mongo writes,             blocking to make sure there are no errors.</li>
 <li><strong>auto_ensure</strong> &#8211; Whether to implicitly call ensure_indexes on all write             operations.</li>
@@ -98,16 +87,6 @@ anything intelligent for ordering.</p>
 </ul>
 </dd>
 </dl>
-<dl class="attribute">
-<dt id="mongoalchemy.session.Session.autoflush">
-<tt class="descname">autoflush</tt><a class="headerlink" href="#mongoalchemy.session.Session.autoflush" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mongoalchemy.session.Session.in_transaction">
-<tt class="descname">in_transaction</tt><a class="headerlink" href="#mongoalchemy.session.Session.in_transaction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="classmethod">
 <dt id="mongoalchemy.session.Session.connect">
 <em class="property">classmethod </em><tt class="descname">connect</tt><big>(</big><em>database</em>, <em>timezone=None</em>, <em>cache_size=0</em>, <em>auto_ensure=True</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.connect" title="Permalink to this definition">¶</a></dt>
@@ -117,7 +96,7 @@ database connection that the session will use.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>database</strong> &#8211; the database name to use.  Should be an instance of                     <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></li>
 <li><strong>safe</strong> &#8211; The value for the &#8220;safe&#8221; parameter of the Session 
 init function</li>
@@ -130,16 +109,6 @@ init function</li>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.cache_write">
-<tt class="descname">cache_write</tt><big>(</big><em>obj</em>, <em>mongo_id=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.cache_write" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.cache_read">
-<tt class="descname">cache_read</tt><big>(</big><em>id</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.cache_read" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.end">
@@ -169,7 +138,7 @@ field to decide which operations to do, or.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>item</strong> &#8211; An instance of a <a class="reference internal" href="schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a>                 subclass</li>
 <li><strong>id_expression</strong> &#8211; A query expression that uniquely picks out                 the item which should be updated.  If id_expression is not                 passed, update uses item.mongo_id.</li>
 <li><strong>upsert</strong> &#8211; Whether the update operation should be an upsert.                 If the item may not be in the database yet this should be True</li>
@@ -196,7 +165,7 @@ although it does have code coverage.</p>
 which will not check field values or transform returned results
 into python objects.</dd>
 </dl>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="expressions/query.html#mongoalchemy.query.Query" title="mongoalchemy.query.Query"><tt class="xref py py-class docutils literal"><span class="pre">Query</span></tt></a> class</p>
 </div>
@@ -220,7 +189,7 @@ stale</p>
 <dt id="mongoalchemy.session.Session.remove_query">
 <tt class="descname">remove_query</tt><big>(</big><em>type</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove_query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Begin a remove query on the database&#8217;s collection for <cite>type</cite>.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><tt class="xref py py-class docutils literal"><span class="pre">RemoveQuery</span></tt> class</p>
 </div>
@@ -237,7 +206,7 @@ will be raised</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>obj</strong> &#8211; the object to save</li>
 <li><strong>safe</strong> &#8211; whether to wait for the operation to complete.  Defaults                 to the session&#8217;s <tt class="docutils literal"><span class="pre">safe</span></tt> value.</li>
 </ul>
@@ -246,28 +215,6 @@ will be raised</p>
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.execute_remove">
-<tt class="descname">execute_remove</tt><big>(</big><em>remove</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_remove" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute a remove expression.  Should generally only be called implicitly.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.execute_update">
-<tt class="descname">execute_update</tt><big>(</big><em>update</em>, <em>safe=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Execute an update expression.  Should generally only be called implicitly.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="mongoalchemy.session.Session.execute_find_and_modify">
-<tt class="descname">execute_find_and_modify</tt><big>(</big><em>fm_exp</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_find_and_modify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="mongoalchemy.session.Session.transaction_id">
-<tt class="descname">transaction_id</tt><a class="headerlink" href="#mongoalchemy.session.Session.transaction_id" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.get_indexes">
@@ -354,8 +301,8 @@ object</p>
   <p class="topless"><a href="index.html"
                         title="previous chapter">API documentation</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="schema/index.html"
-                        title="next chapter">Schema — Document-Object Mapper and Schema Definitions</a></p>
+  <p class="topless"><a href="schema/fields.html"
+                        title="next chapter">Field Types</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../_sources/api/session.txt"
@@ -388,18 +335,18 @@ object</p>
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="schema/index.html" title="Schema — Document-Object Mapper and Schema Definitions"
+          <a href="schema/fields.html" title="Field Types"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="API documentation"
              >previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li>
           <li><a href="index.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
 </html>

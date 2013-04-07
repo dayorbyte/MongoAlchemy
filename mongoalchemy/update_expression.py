@@ -49,6 +49,10 @@ class UpdateExpression(object):
         return self
     
     def safe(self, safe=True):
+        """ Mark the query as a "safe" query with pymongo.
+
+            :param safe: Defaults to True. Force "safe" on or off
+        """
         self.__safe = safe
         return self
     
@@ -188,10 +192,10 @@ class UpdateExpression(object):
         self.update_data[op][qfield.get_absolute_name()] = value
         return self
     
-    def get_upsert(self):
+    def _get_upsert(self):
         return self.__upsert
     
-    def get_multi(self):
+    def _get_multi(self):
         return self.__multi
     
     def execute(self):
@@ -204,10 +208,10 @@ class FindAndModifyExpression(UpdateExpression):
         self.__remove = remove
         UpdateExpression.__init__(self, query)
     
-    def get_remove(self):
+    def _get_remove(self):
         return self.__remove
     
-    def get_new(self):
+    def _get_new(self):
         return self.__new
     
     def execute(self):

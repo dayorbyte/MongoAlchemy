@@ -1,17 +1,17 @@
-:mod:`~mongoalchemy.document`
-==============================================================================
+Documents and Indexes
+=======================================
 
 .. automodule:: mongoalchemy.document
 
 
-:class:`Document` Objects
+:class:`Document`
 ----------------------------------------------------------
 
 .. autoclass:: mongoalchemy.document.Document
    :members:
    :undoc-members:
 
-:class:`Index` Objects
+:class:`Index`
 ----------------------------------------------------------
 .. autoclass:: mongoalchemy.document.Index
    :members:

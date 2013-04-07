@@ -1,15 +1,16 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Exceptions &mdash; MongoAlchemy v0.12 documentation</title>
+    <title>Exceptions &mdash; MongoAlchemy 0.12 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.12 documentation" href="../index.html" />
+    <link rel="top" title="MongoAlchemy 0.12 documentation" href="../index.html" />
     <link rel="up" title="API documentation" href="index.html" />
     <link rel="next" title="Examples" href="../examples/index.html" />
     <link rel="prev" title="Update Expressions" href="expressions/update_expressions.html" /> 
@@ -43,7 +44,7 @@
         <li class="right" >
           <a href="expressions/update_expressions.html" title="Update Expressions"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">API documentation</a> &raquo;</li> 
       </ul>
     </div>  
@@ -57,16 +58,16 @@
 <h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="field-exceptions">
 <h2>Field Exceptions<a class="headerlink" href="#field-exceptions" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="exception">
 <dt id="mongoalchemy.exceptions.BadValueException">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadValueException</tt><big>(</big><em>name</em>, <em>value</em>, <em>reason</em>, <em>cause=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.exceptions.BadValueException" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadValueException</tt><big>(</big><em>name</em>, <em>value</em>, <em>reason</em>, <em>cause=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.exceptions.BadValueException" title="Permalink to this definition">¶</a></dt>
 <dd><p>An exception which is raised when there is something wrong with a 
 value</p>
 </dd></dl>
 
-<dl class="class">
+<dl class="exception">
 <dt id="mongoalchemy.exceptions.BadFieldSpecification">
-<em class="property">class </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadFieldSpecification</tt><a class="headerlink" href="#mongoalchemy.exceptions.BadFieldSpecification" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadFieldSpecification</tt><a class="headerlink" href="#mongoalchemy.exceptions.BadFieldSpecification" title="Permalink to this definition">¶</a></dt>
 <dd><p>An exception that is raised when there is an error in creating a 
 field</p>
 </dd></dl>
@@ -75,28 +76,66 @@ field</p>
 <div class="section" id="document-exceptions">
 <h2>Document Exceptions<a class="headerlink" href="#document-exceptions" title="Permalink to this headline">¶</a></h2>
 <dl class="exception">
-<dt id="mongoalchemy.document.DocumentException">
-<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DocumentException</tt><a class="headerlink" href="#mongoalchemy.document.DocumentException" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.exceptions.DocumentException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">DocumentException</tt><a class="headerlink" href="#mongoalchemy.exceptions.DocumentException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base for all document-related exceptions</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="mongoalchemy.document.MissingValueException">
-<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">MissingValueException</tt><a class="headerlink" href="#mongoalchemy.document.MissingValueException" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.exceptions.MissingValueException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">MissingValueException</tt><a class="headerlink" href="#mongoalchemy.exceptions.MissingValueException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raised when a required field isn&#8217;t set</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="mongoalchemy.document.ExtraValueException">
-<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">ExtraValueException</tt><a class="headerlink" href="#mongoalchemy.document.ExtraValueException" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.exceptions.ExtraValueException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">ExtraValueException</tt><a class="headerlink" href="#mongoalchemy.exceptions.ExtraValueException" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raised when a value is passed in with no corresponding field</p>
 </dd></dl>
 
 <dl class="exception">
-<dt id="mongoalchemy.document.FieldNotRetrieved">
-<em class="property">exception </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">FieldNotRetrieved</tt><a class="headerlink" href="#mongoalchemy.document.FieldNotRetrieved" title="Permalink to this definition">¶</a></dt>
+<dt id="mongoalchemy.exceptions.FieldNotRetrieved">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">FieldNotRetrieved</tt><a class="headerlink" href="#mongoalchemy.exceptions.FieldNotRetrieved" title="Permalink to this definition">¶</a></dt>
 <dd><p>If a partial document is loaded from the database and a field which 
 wasn&#8217;t retrieved is accessed this exception is raised</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.exceptions.InvalidConfigException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">InvalidConfigException</tt><a class="headerlink" href="#mongoalchemy.exceptions.InvalidConfigException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when a bad value is passed in for a configuration that expects
+its values to obey certain constraints.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="data-exceptions">
+<h2>Data Exceptions<a class="headerlink" href="#data-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="mongoalchemy.exceptions.BadReferenceException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadReferenceException</tt><a class="headerlink" href="#mongoalchemy.exceptions.BadReferenceException" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="exception">
+<dt>
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">BadValueException</tt><big>(</big><em>name</em>, <em>value</em>, <em>reason</em>, <em>cause=None</em><big>)</big></dt>
+<dd><p>An exception which is raised when there is something wrong with a 
+value</p>
+</dd></dl>
+
+</div>
+<div class="section" id="session-exceptions">
+<h2>Session Exceptions<a class="headerlink" href="#session-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="mongoalchemy.exceptions.TransactionException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">TransactionException</tt><a class="headerlink" href="#mongoalchemy.exceptions.TransactionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception which occurs when an invalid operation is called during a 
+transaction</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="mongoalchemy.exceptions.SessionCacheException">
+<em class="property">exception </em><tt class="descclassname">mongoalchemy.exceptions.</tt><tt class="descname">SessionCacheException</tt><a class="headerlink" href="#mongoalchemy.exceptions.SessionCacheException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception when an error has occured with the MA caching mechanism</p>
 </dd></dl>
 
 </div>
@@ -113,6 +152,8 @@ wasn&#8217;t retrieved is accessed this exception is raised</p>
 <li><a class="reference internal" href="#">Exceptions</a><ul>
 <li><a class="reference internal" href="#field-exceptions">Field Exceptions</a></li>
 <li><a class="reference internal" href="#document-exceptions">Document Exceptions</a></li>
+<li><a class="reference internal" href="#data-exceptions">Data Exceptions</a></li>
+<li><a class="reference internal" href="#session-exceptions">Session Exceptions</a></li>
 </ul>
 </li>
 </ul>
@@ -160,13 +201,13 @@ wasn&#8217;t retrieved is accessed this exception is raised</p>
         <li class="right" >
           <a href="expressions/update_expressions.html" title="Update Expressions"
              >previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li>
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li>
           <li><a href="index.html" >API documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
 </html>

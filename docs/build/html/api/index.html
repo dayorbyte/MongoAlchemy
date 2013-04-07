@@ -1,15 +1,16 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API documentation &mdash; MongoAlchemy v0.12 documentation</title>
+    <title>API documentation &mdash; MongoAlchemy 0.12 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,9 +23,9 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.12 documentation" href="../index.html" />
+    <link rel="top" title="MongoAlchemy 0.12 documentation" href="../index.html" />
     <link rel="next" title="Session" href="session.html" />
-    <link rel="prev" title="Advanced Modeling — Namespaces and Forward/Self-References" href="../advanced_modeling.html" /> 
+    <link rel="prev" title="Custom Fields" href="../modeling/custom_fields.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,9 +41,9 @@
           <a href="session.html" title="Session"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+          <a href="../modeling/custom_fields.html" title="Custom Fields"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -57,22 +58,20 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="session.html">Session</a></li>
-<li class="toctree-l1"><a class="reference internal" href="schema/index.html">Schema — Document-Object Mapper and Schema Definitions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="schema/document.html"><tt class="docutils literal"><span class="pre">document</span></tt></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="schema/document.html#document-objects"><tt class="docutils literal"><span class="pre">Document</span></tt> Objects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/document.html#index-objects"><tt class="docutils literal"><span class="pre">Index</span></tt> Objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema/fields.html">Field Types</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#field">Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#primitive-fields">Primitive Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#date-and-time-fields">Date and Time Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#sequence-type-fields">Sequence Type Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#mapping-type-fields">Mapping Type Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#document-field">Document Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#reference-field">Reference Field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/fields.html#computed-field">Computed Field</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="schema/fields.html"><tt class="docutils literal"><span class="pre">fields</span></tt></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#field-objects">Field Objects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#primitive-fields">Primitive Fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#sequence-type-fields">Sequence Type Fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#mapping-type-fields">Mapping Type Fields</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#document-field-objects">Document Field Objects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#reference-field-objects">Reference Field Objects</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schema/fields.html#computed-field-objects">Computed Field Objects</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="schema/document.html">Documents and Indexes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="schema/document.html#document"><tt class="docutils literal"><span class="pre">Document</span></tt></a></li>
+<li class="toctree-l2"><a class="reference internal" href="schema/document.html#index"><tt class="docutils literal"><span class="pre">Index</span></tt></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="expressions/index.html">Expression Language — Querying and Updating</a><ul>
@@ -84,11 +83,14 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="expressions/update_expressions.html">Update Expressions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="expressions/update_expressions.html#remove-queries">Remove Queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="expressions/update_expressions.html#find-and-modify">Find and Modify</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html#field-exceptions">Field Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html#document-exceptions">Document Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html#data-exceptions">Data Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html#session-exceptions">Session Exceptions</a></li>
 </ul>
 </li>
 </ul>
@@ -102,8 +104,8 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../advanced_modeling.html"
-                        title="previous chapter">Advanced Modeling — Namespaces and Forward/Self-References</a></p>
+  <p class="topless"><a href="../modeling/custom_fields.html"
+                        title="previous chapter">Custom Fields</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="session.html"
                         title="next chapter">Session</a></p>
@@ -142,14 +144,14 @@
           <a href="session.html" title="Session"
              >next</a> |</li>
         <li class="right" >
-          <a href="../advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+          <a href="../modeling/custom_fields.html" title="Custom Fields"
              >previous</a> |</li>
-        <li><a href="../index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li> 
+        <li><a href="../index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
 </html>

@@ -4,20 +4,28 @@ Exceptions
 Field Exceptions
 --------------------------------
 
-.. autoclass:: mongoalchemy.exceptions.BadValueException
-   :members:
-   :undoc-members:
+.. autoexception:: mongoalchemy.exceptions.BadValueException
 
-.. autoclass:: mongoalchemy.exceptions.BadFieldSpecification
-   :members:
-   :undoc-members:
+.. autoexception:: mongoalchemy.exceptions.BadFieldSpecification
 
 
 Document Exceptions
 ------------------------------------
 
-.. autoexception:: mongoalchemy.document.DocumentException
-.. autoexception:: mongoalchemy.document.MissingValueException
-.. autoexception:: mongoalchemy.document.ExtraValueException
-.. autoexception:: mongoalchemy.document.FieldNotRetrieved
+.. autoexception:: mongoalchemy.exceptions.DocumentException
+.. autoexception:: mongoalchemy.exceptions.MissingValueException
+.. autoexception:: mongoalchemy.exceptions.ExtraValueException
+.. autoexception:: mongoalchemy.exceptions.FieldNotRetrieved
+.. autoexception:: mongoalchemy.exceptions.InvalidConfigException
 
+Data Exceptions
+----------------------------------------
+
+.. autoexception:: mongoalchemy.exceptions.BadReferenceException
+.. autoexception:: mongoalchemy.exceptions.BadValueException
+
+Session Exceptions
+------------------------------------------
+
+.. autoexception:: mongoalchemy.exceptions.TransactionException
+.. autoexception:: mongoalchemy.exceptions.SessionCacheException

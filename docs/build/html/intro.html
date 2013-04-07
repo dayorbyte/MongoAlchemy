@@ -1,18 +1,19 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>MongoAlchemy Tutorial &mdash; MongoAlchemy v0.12 documentation</title>
+    <title>A Quick MongoAlchemy Introduction &mdash; MongoAlchemy 0.12 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.12',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -22,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="MongoAlchemy v0.12 documentation" href="index.html" />
-    <link rel="next" title="Advanced Modeling — Namespaces and Forward/Self-References" href="advanced_modeling.html" />
+    <link rel="top" title="MongoAlchemy 0.12 documentation" href="index.html" />
+    <link rel="next" title="Advanced Modeling" href="modeling/index.html" />
     <link rel="prev" title="Welcome to MongoAlchemy’s documentation!" href="index.html" /> 
   </head>
   <body>
@@ -37,12 +38,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+          <a href="modeling/index.html" title="Advanced Modeling"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -51,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="mongoalchemy-tutorial">
-<h1>MongoAlchemy Tutorial<a class="headerlink" href="#mongoalchemy-tutorial" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="a-quick-mongoalchemy-introduction">
+<h1>A Quick MongoAlchemy Introduction<a class="headerlink" href="#a-quick-mongoalchemy-introduction" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This tutorial is incomplete, but hopefully has enough detail that the places to look in the API documentation for the rest is clear.</p>
@@ -104,7 +105,7 @@ followed by any number of values of the type accepted by that field.  The
 EnumField will check both that the value it is constructed with is of the
 correct type, but also that its value is one of the values given in the
 constructor.</p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="api/schema/document.html#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> and <a class="reference internal" href="api/schema/fields.html#module-mongoalchemy.fields" title="mongoalchemy.fields"><tt class="xref py py-mod docutils literal"><span class="pre">fields</span></tt></a></p>
 </div>
@@ -173,8 +174,8 @@ examples return the same results:</p>
 <p>Instead of getting elements by iterating on the query, the <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.one" title="mongoalchemy.query.Query.one"><tt class="xref py py-func docutils literal"><span class="pre">one()</span></tt></a>
 and <a class="reference internal" href="api/expressions/query.html#mongoalchemy.query.Query.first" title="mongoalchemy.query.Query.first"><tt class="xref py py-func docutils literal"><span class="pre">first()</span></tt></a> methods can be used.  <tt class="docutils literal"><span class="pre">one</span></tt> returns the first
 result and raises an exception if there is not exactly one returned result.  <tt class="docutils literal"><span class="pre">first</span></tt> returns
-the first result if there is one, and <tt class="xref docutils literal"><span class="pre">None</span></tt> if there is not one.</p>
-<div class="admonition-see-also admonition seealso">
+the first result if there is one, and <tt class="docutils literal"><span class="pre">None</span></tt> if there is not one.</p>
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <p class="last"><a class="reference internal" href="api/expressions/query_expressions.html"><em>Mongo Query Expression Language</em></a> for all available types of query expressions</p>
 </div>
@@ -206,7 +207,7 @@ or a keyword argument to update.  The value of these arguments is currently a st
 the mongo operation you want to do instead.  For example, <tt class="docutils literal"><span class="pre">IntField(on_update='$inc')</span></tt>
 is an IntField which will increment when update is called.  <tt class="docutils literal"><span class="pre">Session.update</span></tt> <em>is still experimental,
 so watch out for side-effects</em></p>
-<div class="admonition-see-also admonition seealso">
+<div class="admonition seealso">
 <p class="first admonition-title">See also</p>
 <ul class="last simple">
 <li><a class="reference internal" href="api/expressions/update_expressions.html"><em>Update Expressions</em></a> for all available types of update expressions</li>
@@ -236,7 +237,7 @@ so watch out for side-effects</em></p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">MongoAlchemy Tutorial</a><ul>
+<li><a class="reference internal" href="#">A Quick MongoAlchemy Introduction</a><ul>
 <li><a class="reference internal" href="#creating-a-mapping-object">Creating a Mapping Object</a></li>
 <li><a class="reference internal" href="#sessions">Sessions</a></li>
 <li><a class="reference internal" href="#querying">Querying</a></li>
@@ -250,11 +251,11 @@ so watch out for side-effects</em></p>
   <p class="topless"><a href="index.html"
                         title="previous chapter">Welcome to MongoAlchemy&#8217;s documentation!</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="advanced_modeling.html"
-                        title="next chapter">Advanced Modeling — Namespaces and Forward/Self-References</a></p>
+  <p class="topless"><a href="modeling/index.html"
+                        title="next chapter">Advanced Modeling</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/tutorial.txt"
+    <li><a href="_sources/intro.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -284,17 +285,17 @@ so watch out for side-effects</em></p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="advanced_modeling.html" title="Advanced Modeling — Namespaces and Forward/Self-References"
+          <a href="modeling/index.html" title="Advanced Modeling"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="Welcome to MongoAlchemy’s documentation!"
              >previous</a> |</li>
-        <li><a href="index.html">MongoAlchemy v0.12 documentation</a> &raquo;</li> 
+        <li><a href="index.html">MongoAlchemy 0.12 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.8.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
 </html>

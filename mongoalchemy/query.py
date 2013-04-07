@@ -60,22 +60,29 @@ class Query(object):
         
     @property
     def query(self):
+        """ The mongo query object which would be executed if this Query
+            object were used """
         return flatten(self.__query)
     
     def __get_query_result(self):
         return self.session.execute_query(self, self.session)
     
     def raw_output(self):
+        """ Turns on raw output, meaning that the MongoAlchemy ORM layer is 
+            skipped and the results from pymongo are returned.  Useful if you
+            want to use the query functionality without getting python objects
+            back
+        """
         self._raw_output = True
         return self
     
-    def get_fields(self):
+    def _get_fields(self):
         return self._fields
     
-    def get_limit(self):
+    def _get_limit(self):
         return self._limit
     
-    def get_skip(self):
+    def _get_skip(self):
         return self._skip
     
     def limit(self, limit):

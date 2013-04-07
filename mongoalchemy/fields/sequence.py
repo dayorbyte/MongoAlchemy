@@ -66,7 +66,7 @@ class SequenceField(Field):
         ''' Returns the names of the value type's sub-fields'''
         return self.item_type.subfields()
     
-    def dereference(self, session, ref, allow_none=False):
+    def _dereference(self, session, ref, allow_none=False):
         return self.item_type.dereference(session, ref, allow_none=allow_none)
 
     def wrap_value(self, value):
@@ -144,9 +144,7 @@ class SequenceField(Field):
 
 class ListField(SequenceField):
     ''' Field representing a python list.
-        
-        .. seealso:: :class:`SequenceField`'''
-
+    '''        
     def __init__(self, item_type, **kwargs):
         ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
             :param min_capacity: minimum number of items contained in values
@@ -193,8 +191,7 @@ class ListField(SequenceField):
 
 class SetField(SequenceField):
     ''' Field representing a python set.
-        
-        .. seealso:: :class:`SequenceField`'''
+    '''
     def __init__(self, item_type, **kwargs):
         ''' :param item_type: :class:`Field` instance used for validation and (un)wrapping
             :param min_capacity: minimum number of items contained in values
@@ -250,7 +247,7 @@ class ListProxy(object):
                 if v is None:
                     yield v
                     continue
-                value = self.field.dereference(session, v, 
+                value = self.field._dereference(session, v, 
                                                allow_none=self.ignore_missing)
                 if value is None and self.ignore_missing:
                     continue

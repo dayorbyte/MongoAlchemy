@@ -6,7 +6,7 @@ Schema — Document-Object Mapper and Schema Definitions
 Modules:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    document
    fields

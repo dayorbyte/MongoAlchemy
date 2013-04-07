@@ -25,6 +25,15 @@ from bson import DBRef
 
 class RefBase(Field):
     def rel(self, allow_none=False):
+        """ Used to create an attribute which will auto-dereference
+            a RefField or SRefField.
+
+            **Example**::
+                
+                employer_ref = SRefField(Employer)
+                employer = employer_ref.rel()
+
+        """
         return Proxy(self, allow_none=allow_none)
 
 class SRefField(RefBase):
@@ -51,6 +60,7 @@ class SRefField(RefBase):
     def _to_ref(self, doc):
         return doc.mongo_id
     def dereference(self, session, ref, allow_none=False):
+        """ Dereference an ObjectID to this field's underlying type """
         ref = DBRef(id=ref, collection=self.type.type.get_collection_name(),
                     database=self.db)
         ref.type = self.type.type
@@ -130,6 +140,7 @@ class RefField(RefBase):
         return value
     
     def dereference(self, session, ref, allow_none=False):
+        """ Dereference a pymongo "DBRef" to this field's underlying type """
         from mongoalchemy.document import collection_registry
         # TODO: namespace support
         ref.type = collection_registry['global'][ref.collection]

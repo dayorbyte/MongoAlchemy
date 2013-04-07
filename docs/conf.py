@@ -93,7 +93,7 @@ pygments_style = 'sphinx'
 
 autoclass_content = 'both'
 autodoc_member_order = 'bysource'
-
+autodoc_default_flags = ['members', 'inherited-members', 'undoc-members']
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -222,3 +222,30 @@ man_pages = [
     ('index', 'mongoalchemy', u'MongoAlchemy Documentation',
      [u'Jeffrey Jenkins'], 1)
 ]
+
+bad_names = ['schema_json', 'has_autoload', 'set_parent_on_subtypes', 
+                'subfields', 'has_subfields', 'valid_modifiers',
+                'set_value', 'update_ops', 'db_field', 'no_real_attributes',
+                'default', 'localize', 'auto', 'dirty_ops', 'validate_wrap',
+                'is_valid_unwrap', 'is_valid_wrap', 'unwrap', 
+                'validate_unwrap', 'wrap', 'wrap_value', 'PrimitiveField',
+                'NumberField', 'SequenceField', 'child_type',
+                'type', 'sub_type', 'compute_value', 'in_transaction',
+                'autoflush', 'cache_write', 'cache_read', 'transaction_id',
+                'execute_update', 'execute_remove', 'execute_find_and_modify']
+
+bad_exc = ['message', 'args']
+
+def skip_common(app, what, name, obj, skip, options):
+    print what, name, obj
+    if what == 'exception' and name in bad_exc:
+        return True
+    if name in bad_names:
+        return True
+    return skip
+
+
+def setup(app):
+    app.connect('autodoc-skip-member', skip_common)
+
+
