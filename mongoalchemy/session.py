@@ -29,7 +29,11 @@
 '''
 
 from uuid import uuid4
-from pymongo.connection import Connection
+import pymongo
+if hasattr(pymongo, 'mongo_client'):
+    from pymongo.mongo_client import MongoClient
+else: # pragma: no cover
+    from pymongo.connection import Connection as MongoClient
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import (FieldNotRetrieved, Document, 
@@ -92,15 +96,15 @@ class Session(object):
                 init function
             :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
                 operations.
-            :param args: arguments for :class:`pymongo.connection.Connection`
-            :param kwds: keyword arguments for :class:`pymongo.connection.Connection`
+            :param args: arguments for :class:`pymongo.mongo_client.MongoClient`
+            :param kwds: keyword arguments for :class:`pymongo.mongo_client.MongoClient`
         '''
         safe = kwds.get('safe', False)
         if 'safe' in kwds:
             del kwds['safe']
         if timezone is not None:
             kwds['tz_aware'] = True
-        conn = Connection(*args, **kwds)
+        conn = MongoClient(*args, **kwds)
         db = conn[database]
         return Session(db, timezone=timezone, safe=safe, cache_size=cache_size, auto_ensure=auto_ensure)
     
