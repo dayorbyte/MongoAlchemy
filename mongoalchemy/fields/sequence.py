@@ -27,6 +27,7 @@ class SequenceField(Field):
     ''' Base class for Fields which are an iterable collection of objects in which
         every child element is of the same type'''
     
+    is_sequence_field = True
     valid_modifiers = LIST_MODIFIERS
     
     def __init__(self, item_type, min_capacity=None, max_capacity=None, 

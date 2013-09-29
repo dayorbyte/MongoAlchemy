@@ -313,8 +313,10 @@ class Session(object):
         if value is None:
             return None
         
-        if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
-            return value
+        # Found this uncommitted.  not sure what it's from? Leaving it 
+        # until I remember -jeff
+        # if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
+        #     return value
 
         # No cache in find and modify, right?  
         # this is an update operation

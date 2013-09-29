@@ -19,6 +19,9 @@ class T(Document):
 class T2(Document):
     t = DocumentField(T)
 
+class T3(Document):
+    t_list = ListField(DocumentField(T))
+
 class NestedChild(Document):
     i = IntField()
 class NestedParent(Document):
@@ -27,7 +30,7 @@ class NestedParent(Document):
 
 def get_session():
     s = Session.connect('unit-testing')
-    s.clear_collection(T, T2)
+    s.clear_collection(T, T2, T3)
     return s
 #
 #   Test Query Fields
@@ -51,6 +54,30 @@ def query_field_repr_test():
 
 def test_nested_matching():
     assert str(NestedParent.l.i) == 'l.i'
+
+#
+#   Test elem_match ($elemMatch)
+#
+def test_elem_match_simple():
+    s = get_session()
+    q = s.query(T3).filter(T3.t_list.elem_match({'i': 1}))
+    assert q.query == {'t_list': {'$elemMatch': {'i': 1}}}
+
+    q = s.query(T3).filter(T3.t_list.elem_match(T.i == 1))
+    assert q.query == {'t_list': {'$elemMatch': {'i': 1}}}, q.query
+
+@raises(BadQueryException)
+def test_non_seq_elem_match():
+    s = get_session()
+    s.query(T).filter(T.i.elem_match({'i':1}))
+
+@raises(BadQueryException)
+def test_bad_val():
+    s = get_session()
+    s.query(T3).filter(T3.t_list.elem_match(None))
+
+
+
 
 #
 # QueryField Tests

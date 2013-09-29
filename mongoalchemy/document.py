@@ -199,6 +199,7 @@ class Document(object):
         
         cls = self.__class__
                 
+        # Process the fields on the object
         fields = self.get_fields()
         for name, field in fields.iteritems():
             # print name
@@ -215,6 +216,7 @@ class Document(object):
             else:
                 self._values[name] = Value(field, self, from_db=False)
         
+        # Process any extra fields
         for k in kwargs:
             if k not in fields:
                 if self.config_extra_fields == 'ignore':

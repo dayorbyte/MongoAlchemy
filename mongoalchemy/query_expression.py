@@ -275,6 +275,29 @@ class QueryField(object):
         '''
         return self.__comparator('$gte', value)
     
+    def elem_match(self, value):
+        ''' Creates a query expression to do an $elemMatch on the selected
+            field.  If the type of this field is a DocumentField the value
+            can be either a QueryExpression using that Document's fields OR
+            you can use a dict for raw mongo.
+
+            See the mongo documentation for thorough treatment of 
+            elemMatch: 
+            http://docs.mongodb.org/manual/reference/operator/elemMatch/
+        '''
+        if not self.__type.is_sequence_field:
+            raise BadQueryException('elem_match called on a non-sequence '
+                                    'field: ' + str(self))
+        if isinstance(value, dict):
+            return QueryExpression({self : { '$elemMatch' : value} })
+        elif isinstance(value, QueryExpression):
+            return QueryExpression({
+                       self : { '$elemMatch' : value.obj }
+                   })
+        raise BadQueryException('elem_match requires a QueryExpression '
+                                '(to be typesafe) or a dict (which is '
+                                'not type safe)')
+
     def __comparator(self, op, value):
         return QueryExpression({
             self : {

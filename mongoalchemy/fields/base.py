@@ -130,6 +130,9 @@ class Field(object):
     #: If this kind of field can do extra requests, this attribute should be True
     has_autoload = False
 
+    #: Is this a sequence?  used by elemMatch
+    is_sequence_field = False
+
     no_real_attributes = False  # used for free-form queries.  
     
     __metaclass__ = FieldMeta
