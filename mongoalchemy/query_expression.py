@@ -73,7 +73,12 @@ class QueryField(object):
         self.__parent = parent
         self.__cached_id_value = None
         self.__matched_index = False
+        self.__fields_expr = True
     
+    @property
+    def fields_expression(self):
+        return flatten(self.__fields_expr)
+
     @property
     def __cached_id(self):
         if self.__cached_id_value == None:
@@ -82,7 +87,7 @@ class QueryField(object):
     
     def _get_parent(self):
         return self.__parent
-    
+
     def get_type(self):
         ''' Returns the underlying :class:`mongoalchemy.fields.Field` '''
         return self.__type
@@ -276,7 +281,11 @@ class QueryField(object):
         return self.__comparator('$gte', value)
     
     def elem_match(self, value):
-        ''' Creates a query expression to do an $elemMatch on the selected
+        ''' This method does two things depending on the context:
+
+            1. In the context of a query expression it: 
+
+            Creates a query expression to do an $elemMatch on the selected
             field.  If the type of this field is a DocumentField the value
             can be either a QueryExpression using that Document's fields OR
             you can use a dict for raw mongo.
@@ -284,19 +293,38 @@ class QueryField(object):
             See the mongo documentation for thorough treatment of 
             elemMatch: 
             http://docs.mongodb.org/manual/reference/operator/elemMatch/
+
+            2. In the context of choosing fields in a query.fields() expr:
+
+            Sets the field to use elemMatch, so only the matching elements
+            of a list are used. See the mongo docs for more details:
+            http://docs.mongodb.org/manual/reference/projection/elemMatch/
         '''
+        self.__is_elem_match = True
         if not self.__type.is_sequence_field:
             raise BadQueryException('elem_match called on a non-sequence '
                                     'field: ' + str(self))
         if isinstance(value, dict):
-            return QueryExpression({self : { '$elemMatch' : value} })
+            self.__fields_expr = { '$elemMatch' : value}
+            return ElemMatchQueryExpression(self, {self : self.__fields_expr })
         elif isinstance(value, QueryExpression):
-            return QueryExpression({
-                       self : { '$elemMatch' : value.obj }
-                   })
+            self.__fields_expr = { '$elemMatch' : value.obj }
+            e = ElemMatchQueryExpression(self, {
+                       self : self.__fields_expr
+                })
+            return e
         raise BadQueryException('elem_match requires a QueryExpression '
                                 '(to be typesafe) or a dict (which is '
                                 'not type safe)')
+
+    def exclude(self):
+        ''' Use in a query.fields() expression to say this field should be
+            excluded.  The default of fields() is to include only 
+            fields which are specified. This allows retrieving of "every field
+            except 'foo'".
+        '''
+        self.__fields_expr = False
+        return self
 
     def __comparator(self, op, value):
         return QueryExpression({
@@ -368,6 +396,19 @@ class QueryExpression(object):
             '$or' : [self.obj, expression.obj]
         }
         return self
+
+class ElemMatchQueryExpression(QueryExpression):
+    ''' Special QueryExpression subclass which can also be used
+        in a query.fields() expression. Shouldn't be used directly.
+    '''
+    def __init__(self, field, obj):
+        QueryExpression.__init__(self, obj)
+        self._field = field
+    def get_absolute_name(self):
+        return self._field.get_absolute_name()
+    @property
+    def fields_expression(self):
+        return self._field.fields_expression
 
 
 def flatten(obj):

@@ -230,6 +230,13 @@ class Query(object):
         self._fields.add(self.type.mongo_id)
         return self
     
+    def _fields_expression(self):
+        fields = {}
+        for f in self._get_fields():
+            fields[f.get_absolute_name()] = f.fields_expression
+        return fields
+
+
     def _apply(self, qe):
         ''' Apply a raw mongo query to the current raw query object'''
         self._apply_dict(qe.obj)

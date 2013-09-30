@@ -15,13 +15,38 @@ class T(Document):
 class T2(Document):
     t = DocumentField(T)
 
+class T3(Document):
+    t_list = ListField(DocumentField(T))
+
 def get_session():
-    return Session.connect('unit-testing')
+    s = Session.connect('unit-testing')
+    s.clear_collection(T, T2, T3)
+    return s
+
+def test_elem_match_field():
+    s = get_session()
+    q = s.query(T3).fields(T3.t_list.elem_match({'i':1}))
+    expr = q._fields_expression()
+    expected = {
+        't_list' : {
+            '$elemMatch' : {'i': 1}
+        },
+        '_id' : True,
+    }
+    assert expr == expected, q._fields_expression()
+
+def test_fields_exclude():
+    s = get_session()
+    q = s.query(T3).fields(T3.mongo_id.exclude())
+    expr = q._fields_expression()
+    expected = {
+        '_id' : False,
+    }
+    assert expr == expected, q._fields_expression()
 
 def test_update():
     s = get_session()
-    s.clear_collection(T)
-    
+        
     obj = T(i=3)
     
     s.insert(obj)

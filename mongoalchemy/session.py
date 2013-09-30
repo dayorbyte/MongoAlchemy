@@ -217,7 +217,7 @@ class Session(object):
 
         kwargs = dict()
         if query._get_fields():
-            kwargs['fields'] = [str(f) for f in query._get_fields()]
+            kwargs['fields'] = query._fields_expression()
 
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
@@ -298,9 +298,7 @@ class Session(object):
         }
         
         if fm_exp.query._get_fields():
-            kwargs['fields'] = {}
-            for f in fm_exp.query._get_fields():
-                kwargs['fields'][str(f)] = True
+            kwargs['fields'] = fm_exp.query._fields_expression()
         if fm_exp.query._sort:
             kwargs['sort'] = fm_exp.query._sort
         if fm_exp._get_new():
