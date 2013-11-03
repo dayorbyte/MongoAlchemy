@@ -44,10 +44,10 @@ class DocumentField(Field):
         from mongoalchemy.document import Document, document_type_registry
         if not isinstance(self.__type, basestring) and issubclass(self.__type, Document):
             return self.__type
-        if self.parent and self.parent.config_namespace == None:
+        if self.parent and self.parent.config_namespace is None:
             raise BadFieldSpecification('Document namespace is None.  Strings are not allowed for DocumentFields')
         type = document_type_registry[self.parent.config_namespace].get(self.__type)
-        if type == None or not issubclass(type, Document):
+        if type is None or not issubclass(type, Document):
             raise BadFieldSpecification('No type found for %s.  Maybe it has not been imported yet and is not registered?' % self.__type)
         return type
     

@@ -247,7 +247,7 @@ def test_not_assign_dict_malformed_field():
 def test_not_db_test():
     s = get_session()
     s.insert(T(i=5))
-    assert s.query(T).not_(T.i == 5).first() == None
+    assert s.query(T).not_(T.i == 5).first() is None
     assert s.query(T).not_(T.i > 6).one().i == 5
 
 def test_or():

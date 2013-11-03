@@ -81,7 +81,7 @@ class QueryField(object):
 
     @property
     def __cached_id(self):
-        if self.__cached_id_value == None:
+        if self.__cached_id_value is None:
             self.__cached_id_value = str(self)
         return self.__cached_id_value
     

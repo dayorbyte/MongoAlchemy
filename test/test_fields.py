@@ -32,9 +32,9 @@ def test_allow_none():
     assert IntField(allow_none=True).is_valid_wrap(None) == True
     assert IntField().is_valid_unwrap(None) == False
     assert IntField().is_valid_wrap(None) == False
-    assert IntField(allow_none=True).wrap(None) == None
-    assert IntField(allow_none=True).unwrap(None) == None
-    assert IntField(default=None).unwrap(None) == None
+    assert IntField(allow_none=True).wrap(None) is None
+    assert IntField(allow_none=True).unwrap(None) is None
+    assert IntField(default=None).unwrap(None) is None
 
 def test_id_attr():
     assert IntField().is_id == False

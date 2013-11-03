@@ -37,10 +37,10 @@ def contains(value, wanted):
 def test_schema():
     schema = SchemaTestDoc.schema_json()
 
-    assert schema['config_full_name'] == None
-    assert schema['config_polymorphic'] == None
+    assert schema['config_full_name'] is None
+    assert schema['config_polymorphic'] is None
     assert schema['config_namespace'] == 'global'
-    assert schema['config_polymorphic_identity'] == None
+    assert schema['config_polymorphic_identity'] is None
     assert schema['config_extra_fields'] == 'error'
 
     fields = schema['fields']

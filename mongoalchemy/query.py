@@ -222,7 +222,7 @@ class Query(object):
             :param fields: Instances of :class:``mongoalchemy.query.QueryField`` specifying \
                 which fields to return
         '''
-        if self._fields == None:
+        if self._fields is None:
             self._fields = set()
         for f in fields:
             f = resolve_name(self.type, f)

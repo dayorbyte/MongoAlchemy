@@ -89,7 +89,7 @@ def test_proxy():
 
     a_none = TPA(x_id=None, x_ids=[None])
     a_none._set_session(s)
-    assert a_none.x == None
+    assert a_none.x is None
     assert list(a_none.xs) == [None]
 
     a_set = TPA()

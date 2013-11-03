@@ -103,7 +103,7 @@ class DocumentMeta(type):
         # 4. register type
         if new_class.config_namespace is not None:
             name = new_class.config_full_name
-            if name == None:
+            if name is None:
                 name = new_class.__name__
 
             ns = new_class.config_namespace

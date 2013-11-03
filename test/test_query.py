@@ -150,7 +150,7 @@ def test_first_empty():
     s.clear_collection(T)
     s.insert(T(i=3))
     s.insert(T(i=4))
-    assert s.query(T).filter(T.i > 5).first() == None
+    assert s.query(T).filter(T.i > 5).first() is None
 
 def test_all():
     s = get_session()
