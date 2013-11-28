@@ -3,6 +3,11 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.14.3 -- 2013-11-28 10:43
+-----------------------------
+* [BUG] The elem match projection being used caused that field to be inaccessible on the object returned from the database
+
+
 0.14 -- 2013-02-25 00:04
 -----------------------------
 * [FEATURE] #108: Add default_f, to allow a function to be used for default values

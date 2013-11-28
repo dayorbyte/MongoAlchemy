@@ -25,7 +25,8 @@ def get_session():
 
 def test_elem_match_field():
     s = get_session()
-    q = s.query(T3).fields(T3.t_list.elem_match({'i':1}))
+    match = T3.t_list.elem_match({'i':1})
+    q = s.query(T3).fields(match)
     expr = q._fields_expression()
     expected = {
         't_list' : {
@@ -34,6 +35,7 @@ def test_elem_match_field():
         '_id' : True,
     }
     assert expr == expected, q._fields_expression()
+    assert str(match) == 't_list'
 
 def test_fields_exclude():
     s = get_session()

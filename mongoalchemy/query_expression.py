@@ -404,6 +404,8 @@ class ElemMatchQueryExpression(QueryExpression):
     def __init__(self, field, obj):
         QueryExpression.__init__(self, obj)
         self._field = field
+    def __str__(self):
+        return str(self._field)
     def get_absolute_name(self):
         return self._field.get_absolute_name()
     @property
