@@ -576,6 +576,17 @@ class Index(object):
         self.__max = None
         self.__bucket_size = None
 
+        self.__expire_after = None
+
+    def expire(self, after):
+        '''Add an expire after option to the index
+
+           :param: after: Number of second before expiration
+
+        '''
+        self.__expire_after = after
+        return self
+
     
     def ascending(self, name):
         ''' Add a descending index for ``name`` to this index.
@@ -640,6 +651,8 @@ class Index(object):
             extras['max'] = self.__max
         if self.__bucket_size is not None:
             extras['bucket_size'] = self.__bucket_size
+        if self.__expire_after is not None:
+            extras['expireAfterSeconds'] = self.__expire_after
         collection.ensure_index(self.components, unique=self.__unique, 
             drop_dups=self.__drop_dups, **extras)
         return self
