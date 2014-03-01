@@ -2,7 +2,9 @@ from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index
 from mongoalchemy.fields import *
+from datetime import datetime
 from test.util import known_failure
+from time import sleep
 
 def get_session():
     return Session.connect('unit-testing')
@@ -34,6 +36,21 @@ def test_indexes():
     got = s.get_indexes(TestDoc)
     got = json.dumps(got, sort_keys=True)
     assert got == desired, '\nG: %s\nD: %s' % (got, desired)
+
+def expire_index_test():
+    class TestDoc3(TestDoc):
+        date = DateTimeField()
+
+        index_exire = Index().ascending('date').expire(30)
+    t = TestDoc3(int1=123456, str1='abcd', str2='b', str3='c', date=datetime.utcnow())
+    s = get_session()
+    s.insert(t)
+    # Check that the document is indeed inserted
+    assert len(s.query('TestDoc3').filter({'int1': 123456}).all()) > 0
+    sleep(90) # The document will be deleted within a minute from its expiration datetime
+    # Check that the document is no longer there
+    assert len(s.query('TestDoc3').filter({'int1': 123456}).all()) == 0
+
 
 @known_failure
 @raises(Exception)
