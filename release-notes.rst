@@ -3,6 +3,10 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.14.4 -- 2014-03-04 8:07
+-----------------------------
+* [FEATURE] TTL indexes. Thanks to samyarous for the contribution!
+
 0.14.3 -- 2013-11-28 10:43
 -----------------------------
 * [BUG] The elem match projection being used caused that field to be inaccessible on the object returned from the database
