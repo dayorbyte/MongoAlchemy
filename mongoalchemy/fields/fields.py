@@ -543,7 +543,7 @@ class ComputedField(Field):
         value = self.fun(args)
         try:
             self.computed_type.validate_wrap(value)
-        except BadValueException, bve:
+        except BadValueException as bve:
             self._fail_validation(value, 'Computed Function return a bad value', cause=bve)
         return value
 
@@ -557,14 +557,14 @@ class ComputedField(Field):
         ''' Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         try:
             self.computed_type.validate_wrap(value)
-        except BadValueException, bve:
+        except BadValueException as bve:
             self._fail_validation(value, 'Bad value for computed field', cause=bve)
 
     def validate_unwrap(self, value):
         ''' Check that ``value`` is valid for unwrapping with ``ComputedField.computed_type``'''
         try:
             self.computed_type.validate_unwrap(value)
-        except BadValueException, bve:
+        except BadValueException as bve:
             self._fail_validation(value, 'Bad value for computed field', cause=bve)
 
     def wrap(self, value):
