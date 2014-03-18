@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 
 class Operation(object):
     __metaclass__ = ABCMeta
-    
+
     execute = abstractmethod(lambda self : None)
 
     def update_cache(self): pass
@@ -64,9 +64,9 @@ class UpdateOp(Operation):
         self.update_data = update_obj.update_data
         self.upsert = update_obj._get_upsert()
         self.multi = update_obj._get_multi()
-        
+
     def execute(self):
-        return self.collection.update(self.query, self.update_data, multi=self.multi, 
+        return self.collection.update(self.query, self.update_data, multi=self.multi,
                                upsert=self.upsert, safe=self.safe)
 
 
@@ -99,7 +99,7 @@ class RemoveOp(Operation):
         self.ensure_indexes()
         return self.collection.remove(self.query, safe=self.safe)
 
-        
+
 class RemoveDocumentOp(Operation):
     def __init__(self, trans_id, session, obj, safe):
         self.trans_id = trans_id
@@ -118,4 +118,3 @@ class RemoveDocumentOp(Operation):
 
         collection = db[self.type.get_collection_name()]
         return collection.remove(self.id, safe=self.safe)
-

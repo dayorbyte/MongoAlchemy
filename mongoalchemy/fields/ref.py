@@ -1,17 +1,17 @@
 # The MIT License
-# 
+#
 # Copyright (c) 2010 Jeffrey Jenkins
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ class RefBase(Field):
             a RefField or SRefField.
 
             **Example**::
-                
+
                 employer_ref = SRefField(Employer)
                 employer = employer_ref.rel()
 
@@ -37,9 +37,9 @@ class RefBase(Field):
         return Proxy(self, allow_none=allow_none)
 
 class SRefField(RefBase):
-    ''' A Simple RefField (SRefField) looks like an ObjectIdField in the 
-        database, but acts like a mongo DBRef.  It uses the passed in type to 
-        determine where to look for the object (and assumes the current 
+    ''' A Simple RefField (SRefField) looks like an ObjectIdField in the
+        database, but acts like a mongo DBRef.  It uses the passed in type to
+        determine where to look for the object (and assumes the current
         database).
     '''
     has_subfields = True
@@ -48,7 +48,7 @@ class SRefField(RefBase):
         from mongoalchemy.fields import DocumentField
 
         super(SRefField, self).__init__(**kwargs)
-        
+
         self.type = type
         if not isinstance(type, DocumentField):
             self.type = DocumentField(type)
@@ -77,11 +77,11 @@ class SRefField(RefBase):
         if not isinstance(value, ObjectId):
             self._fail_validation_type(value, ObjectId)
     validate_wrap = validate_unwrap
-        
+
 
 class RefField(RefBase):
-    ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
-        saving the referenced object or updates to it, but it can handle 
+    ''' A ref field wraps a mongo DBReference.  It DOES NOT currently handle
+        saving the referenced object or updates to it, but it can handle
         auto-loading.
     '''
     #: If this kind of field can have sub-fields, this attribute should be True
@@ -89,14 +89,14 @@ class RefField(RefBase):
     has_autoload = True
 
     def __init__(self, type=None, db=None, db_required=False, namespace='global', **kwargs):
-        ''' :param type: (optional) the Field type to use for the values.  It 
-                must be a DocumentField.  If you want to save refs to raw mongo 
+        ''' :param type: (optional) the Field type to use for the values.  It
+                must be a DocumentField.  If you want to save refs to raw mongo
                 objects, you can leave this field out
-            :param db: (optional) The database to load the object from.  
-                Defaults to the same database as the object this field is 
+            :param db: (optional) The database to load the object from.
+                Defaults to the same database as the object this field is
                 bound to.
-            :param namespace: If using the namespace system and using a 
-                collection name instead of a type, selects which namespace to 
+            :param namespace: If using the namespace system and using a
+                collection name instead of a type, selects which namespace to
                 use
         '''
         from mongoalchemy.fields import DocumentField
@@ -109,7 +109,7 @@ class RefField(RefBase):
         self.namespace = namespace
         self.db = db
         self.parent = None
-    
+
     def schema_json(self):
         super_schema = super(RefField, self).schema_json()
         subtype = self.type
@@ -121,7 +121,7 @@ class RefField(RefBase):
                     db=self.db, **super_schema)
 
     def wrap(self, value):
-        ''' Validate ``value`` and then use the value_type to wrap the 
+        ''' Validate ``value`` and then use the value_type to wrap the
             value'''
 
         self.validate_wrap(value)
@@ -133,12 +133,12 @@ class RefField(RefBase):
 
     def unwrap(self, value, fields=None, session=None):
         ''' If ``autoload`` is False, return a DBRef object.  Otherwise load
-            the object.  
+            the object.
         '''
         self.validate_unwrap(value)
         value.type = self.type
         return value
-    
+
     def dereference(self, session, ref, allow_none=False):
         """ Dereference a pymongo "DBRef" to this field's underlying type """
         from mongoalchemy.document import collection_registry
@@ -166,7 +166,7 @@ class RefField(RefBase):
             self._fail_validation(value, 'db_required=True, but not database specified')
         if self.db and value.database and self.db != value.database:
             self._fail_validation(value, '''Wrong database for reference: '''
-                                  ''' got "%s" instead of "%s" ''' % (value.database, self.db) ) 
+                                  ''' got "%s" instead of "%s" ''' % (value.database, self.db) )
     validate_wrap = validate_unwrap
 
 class Proxy(object):
@@ -184,4 +184,5 @@ class Proxy(object):
     def __set__(self, instance, value):
         assert instance is not None
         setattr(instance, self.field._name, self.field._to_ref(value))
+
 

@@ -85,3 +85,4 @@ def set_value_test():
 def set_default_test():
     assert SetField(StringField(), default_empty=True).default == set()
     assert SetField(StringField(), default=set([3])).default == set([3])
+

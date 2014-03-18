@@ -36,7 +36,7 @@ def test_tz():
         modified = ModifiedField(tz_aware=True)
         created1 = CreatedField(tz_aware=False)
         modified1 = ModifiedField(tz_aware=False)
-    
+
     session = Session.connect('unit-testing', timezone=pytz.utc)
     assert session.tz_aware
     session.clear_collection(DT)
@@ -115,8 +115,8 @@ def test_cache3():
 #     class CacheList(Document):
 #         l_ids = ListField(RefField(SimpleDoc)
 #     s = Session.connect('unit-testing', cache_size=10)
-    
-    
+
+
 
 #     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
 #     assert id(t) == id(t2)
@@ -132,7 +132,7 @@ def test_clone():
     s.insert(t2)
 
     assert t2.mongo_id != t.mongo_id
-    
+
 
 def test_cache_miss():
     s_nocache = Session.connect('unit-testing', cache_size=10)
@@ -225,7 +225,7 @@ def test_safe_with_error():
         assert False, 'No error raised on safe insert for second unique item'
     except DuplicateKeyError:
         assert len(s.queue) == 0
-    
+
 
 def test_update():
     s = Session.connect('unit-testing')
@@ -266,10 +266,10 @@ def test_update_push():
     t.i = 7
     t.l = [4]
     s.update(t, id_expression=T.i == 6)
-    
+
     t = s.query(T).one()
     assert s.query(T).one().i == 7 and t.l == [3, 4]
-    
+
 def test_update_ignore_extras():
     s = Session.connect('unit-testing')
     s.clear_collection(TExtra)
@@ -413,3 +413,4 @@ def test_auto_ensure_indexes():
     assert len(indexes) == 2
     assert "_id_" in indexes
     assert "i_1" in indexes
+

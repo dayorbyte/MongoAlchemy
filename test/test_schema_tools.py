@@ -51,8 +51,8 @@ def test_schema():
     contains(fields['dtfield'] , {'min_date': None, 'max_date': None, 'type': 'DateTimeField', 'use_tz': False})
     # Tuple
     contains(fields['tuplefield'], {'type': 'TupleField'})
-    contains(fields['tuplefield']['types'][0], {'type': 'AnythingField'}) 
-    contains(fields['tuplefield']['types'][1], {'type': 'IntField'}) 
+    contains(fields['tuplefield']['types'][0], {'type': 'AnythingField'})
+    contains(fields['tuplefield']['types'][1], {'type': 'IntField'})
     # Geo
     contains(fields['geo']['types'][0], {'type': 'FloatField'})
     contains(fields['geo']['types'][1], {'type': 'FloatField'})
@@ -64,11 +64,11 @@ def test_schema():
     contains(fields['enum'], {'type':'EnumField'})
 
     contains(fields['anyf'],  {'type': 'AnythingField'})
-    # assert False, 
-    
+    # assert False,
+
     contains(fields['default_field'], {'default' : 2})
     'function' in fields['defaultf_field'].get('default_f', '')
-    
+
     # Computed Field
     mod = fields['modified']
     contains(mod, {'type': 'ComputedField', 'one_time': False, 'deps':[]})
@@ -97,4 +97,5 @@ def test_docfield():
     assert fields['ref']['subtype']['subtype'] == 'global:SchemaTestDoc'
     assert fields['sref']['subtype']['subtype'] == 'global:SchemaTestDoc'
     # assert False, fields['ref']
+
 

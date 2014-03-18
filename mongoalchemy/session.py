@@ -1,17 +1,17 @@
 # The MIT License
-# 
+#
 # Copyright (c) 2010 Jeffrey Jenkins
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
 
 ''' Session objects handles the actual queueing of database operations.
     The primary methods on a session are query, insert, and flush.
-    
+
     The session also responsible for ordering operations and knowing when
     operations need to be flushed, although it does not currently do
     anything intelligent for ordering.
@@ -36,28 +36,28 @@ else: # pragma: no cover
     from pymongo.connection import Connection as MongoClient
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
-from mongoalchemy.document import (FieldNotRetrieved, Document, 
+from mongoalchemy.document import (FieldNotRetrieved, Document,
                                     collection_registry)
 from mongoalchemy.query_expression import FreeFormDoc
-from mongoalchemy.exceptions import (TransactionException, 
+from mongoalchemy.exceptions import (TransactionException,
                                      BadReferenceException,
                                      SessionCacheException)
 from mongoalchemy.ops import *
 
 class Session(object):
 
-    def __init__(self, database, tz_aware=False, timezone=None, safe=False, 
+    def __init__(self, database, tz_aware=False, timezone=None, safe=False,
                  cache_size=0, auto_ensure=True):
         '''
-        Create a session connecting to `database`.  
-        
+        Create a session connecting to `database`.
+
         :param database: the database to connect to.  Should be an instance of \
             :class:`pymongo.database.Database`
         :param safe: Whether the "safe" option should be used on mongo writes, \
             blocking to make sure there are no errors.
         :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
             operations.
-        
+
         **Fields**:
             * db: the underlying pymongo database object
             * queue: the queue of unflushed database commands (currently useless \
@@ -84,15 +84,15 @@ class Session(object):
     @property
     def in_transaction(self):
         return len(self.transactions) > 0
-    
+
     @classmethod
     def connect(self, database, timezone=None, cache_size=0, auto_ensure=True, *args, **kwds):
-        ''' `connect` is a thin wrapper around __init__ which creates the 
+        ''' `connect` is a thin wrapper around __init__ which creates the
             database connection that the session will use.
-            
+
             :param database: the database name to use.  Should be an instance of \
                     :class:`basestring`
-            :param safe: The value for the "safe" parameter of the Session \ 
+            :param safe: The value for the "safe" parameter of the Session \
                 init function
             :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
                 operations.
@@ -107,7 +107,7 @@ class Session(object):
         conn = MongoClient(*args, **kwds)
         db = conn[database]
         return Session(db, timezone=timezone, safe=safe, cache_size=cache_size, auto_ensure=auto_ensure)
-    
+
     def cache_write(self, obj, mongo_id=None):
         if mongo_id is None:
             mongo_id = obj.mongo_id
@@ -134,25 +134,25 @@ class Session(object):
         return None
 
     def end(self):
-        ''' End the session.  Flush all pending operations and ending the 
+        ''' End the session.  Flush all pending operations and ending the
             *pymongo* request'''
         self.cache = {}
         if self.transactions:
             raise TransactionException('Tried to end session with an open '
                                        'transaction')
         self.db.connection.end_request()
-    
+
     def insert(self, item, safe=None):
         ''' Insert an item into the work queue and flushes.'''
         self.add(item, safe=safe)
-    
+
     def add(self, item, safe=None):
         ''' Add an item into the queue of things to be inserted.  Does not flush.'''
         item._set_session(self)
         if safe is None:
             safe = self.safe
         self.queue.append(SaveOp(self.transaction_id, self, item, safe))
-        # after the save op is recorded, the document has an _id and can be 
+        # after the save op is recorded, the document has an _id and can be
         # cached
         self.cache_write(item)
         if self.autoflush:
@@ -160,8 +160,8 @@ class Session(object):
 
     def update(self, item, id_expression=None, upsert=False, update_ops={}, safe=None, **kwargs):
         ''' Update an item in the database.  Uses the on_update keyword to each
-            field to decide which operations to do, or.  
-            
+            field to decide which operations to do, or.
+
             :param item: An instance of a :class:`~mongoalchemy.document.Document` \
                 subclass
             :param id_expression: A query expression that uniquely picks out \
@@ -178,40 +178,40 @@ class Session(object):
                 decide which fields to update the operation for.  These can \
                 only be for the top-level document since the keys \
                 are just strings.
-            
+
             .. warning::
-                
+
                 This operation is **experimental** and **not fully tested**,
-                although it does have code coverage.  
+                although it does have code coverage.
             '''
         if safe is None:
             safe = self.safe
-        self.queue.append(UpdateDocumentOp(self.transaction_id, self, item, safe, id_expression=id_expression, 
+        self.queue.append(UpdateDocumentOp(self.transaction_id, self, item, safe, id_expression=id_expression,
                           upsert=upsert, update_ops=update_ops, **kwargs))
         if self.autoflush:
             return self.flush()
-        
+
     def query(self, type):
         ''' Begin a query on the database's collection for `type`.  If `type`
             is an instance of basesting, the query will be in raw query mode
             which will not check field values or transform returned results
             into python objects.
-        
+
          .. seealso:: :class:`~mongoalchemy.query.Query` class'''
-        # This really should be adding a query operation to the 
+        # This really should be adding a query operation to the
         # queue which is then forced to execute when the results are being
         # read
         if isinstance(type, basestring):
             type = FreeFormDoc(type)
         return Query(type, self)
-    
+
     def add_to_session(self, obj):
         obj._set_session(self)
-    
+
     def execute_query(self, query, session):
-        ''' Get the results of ``query``.  This method does flush in a 
+        ''' Get the results of ``query``.  This method does flush in a
             transaction, so any objects retrieved which are not in the cache
-            which would be updated when the transaction finishes will be 
+            which would be updated when the transaction finishes will be
             stale '''
         self.auto_ensure_indexes(query.type)
 
@@ -221,7 +221,7 @@ class Session(object):
 
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
-        
+
         if query._sort:
             cursor.sort(query._sort)
         elif query.type.config_default_sort:
@@ -233,20 +233,20 @@ class Session(object):
         if query._get_skip() is not None:
             cursor.skip(query._get_skip())
         return QueryResult(session, cursor, query.type, raw_output=query._raw_output, fields=query._get_fields())
-    
+
     def remove_query(self, type):
         ''' Begin a remove query on the database's collection for `type`.
-  
+
            .. seealso:: :class:`~mongoalchemy.update_expression.RemoveQuery` class'''
         return RemoveQuery(type, self)
-    
+
     def remove(self, obj, safe=None):
         '''
-            Remove a particular object from the database.  If the object has 
-            no mongo ID set, the method just returns.  If this is a partial 
+            Remove a particular object from the database.  If the object has
+            no mongo ID set, the method just returns.  If this is a partial
             document without the mongo ID field retrieved a ``FieldNotRetrieved``
             will be raised
-            
+
             :param obj: the object to save
             :param safe: whether to wait for the operation to complete.  Defaults \
                 to the session's ``safe`` value.
@@ -257,7 +257,7 @@ class Session(object):
         self.queue.append(remove)
         if self.autoflush:
             return self.flush()
-    
+
     def execute_remove(self, remove):
         ''' Execute a remove expression.  Should generally only be called implicitly.
         '''
@@ -265,15 +265,15 @@ class Session(object):
         safe = self.safe
         if remove.safe is not None:
             safe = remove.safe
-        
+
         self.queue.append(RemoveOp(self.transaction_id, self, remove.type, safe, remove))
         if self.autoflush:
             return self.flush()
-    
+
     def execute_update(self, update, safe=False):
         ''' Execute an update expression.  Should generally only be called implicitly.
         '''
-        
+
         # safe = self.safe
         # if update.safe is not None:
         #     safe = remove.safe
@@ -283,7 +283,7 @@ class Session(object):
         if self.autoflush:
             return self.flush()
 
-    
+
     def execute_find_and_modify(self, fm_exp):
         if self.in_transaction:
             raise TransactionException('Cannot find and modify in a transaction.')
@@ -292,11 +292,11 @@ class Session(object):
         # assert len(fm_exp.update_data) > 0
         collection = self.db[fm_exp.query.type.get_collection_name()]
         kwargs = {
-            'query' : fm_exp.query.query, 
-            'update' : fm_exp.update_data, 
-            'upsert' : fm_exp._get_upsert(), 
+            'query' : fm_exp.query.query,
+            'update' : fm_exp.update_data,
+            'upsert' : fm_exp._get_upsert(),
         }
-        
+
         if fm_exp.query._get_fields():
             kwargs['fields'] = fm_exp.query._fields_expression()
         if fm_exp.query._sort:
@@ -305,23 +305,23 @@ class Session(object):
             kwargs['new'] = fm_exp._get_new()
         if fm_exp._get_remove():
             kwargs['remove'] = fm_exp._get_remove()
-        
-        value = collection.find_and_modify(**kwargs)        
-        
+
+        value = collection.find_and_modify(**kwargs)
+
         if value is None:
             return None
-        
-        # Found this uncommitted.  not sure what it's from? Leaving it 
+
+        # Found this uncommitted.  not sure what it's from? Leaving it
         # until I remember -jeff
         # if kwargs['upsert'] and not kwargs.get('new') and len(value) == 0:
         #     return value
 
-        # No cache in find and modify, right?  
+        # No cache in find and modify, right?
         # this is an update operation
         # obj = self.cache_read(value['_id'])
         # if obj is not None:
         #     return obj
-        obj = self._unwrap(fm_exp.query.type, value, 
+        obj = self._unwrap(fm_exp.query.type, value,
                            fields=fm_exp.query._get_fields())
         if not fm_exp.query._get_fields():
             self.cache_write(obj)
@@ -338,7 +338,7 @@ class Session(object):
         return self.transactions[-1]
 
     def get_indexes(self, cls):
-        ''' Get the index information for the collection associated with 
+        ''' Get the index information for the collection associated with
         `cls`.  Index information is returned in the same format as *pymongo*.
         '''
         return self.db[cls.get_collection_name()].index_information()
@@ -353,14 +353,14 @@ class Session(object):
             self.ensure_indexes(cls)
 
     def clear_queue(self, trans_id=None):
-        ''' Clear the queue of database operations without executing any of 
+        ''' Clear the queue of database operations without executing any of
              the pending operations'''
         if not self.queue:
             return
         if trans_id is None:
             self.queue = []
             return
-        
+
         for index, op in enumerate(self.queue):
             if op.trans_id == trans_id:
                 break
@@ -370,15 +370,15 @@ class Session(object):
 
     def clear_cache(self):
         self.cache = {}
-        
+
     def clear_collection(self, *classes):
-        ''' Clear all objects from the collections associated with the 
+        ''' Clear all objects from the collections associated with the
             objects in `*cls`. **use with caution!**'''
         for c in classes:
             self.queue.append(ClearCollectionOp(self.transaction_id, self, c))
         if self.autoflush:
             self.flush()
-    
+
     def flush(self, safe=None):
         ''' Perform all database operations currently in the queue'''
         result = None
@@ -399,7 +399,7 @@ class Session(object):
             if ref.collection in collection_registry['global']:
                 ref.type = collection_registry['global'][ref.collection]
         assert hasattr(ref, 'type')
-        
+
         obj = self.cache_read(ref.id)
         if obj is not None:
             return obj
@@ -419,7 +419,7 @@ class Session(object):
         return obj
 
     def refresh(self, document):
-        """ Load a new copy of a document from the database.  does not 
+        """ Load a new copy of a document from the database.  does not
             replace the old one """
         try:
             old_cache_size = self.cache_size
@@ -431,14 +431,14 @@ class Session(object):
         return obj
 
     def clone(self, document):
-        ''' Serialize a document, remove its _id, and deserialize as a new 
+        ''' Serialize a document, remove its _id, and deserialize as a new
             object '''
-        
+
         wrapped = document.wrap()
         if '_id' in wrapped:
             del wrapped['_id']
         return type(document).unwrap(wrapped, session=self)
-    
+
     def begin_trans(self):
         self.transactions.append(uuid4())
         return self
@@ -468,3 +468,4 @@ class Session(object):
             self.clear_queue()
             self.clear_cache()
         return False
+

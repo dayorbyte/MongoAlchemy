@@ -125,9 +125,8 @@ def kv_value_test():
 def kv_broken_kv_obj_test():
     s = KVField(StringField(), IntField())
     s.unwrap([{'k' : 'a', 'value' : 5}])
-    
+
 @raises(BadValueException)
 def kv_broken_kv_obj_test2():
     s = KVField(StringField(), IntField())
     s.unwrap([('a', 5)])
-

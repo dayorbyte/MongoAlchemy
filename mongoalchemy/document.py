@@ -1,17 +1,17 @@
 # The MIT License
-# 
+#
 # Copyright (c) 2010 Jeffrey Jenkins
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,19 +21,19 @@
 # THE SOFTWARE.
 '''
 
-A `mongoalchemy` document is used to define a mapping between a python object 
-and a document in a Mongo Database.  Mappings are defined by creating a 
-subclass of :class:`Document` with attributes to define 
-what maps to what.  The two main types of attributes are :class:`~mongoalchemy.fields.Field` 
+A `mongoalchemy` document is used to define a mapping between a python object
+and a document in a Mongo Database.  Mappings are defined by creating a
+subclass of :class:`Document` with attributes to define
+what maps to what.  The two main types of attributes are :class:`~mongoalchemy.fields.Field`
 and :class:`Index`
 
 A :class:`~mongoalchemy.fields.Field` is used to define the type of a field in
-mongo document, any constraints on the values, and to provide methods for 
-transforming a value from a python object into something Mongo understands and 
+mongo document, any constraints on the values, and to provide methods for
+transforming a value from a python object into something Mongo understands and
 vice-versa.
 
-A :class:`~Index` is used to define an index on the underlying collection 
-programmatically.  A document can have multiple indexes by adding extra 
+A :class:`~Index` is used to define an index on the underlying collection
+programmatically.  A document can have multiple indexes by adding extra
 :class:`~Index` attributes
 
 
@@ -44,7 +44,7 @@ from pymongo import GEO2D
 from collections import defaultdict
 from mongoalchemy.util import classproperty, UNSET
 from mongoalchemy.query_expression import QueryField
-from mongoalchemy.fields import (ObjectIdField, Field, BadValueException, 
+from mongoalchemy.fields import (ObjectIdField, Field, BadValueException,
                                  SCALAR_MODIFIERS, DocumentField)
 from mongoalchemy.exceptions import DocumentException, MissingValueException, ExtraValueException, FieldNotRetrieved, BadFieldSpecification
 from mongoalchemy.util import resolve_name, FieldNotFoundException
@@ -56,14 +56,14 @@ class DocumentMeta(type):
     def __new__(mcs, classname, bases, class_dict):
         # Validate Config Options
         # print '-' * 20, classname, '-' * 20
-        
+
         # Create Class
         class_dict['_subclasses'] = {}
         new_class = type.__new__(mcs, classname, bases, class_dict)
-        
+
         if new_class.config_extra_fields not in ['error', 'ignore']:
             raise DocumentException("config_extra_fields must be one of: 'error', 'ignore'")
-        
+
         # 1. Set up links between fields and the document class
         new_id = False
         for name, value in class_dict.iteritems():
@@ -73,24 +73,24 @@ class DocumentMeta(type):
                 new_id = True
             value._set_name(name)
             value._set_parent(new_class)
-        
+
         if new_id:
             new_class.mongo_id = None
-        
+
         # 2. create a dict of fields to set on the object
         new_class._fields = {}
         for b in bases:
             # print b
             if not hasattr(b, 'get_fields'):
                 continue
-            for name, field in b.get_fields().iteritems():    
+            for name, field in b.get_fields().iteritems():
                 new_class._fields[name] = field
 
         for name, maybefield in class_dict.iteritems():
             if not isinstance(maybefield, Field):
                 continue
             new_class._fields[name] = maybefield
-        
+
         # 3.  Add subclasses
         for b in bases:
             if 'Document' in globals() and issubclass(b, Document):
@@ -99,7 +99,7 @@ class DocumentMeta(type):
                 continue
             if b.config_polymorphic_collection and 'config_collection_name' not in class_dict:
                 new_class.config_collection_name = b.get_collection_name()
-        
+
         # 4. register type
         if new_class.config_namespace is not None:
             name = new_class.config_full_name
@@ -124,60 +124,60 @@ class DocumentMeta(type):
 
 class Document(object):
     __metaclass__ = DocumentMeta
-    
+
     mongo_id = ObjectIdField(required=False, db_field='_id', on_update='ignore')
     ''' Default field for the mongo object ID (``_id`` in the database). This field
         is automatically set on objects when they are saved into the database.
         This field can be overridden in subclasses if the default ID is not
         acceptable '''
-    
+
     config_namespace = 'global'
-    ''' The namespace is used to determine how string class names should be 
+    ''' The namespace is used to determine how string class names should be
         looked up.  If an instance of DocumentField is created using a string,
         it will be looked up using the value of this variable and the string.
         To have more than one namespace create a subclass of Document
-        overriding this class variable.  To turn off caching all together, 
-        create a subclass where namespace is set to None.  Doing this will 
-        disable using strings to look up document names, which will make 
+        overriding this class variable.  To turn off caching all together,
+        create a subclass where namespace is set to None.  Doing this will
+        disable using strings to look up document names, which will make
         creating self-referencing documents impossible.  The default value is
         "global"
     '''
-    
+
     config_polymorphic = None
     ''' The variable to use when determining which class to instantiate a
         database object with.  It is the name of an attribute which
-        will be used to decide the type of the object.  If you want more 
-        control over which class is selected, you can override 
+        will be used to decide the type of the object.  If you want more
+        control over which class is selected, you can override
         ``get_subclass``.
     '''
-    
+
     config_polymorphic_collection = False
     ''' Use the base class collection name for the subclasses.  Default: False
     '''
 
     config_polymorphic_identity = None
-    ''' When using a string value with ``config_polymorphic_on`` in a parent 
-        class, this is the value that the attribute is compared to when 
-        determining 
+    ''' When using a string value with ``config_polymorphic_on`` in a parent
+        class, this is the value that the attribute is compared to when
+        determining
     '''
-    
+
     config_full_name = None
     ''' If namespaces are being used, the key for a class is normally
-        the class name.  In some cases the same class name may be used in 
+        the class name.  In some cases the same class name may be used in
         different modules.  This field allows a longer unambiguous name
-        to be given.  It may also be used in error messages or string 
+        to be given.  It may also be used in error messages or string
         representations of the class
     '''
-    
+
     config_default_sort = None
-    ''' The default sort to use when querying.  If set, this sort will be 
-        applied to any query which a sort isn't used on. The format is the 
+    ''' The default sort to use when querying.  If set, this sort will be
+        applied to any query which a sort isn't used on. The format is the
         same as pymongo.  Example ``[('foo', 1), ('bar', -1)]``.
     '''
 
     config_extra_fields = 'error'
     ''' Controls the method to use when dealing with fields passed in to the
-        document constructor.  Possible values are 'error' and 'ignore'. Any 
+        document constructor.  Possible values are 'error' and 'ignore'. Any
         fields which couldn't be mapped can be retrieved (and edited) using
         :func:`~Document.get_extra_fields` '''
 
@@ -186,19 +186,19 @@ class Document(object):
                 a partial object.  This argument should not be explicitly set \
                 by subclasses
             :param \*\*kwargs:  The values for all of the fields in the document. \
-                Any additional fields will raise a :class:`~mongoalchemy.document.ExtraValueException` and \ 
+                Any additional fields will raise a :class:`~mongoalchemy.document.ExtraValueException` and \
                 any missing (but required) fields will raise a :class:`~mongoalchemy.document.MissingValueException`. \
                 Both types of exceptions are subclasses of :class:`~mongoalchemy.document.DocumentException`.
         '''
         self.partial = retrieved_fields is not None
         self.retrieved_fields = self.__normalize(retrieved_fields)
-        
+
         # Mapping from attribute names to values.
         self._values = {}
         self.__extra_fields = {}
-        
+
         cls = self.__class__
-                
+
         # Process the fields on the object
         fields = self.get_fields()
         for name, field in fields.iteritems():
@@ -208,14 +208,14 @@ class Document(object):
             elif name in kwargs:
                 field = getattr(cls, name)
                 value = kwargs[name]
-                self._values[name] = Value(field, self, 
+                self._values[name] = Value(field, self,
                                            from_db=loading_from_db)
                 getattr(cls, name).set_value(self, kwargs[name])
             elif field.auto:
                 self._values[name] = Value(field, self, from_db=False)
             else:
                 self._values[name] = Value(field, self, from_db=False)
-        
+
         # Process any extra fields
         for k in kwargs:
             if k not in fields:
@@ -236,10 +236,10 @@ class Document(object):
                         m = 'Bad sort direction on %s: %s' % (name, direction)
                         raise BadFieldSpecification(m)
                 except FieldNotFoundException:
-                    raise BadFieldSpecification("Could not resolve field %s in" 
+                    raise BadFieldSpecification("Could not resolve field %s in"
                             " config_default_sort" % name)
 
-    
+
     @classmethod
     def schema_json(cls):
         ret = dict(fields={},
@@ -258,7 +258,7 @@ class Document(object):
 
     @classmethod
     def add_subclass(cls, subclass):
-        ''' Register a subclass of this class.  Maps the subclass to the 
+        ''' Register a subclass of this class.  Maps the subclass to the
             value of subclass.config_polymorphic_identity if available.
         '''
         # if not polymorphic, stop
@@ -271,13 +271,13 @@ class Document(object):
     def get_subclass(cls, obj):
         ''' Get the subclass to use when instantiating a polymorphic object.
             The default implementation looks at ``cls.config_polymorphic``
-            to get the name of an attribute.  Subclasses automatically 
+            to get the name of an attribute.  Subclasses automatically
             register their value for that attribute on creation via their
-            ``config_polymorphic_identity`` field.  This process is then 
+            ``config_polymorphic_identity`` field.  This process is then
             repeated recursively until None is returned (indicating that the
             current class is the correct one)
 
-            This method can be overridden to allow any method you would like 
+            This method can be overridden to allow any method you would like
             to use to select subclasses. It should return either the subclass
             to use or None, if the original class should be used.
         '''
@@ -302,11 +302,11 @@ class Document(object):
         return not self.__eq__(other)
 
     def get_dirty_ops(self, with_required=False):
-        ''' Returns a dict with the update operations necessary to make the 
+        ''' Returns a dict with the update operations necessary to make the
             changes to this object to the database version.  It is mainly used
             internally for :func:`~mongoalchemy.session.Session.update` but
             may be useful for diagnostic purposes as well.
-            
+
             :param with_required: Also include any field which is required.  This \
                 is useful if the method is being called for the purposes of \
                 an upsert where all required fields must always be sent.
@@ -320,7 +320,7 @@ class Document(object):
                 dirty_ops = field.update_ops(self, force=True)
                 if not dirty_ops:
                     raise MissingValueException(name)
-            
+
             for op, values in dirty_ops.iteritems():
                 update_expression.setdefault(op, {})
                 for key, value in values.iteritems():
@@ -347,29 +347,29 @@ class Document(object):
                     update_expression['$set'][key] = self.__extra_fields[key]
 
         return update_expression
-    
+
     def get_extra_fields(self):
         ''' if :attr:`Document.config_extra_fields` is set to 'ignore', this method will return
             a dictionary of the fields which couldn't be mapped to the document.
         '''
         return self.__extra_fields
-    
+
     @classmethod
     def get_fields(cls):
-        ''' Returns a dict mapping the names of the fields in a document 
+        ''' Returns a dict mapping the names of the fields in a document
             or subclass to the associated :class:`~mongoalchemy.fields.Field`
         '''
         return cls._fields
-    
+
     @classmethod
     def class_name(cls):
-        ''' Returns the name of the class. The name of the class is also the 
-            default collection name.  
-            
+        ''' Returns the name of the class. The name of the class is also the
+            default collection name.
+
             .. seealso:: :func:`~Document.get_collection_name`
         '''
         return cls.__name__
-    
+
     @classmethod
     def get_collection_name(cls):
         ''' Returns the collection name used by the class.  If the ``config_collection_name``
@@ -377,7 +377,7 @@ class Document(object):
         if not hasattr(cls, 'config_collection_name'):
             return cls.__name__
         return cls.config_collection_name
-    
+
     @classmethod
     def get_indexes(cls):
         ''' Returns all of the :class:`~mongoalchemy.document.Index` instances
@@ -390,8 +390,8 @@ class Document(object):
         return ret
     @classmethod
     def transform_incoming(self, obj, session):
-        """ Tranform the SON object into one which will be able to be 
-            unwrapped by this document class.  
+        """ Tranform the SON object into one which will be able to be
+            unwrapped by this document class.
 
             This method is designed for schema migration systems.
         """
@@ -411,19 +411,19 @@ class Document(object):
             else:
                 ret[strf] = None
         return ret
-    
+
     def has_id(self):
         try:
             getattr(self, 'mongo_id')
         except AttributeError:
             return False
-        return True 
+        return True
     def to_ref(self, db=None):
-        return DBRef(id=self.mongo_id, 
+        return DBRef(id=self.mongo_id,
                      collection=self.get_collection_name(),
                      database=db)
     def wrap(self):
-        ''' Returns a transformation of this document into a form suitable to 
+        ''' Returns a transformation of this document into a form suitable to
             be saved into a mongo database.  This is done by using the ``wrap()``
             methods of the underlying fields to set values.'''
         res = {}
@@ -442,13 +442,13 @@ class Document(object):
                 if field.required:
                     raise
         return res
-        
+
     @classmethod
     def unwrap(cls, obj, fields=None, session=None):
-        ''' Returns an instance of this document class based on the mongo object 
-            ``obj``.  This is done by using the ``unwrap()`` methods of the 
+        ''' Returns an instance of this document class based on the mongo object
+            ``obj``.  This is done by using the ``unwrap()`` methods of the
             underlying fields to set values.
-            
+
             :param obj: a ``SON`` object returned from a mongo database
             :param fields: A list of :class:`mongoalchemy.query.QueryField` objects \
                     for the fields to load.  If ``None`` is passed all fields  \
@@ -485,7 +485,7 @@ class Document(object):
                 unwrapped = field.unwrap(v, **extra_unwrap)
             unwrapped = field.localize(session, unwrapped)
             params[str(k)] = unwrapped
-        
+
         if fields is not None:
             params['retrieved_fields'] = fields
         obj = cls(loading_from_db=True, **params)
@@ -503,10 +503,10 @@ class Document(object):
         # print 'CLEAR DIRTY'
         for k, v in self._values.iteritems():
             v.clear_dirty()
-        
+
 
 class DictDoc(object):
-    ''' Adds a mapping interface to a document.  Supports ``__getitem__`` and 
+    ''' Adds a mapping interface to a document.  Supports ``__getitem__`` and
         ``__contains__``.  Both methods will only retrieve values assigned to
         a field, not methods or other attributes.
     '''
@@ -516,11 +516,11 @@ class DictDoc(object):
         if name in self._values:
             return getattr(self, name)
         raise KeyError(name)
-    
+
     def __setitem__(self, name, value):
         ''' Sets the field ``name`` on the document '''
         setattr(self, name, value)
-    
+
     def setdefault(self, name, value):
         ''' if the ``name`` is set, return its value.  Otherwse set ``name`` to
             ``value`` and return ``value``'''
@@ -528,10 +528,10 @@ class DictDoc(object):
             return self[name]
         self[name] = value
         return self[name]
-    
+
     def __contains__(self, name):
-        ''' Return whether a field is present.  Fails if ``name`` is not a 
-            field or ``name`` is not set on the document or if ``name`` was 
+        ''' Return whether a field is present.  Fails if ``name`` is not a
+            field or ``name`` is not set on the document or if ``name`` was
             not a field retrieved from the database
         '''
         try:
@@ -543,35 +543,35 @@ class DictDoc(object):
         except KeyError:
             return False
         return True
-        
+
 
 class BadIndexException(Exception):
     pass
 
 class Index(object):
-    ''' This class is  used in the class definition of a :class:`~Document` to 
+    ''' This class is  used in the class definition of a :class:`~Document` to
         specify a single, possibly compound, index.  ``pymongo``'s ``ensure_index``
-        will be called on each index before a database operation is executed 
+        will be called on each index before a database operation is executed
         on the owner document class.
-        
+
         **Example**
-            
+
             >>> class Donor(Document):
             ...     name = StringField()
             ...     age = IntField(min_value=0)
             ...     blood_type = StringField()
-            ...     
+            ...
             ...     i_name = Index().ascending('name')
             ...     type_age = Index().ascending('blood_type').descending('age')
     '''
     ASCENDING = pymongo.ASCENDING
     DESCENDING = pymongo.DESCENDING
-    
+
     def __init__(self):
         self.components = []
         self.__unique = False
         self.__drop_dups = False
-        
+
         self.__min = None
         self.__max = None
         self.__bucket_size = None
@@ -587,10 +587,10 @@ class Index(object):
         self.__expire_after = after
         return self
 
-    
+
     def ascending(self, name):
         ''' Add a descending index for ``name`` to this index.
-        
+
             :param name: Name to be used in the index
         '''
         self.components.append((name, Index.ASCENDING))
@@ -598,14 +598,14 @@ class Index(object):
 
     def descending(self, name):
         ''' Add a descending index for ``name`` to this index.
-            
+
             :param name: Name to be used in the index
         '''
         self.components.append((name, Index.DESCENDING))
         return self
-    
+
     def geo2d(self, name, min=None, max=None):
-        """ Create a 2d index.  See: 
+        """ Create a 2d index.  See:
             http://www.mongodb.org/display/DOCS/Geospatial+Indexing
 
             :param name: Name of the indexed column
@@ -622,7 +622,7 @@ class Index(object):
             http://www.mongodb.org/display/DOCS/Geospatial+Haystack+Indexing
 
             :param name: Name of the indexed column
-            :param bucket_size: Size of the haystack buckets (see mongo docs)   
+            :param bucket_size: Size of the haystack buckets (see mongo docs)
         """
         self.components.append((name, 'geoHaystack'))
         self.__bucket_size = bucket_size
@@ -630,17 +630,17 @@ class Index(object):
 
     def unique(self, drop_dups=False):
         ''' Make this index unique, optionally dropping duplicate entries.
-                
+
             :param drop_dups: Drop duplicate objects while creating the unique \
                 index?  Default to ``False``
         '''
         self.__unique = True
         self.__drop_dups = drop_dups
         return self
-    
+
     def ensure(self, collection):
         ''' Call the pymongo method ``ensure_index`` on the passed collection.
-            
+
             :param collection: the ``pymongo`` collection to ensure this index \
                     is on
         '''
@@ -653,7 +653,7 @@ class Index(object):
             extras['bucket_size'] = self.__bucket_size
         if self.__expire_after is not None:
             extras['expireAfterSeconds'] = self.__expire_after
-        collection.ensure_index(self.components, unique=self.__unique, 
+        collection.ensure_index(self.components, unique=self.__unique,
             drop_dups=self.__drop_dups, **extras)
         return self
 
@@ -664,7 +664,7 @@ class Value(object):
         self.field = field
         self.doc = document
         self.value = None
-        
+
         # Flags
         self.from_db = from_db
         self.set = False
@@ -682,5 +682,4 @@ class Value(object):
         self.dirty = True
         self.from_db = False
         self.update_op = '$unset'
-
 

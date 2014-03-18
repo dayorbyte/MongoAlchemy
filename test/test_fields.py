@@ -67,7 +67,7 @@ def test_custom_validator():
     field = IntField(wrap_validator=lambda x : x == 0)
     assert field.is_valid_wrap(0) == True
     assert field.is_valid_wrap(2) == False
-    
+
     field = IntField(unwrap_validator=lambda x : x == 0)
     assert field.is_valid_unwrap(0) == True
     assert field.is_valid_unwrap(2) == False
@@ -230,7 +230,7 @@ def objectid_value_test():
     o = ObjectIdField()
     oid = ObjectId('4c9e2587eae7dd6064000000')
     assert o.unwrap(o.wrap(oid)) == oid
-    
+
     oid2 = '4c9e2587eae7dd6064000000'
     assert o.unwrap(o.wrap(oid2)) == oid
 
@@ -309,3 +309,4 @@ def binary_value_test():
     assert s.wrap(Binary(bytes('foo'.encode('ascii')))) == Binary(bytes('foo'.encode('ascii')))
     assert s.wrap(bytes('foo'.encode('ascii'))) == Binary(bytes('foo'.encode('ascii')))
     assert s.unwrap(Binary(bytes('foo'.encode('ascii')))) == Binary(bytes('foo'.encode('ascii')))
+

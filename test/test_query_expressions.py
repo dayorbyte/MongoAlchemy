@@ -108,10 +108,10 @@ def test_value_type_wrapping():
         bio = SetField(StringField())
     s = get_session()
     s.clear_collection(User)
-    
+
     q = s.query(User).in_(User.bio, 'MongoAlchemy').query
     assert q == { 'bio' : { '$in' : ['MongoAlchemy'] } }, q
-    
+
     q = s.query(User).in_(User.bio, set(['MongoAlchemy'])).query
     assert q == { 'bio' : { '$in' : [['MongoAlchemy']] } }, q
 
@@ -122,8 +122,8 @@ def test_value_type_wrapping_2():
     s.clear_collection(User)
     q = s.query(User).in_(User.bio.k, 'MongoAlchemy').query
     assert q == { 'bio.k' : { '$in' : ['MongoAlchemy'] } }, q
-    
-    q = s.query(User).in_(User.bio, { 'MongoAlchemy' : 5}).query    
+
+    q = s.query(User).in_(User.bio, { 'MongoAlchemy' : 5}).query
     assert q == { 'bio' : { '$in' : [[{'k': 'MongoAlchemy', 'v': 5}]] } }, q
 
 @raises(BadValueException)
@@ -138,13 +138,13 @@ def list_in_operator_test():
         ints = ListField(IntField())
     s = get_session()
     s.clear_collection(User)
-    
+
     q = s.query(User).filter_by(ints=3).query
     assert q == { 'ints' : 3 }, q
-    
+
     q = s.query(User).filter(User.ints == 3).query
     assert q == { 'ints' : 3 }, q
-    
+
     q = s.query(User).filter(User.ints == [3]).query
     assert q == { 'ints' : [3] }, q
 
@@ -167,7 +167,7 @@ def test_geo():
 
     xs = s.query(Place).filter(Place.loc.near(1, 1, max_distance=2)).all()
     assert len(xs) == 1, xs
-    
+
     xs = s.query(Place).filter(Place.loc.near_sphere(1, 1, max_distance=50)).all()
     assert len(xs) == 3
 
@@ -196,7 +196,7 @@ def test_geo_haystack():
     s.clear_collection(Place)
     s.insert(Place(loc=(1,1), val=2))
     s.insert(Place(loc=(5,5), val=4))
-    
+
 
 
 
@@ -212,7 +212,7 @@ def qf_bad_value_compare_test():
     T2.t.i < '3'
 
 def qf_dot_f_test():
-    
+
     class T3(Document):
         i = IntField()
         j = IntField(required=False)
@@ -222,13 +222,13 @@ def qf_dot_f_test():
 
     class T4(Document):
         t = DocumentField(T3)
-    
+
     assert str(T4.t.i) == 't.i'
 
 def test_not():
     not_q = Query(T, None).filter( ~(T.i == 3) ).query
     assert not_q == { 'i' : {'$ne' : 3} }, not_q
-    
+
     not_q = Query(T, None).not_(T.i > 4).query
     assert not_q == { 'i' : {'$not': { '$gt': 4}} }, not_q
 
@@ -252,10 +252,10 @@ def test_not_db_test():
 
 def test_or():
     q = Query(T, None)
-    
+
     want = { '$or' : [{'i' : 3}, {'i' : 4}, {'i' : 5}] }
     assert q.filter((T.i == 3) | (T.i == 4) | (T.i == 5)).query == want
-    
+
     assert Query(T, None).or_(T.i == 3, T.i == 4, T.i == 5).query == want
 
 def test_in():
@@ -280,18 +280,17 @@ def test_ffq():
     s = get_session()
     q = s.query('T')
     assert q.filter(Q.name == 3).query == {'name' : 3}
-    
+
     q = s.query('T').filter(Q.name.first == 'jeff').query
     assert q == {'name.first' : 'jeff'}, q
 
     s.insert(T(i=4))
     assert s.query('T').count() == 1
-    
+
     assert s.query('T').filter(Q.i == 4).one()['i'] == 4
 
 # Array Index Operator
 def test_array_index_operator():
-    
-    assert str(NestedParent.l.matched_index().i) == 'l.$.i', NestedParent.l.matched_index().i
 
+    assert str(NestedParent.l.matched_index().i) == 'l.$.i', NestedParent.l.matched_index().i
 

@@ -48,23 +48,23 @@ def test_fields_exclude():
 
 def test_update():
     s = get_session()
-        
+
     obj = T(i=3)
-    
+
     s.insert(obj)
 
     for o in s.query(T):
         assert o.i == 3
-    
+
     s.query(T).filter(T.i==3).set(T.i, 4).execute()
-    
+
     for o in s.query(T):
         assert o.i == 4
 
 def test_field_filter():
     s = get_session()
     s.clear_collection(T, T2)
-    
+
     # Simple Object
     obj = T(i=3)
     s.insert(obj)
@@ -84,7 +84,7 @@ def test_raw_output():
     s.insert(T(i=3))
     value = s.query(T).raw_output().one()
     assert isinstance(value, dict)
-    
+
 def test_limit():
     s = get_session()
     s.clear_collection(T)
@@ -291,14 +291,14 @@ def repeated_field_update_test():
 def test_comparators():
     # once filters have more sanity checking, this test will need to be broken up
     s = get_session()
-    query_obj = s.query(T).filter(T.i < 2, 
+    query_obj = s.query(T).filter(T.i < 2,
         T.i > 3,
         T.i != 4,
         T.i <= 5,
         T.i >= 6).query
-    
+
     assert query_obj == {'i': {'$ne': 4, '$gte': 6, '$lte': 5, '$gt': 3, '$lt': 2}}
-    
+
     s.query(T).filter(T.i == 1).query == { 'i' : 1}
 
 
@@ -366,7 +366,7 @@ def qr_test_rewind():
         next(it)
     except StopIteration:
         pass
-    
+
 def qr_test_clone():
     s = get_session()
     s.clear_collection(T)
@@ -389,6 +389,7 @@ def test_resolve_fields():
         k = IntField()
     s = get_session()
     s.clear_collection(Resolver)
-    
+
     q = s.query(Resolver).filter(Resolver.i.in_(6))
     q = s.query(Resolver).set(Resolver.i, 6)
+

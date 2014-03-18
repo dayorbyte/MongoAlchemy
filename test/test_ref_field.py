@@ -54,7 +54,7 @@ def test_poly_ref():
     class PRef(Document):
         config_polymorphic_collection = True
         x = IntField()
-    
+
     class PRef2(PRef):
         y = IntField()
     r2 = PRef2()
@@ -70,7 +70,7 @@ def test_proxy():
         xs = x_ids.rel()
         x_id = RefField(TPB, allow_none=True)
         x = x_id.rel()
-    
+
     s = get_session()
     s.clear_collection(TPA)
     s.clear_collection(TPB)
@@ -103,7 +103,7 @@ def test_proxy_ignore_missing():
         xs = x_ids.rel(ignore_missing=True)
         x_id = RefField(TPIMB)
         x = x_id.rel()
-    
+
     s = get_session()
     s.clear_collection(TPIMA)
     s.clear_collection(TPIMB)
@@ -120,7 +120,7 @@ def test_proxy_ignore_missing():
 
     s.insert(a)
     aa = s.query(TPIMA).one()
-    
+
     assert len(list(aa.xs)) == 2, len(list(aa.xs))
 
 def test_dereference():
@@ -158,10 +158,10 @@ def test_unwrap():
     class A(Document):
         x = IntField()
     s = get_session()
-        
+
     a = A(x=5)
     s.insert(a)
-    
+
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
 
@@ -176,10 +176,10 @@ def test_unwrap_bad_type():
     class A(Document):
         x = IntField()
     s = get_session()
-    
+
     a = A(x=5)
     s.insert(a)
-    
+
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
 
@@ -190,10 +190,10 @@ def test_unwrap_missing_db():
     class A(Document):
         x = IntField()
     s = get_session()
-    
+
     a = A(x=5)
     s.insert(a)
-    
+
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(collection='A', id=a.mongo_id)
 
@@ -202,7 +202,7 @@ def test_unwrap_missing_db():
 def test_dereference_doc():
     class A(Document):
         x = IntField()
-    
+
     s = Session.connect('unit-testing', cache_size=0)
     s.clear_collection(A)
 
@@ -215,7 +215,7 @@ def test_dereference_doc():
 def test_dereference():
     class A(Document):
         x = IntField()
-    
+
     s = Session.connect('unit-testing', cache_size=0)
     s.clear_collection(A)
 
@@ -229,7 +229,7 @@ def test_dereference():
 def test_bad_dereference():
     class A(Document):
         x = IntField()
-    
+
     s = Session.connect('unit-testing', cache_size=0)
     s.clear_collection(A)
     dbaref = DBRef(collection='A', id=ObjectId(), database='unit-testing')
@@ -260,5 +260,3 @@ def test_bad_db():
 @raises(BadValueException)
 def test_validate():
     SRefField(A).validate_unwrap(3)
-
-

@@ -65,4 +65,3 @@ def no_field_index_test():
     s.get_session()
     s.clear_collection(TestDoc)
     s.insert(t)
-

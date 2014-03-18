@@ -1,6 +1,6 @@
 
 class BadValueException(Exception):
-    ''' An exception which is raised when there is something wrong with a 
+    ''' An exception which is raised when there is something wrong with a
         value'''
     def __init__(self, name, value, reason, cause=None):
         self.name = name
@@ -32,20 +32,21 @@ class ExtraValueException(DocumentException):
     pass
 
 class FieldNotRetrieved(DocumentException):
-    ''' If a partial document is loaded from the database and a field which 
+    ''' If a partial document is loaded from the database and a field which
         wasn't retrieved is accessed this exception is raised'''
     pass
 
-    
+
 class BadFieldSpecification(Exception):
-    ''' An exception that is raised when there is an error in creating a 
+    ''' An exception that is raised when there is an error in creating a
         field'''
     pass
 
 
 class TransactionException(Exception):
-    """ Exception which occurs when an invalid operation is called during a 
+    """ Exception which occurs when an invalid operation is called during a
         transaction """
 
 class SessionCacheException(Exception):
     """ Exception when an error has occured with the MA caching mechanism """
+
