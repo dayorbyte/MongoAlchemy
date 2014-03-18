@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from functools import wraps
 
 def known_failure(fun):

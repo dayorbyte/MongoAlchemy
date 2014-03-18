@@ -28,6 +28,9 @@
     anything intelligent for ordering.
 '''
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from uuid import uuid4
 import pymongo
 if hasattr(pymongo, 'mongo_client'):
@@ -364,9 +367,7 @@ class Session(object):
         for index, op in enumerate(self.queue):
             if op.trans_id == trans_id:
                 break
-        # print 'GOT INDEX', index
         self.queue = self.queue[:index]
-        # print '\t', self.queue
 
     def clear_cache(self):
         self.cache = {}

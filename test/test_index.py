@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index

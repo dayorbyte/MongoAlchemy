@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index
@@ -193,10 +196,8 @@ def test_transactions3():
 
             with s:
                 s.add(Doc(i=2))
-                print 'RAISE'
                 raise Exception()
         except:
-            print 'CAUGHT'
             assert s.query(Doc).count() == 0, s.query(Doc).count()
     assert s.query(Doc).count() == 1, s.query(Doc).count()
 

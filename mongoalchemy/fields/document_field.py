@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from mongoalchemy.fields.base import *
 
 class DocumentField(Field):
@@ -54,10 +57,8 @@ class DocumentField(Field):
     def dirty_ops(self, instance):
         ''' Returns a dict of the operations needed to update this object.
             See :func:`Document.get_dirty_ops` for more details.'''
-        # print 'check dirty'
         obj_value = instance._values[self._name]
         if not obj_value.set:
-            # print 'not set'
             return {}
 
         if not obj_value.dirty and self.__type.config_extra_fields != 'ignore':
@@ -66,12 +67,11 @@ class DocumentField(Field):
         ops = obj_value.value.get_dirty_ops()
 
         ret = {}
-        for op, values in ops.iteritems():
+        for op, values in ops.items():
             ret[op] = {}
-            for key, value in values.iteritems():
+            for key, value in values.items():
                 name = '%s.%s' % (self._name, key)
                 ret[op][name] = value
-        # print 'ret'
         return ret
 
     def subfields(self):

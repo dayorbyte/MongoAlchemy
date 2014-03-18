@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from mongoalchemy.fields.base import *
 
 
@@ -78,7 +81,7 @@ class DictField(Field):
         '''
         if not isinstance(value, dict):
             self._fail_validation_type(value, dict)
-        for k, v in value.iteritems():
+        for k, v in value.items():
             self._validate_key_unwrap(k)
             try:
                 self.value_type.validate_unwrap(v)
@@ -91,7 +94,7 @@ class DictField(Field):
         '''
         if not isinstance(value, dict):
             self._fail_validation_type(value, dict)
-        for k, v in value.iteritems():
+        for k, v in value.items():
             self._validate_key_wrap(k)
             try:
                 self.value_type.validate_wrap(v)
@@ -104,7 +107,7 @@ class DictField(Field):
         '''
         self.validate_wrap(value)
         ret = {}
-        for k, v in value.iteritems():
+        for k, v in value.items():
             ret[k] = self.value_type.wrap(v)
         return ret
 
@@ -114,7 +117,7 @@ class DictField(Field):
         '''
         self.validate_unwrap(value)
         ret = {}
-        for k, v in value.iteritems():
+        for k, v in value.items():
             ret[k] = self.value_type.unwrap(v, session=session)
         return ret
 
@@ -205,7 +208,7 @@ class KVField(DictField):
         '''
         self.validate_wrap(value)
         ret = []
-        for k, v in value.iteritems():
+        for k, v in value.items():
             k = self.key_type.wrap(k)
             v = self.value_type.wrap(v)
             ret.append( { 'k' : k, 'v' : v })

@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, FieldNotRetrieved
@@ -31,7 +34,7 @@ class DocFieldDoc(Document):
     ref = RefField(SchemaTestDoc)
 
 def contains(value, wanted):
-    for k, v in wanted.iteritems():
+    for k, v in wanted.items():
         assert value[k] == v, (k, k in value, value.get(k))
 
 def test_schema():
@@ -93,7 +96,7 @@ def test_docfield():
     fields = schema['fields']
     contains(fields['docfield'], {'type': 'DocumentField', 'subtype': 'global:SchemaTestDoc'})
 
-    print fields['ref']
+    print(fields['ref'])
     assert fields['ref']['subtype']['subtype'] == 'global:SchemaTestDoc'
     assert fields['sref']['subtype']['subtype'] == 'global:SchemaTestDoc'
     # assert False, fields['ref']

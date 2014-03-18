@@ -3,6 +3,11 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.15 -- 2014-03-18 8:07
+-----------------------------
+* [FEATURE] Source-level support for python 3
+
+
 0.14.4 -- 2014-03-04 8:07
 -----------------------------
 * [FEATURE] TTL indexes. Thanks to samyarous for the contribution!

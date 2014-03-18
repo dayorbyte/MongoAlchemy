@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from mongoalchemy.fields.base import *
 
 
@@ -255,7 +258,7 @@ class TupleField(Field):
         if not isinstance(value, list) and not isinstance(value, tuple):
             self._fail_validation_type(value, tuple, list)
 
-        for field, value in itertools.izip(self.types, list(value)):
+        for field, value in izip(self.types, list(value)):
             field.validate_wrap(value)
 
     def validate_unwrap(self, value):
@@ -265,7 +268,7 @@ class TupleField(Field):
         if not isinstance(value, list) and not isinstance(value, tuple):
             self._fail_validation_type(value, tuple, list)
 
-        for field, value in itertools.izip(self.types, value):
+        for field, value in izip(self.types, value):
             field.validate_unwrap(value)
 
     def wrap(self, value):
@@ -275,7 +278,7 @@ class TupleField(Field):
         '''
         self.validate_wrap(value)
         ret = []
-        for field, value in itertools.izip(self.types, value):
+        for field, value in izip(self.types, value):
             ret.append(field.wrap(value))
         return ret
 
@@ -286,7 +289,7 @@ class TupleField(Field):
         '''
         self.validate_unwrap(value)
         ret = []
-        for field, value in itertools.izip(self.types, value):
+        for field, value in izip(self.types, value):
             ret.append(field.unwrap(value, session=session))
         return tuple(ret)
 
@@ -424,7 +427,10 @@ class ObjectIdField(Field):
     def validate_wrap(self, value):
         ''' Checks that ``value`` is a pymongo ``ObjectId`` or a string
             representation of one'''
-        if not isinstance(value, ObjectId) and not isinstance(value, basestring):
+        if (not isinstance(value, ObjectId)
+                and not isinstance(value, basestring)
+                and not isinstance(value, bytes)
+            ):
             self._fail_validation_type(value, ObjectId)
         if isinstance(value, ObjectId):
             return
@@ -439,7 +445,7 @@ class ObjectIdField(Field):
         ''' Validates that ``value`` is an ObjectId (or hex representation
             of one), then returns it '''
         self.validate_wrap(value)
-        if isinstance(value, basestring):
+        if isinstance(value, bytes) or isinstance(value, basestring):
             return ObjectId(value)
         return value
 

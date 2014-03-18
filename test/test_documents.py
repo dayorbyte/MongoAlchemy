@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import *
@@ -60,7 +63,7 @@ def test_default_sort_bad_name():
         config_default_sort = [('a', 1)]
     try:
         f = Foo()
-    except BadFieldSpecification, e:
+    except BadFieldSpecification as e:
         assert 'resolve field' in str(e)
         raise
 
@@ -71,8 +74,7 @@ def test_default_sort_bad_dir():
         config_default_sort = [('a', 3)]
     try:
         f = Foo()
-    except BadFieldSpecification, e:
-        print e
+    except BadFieldSpecification as e:
         assert 'sort direction' in str(e)
         raise
     assert False

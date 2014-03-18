@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from functools import wraps
 from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
@@ -202,7 +205,7 @@ class Query(object):
     def filter_by(self, **filters):
         ''' Filter for the names in ``filters`` being equal to the associated
             values.  Cannot be used for sub-objects since keys must be strings'''
-        for name, value in filters.iteritems():
+        for name, value in filters.items():
             self.filter(resolve_name(self.type, name) == value)
         return self
 
@@ -243,7 +246,7 @@ class Query(object):
 
     def _apply_dict(self, qe_dict):
         ''' Apply a query expression, updating the query object '''
-        for k, v in qe_dict.iteritems():
+        for k, v in qe_dict.items():
             k = resolve_name(self.type, k)
             if not k in self.__query:
                 self.__query[k] = v
@@ -406,7 +409,11 @@ class QueryResult(object):
         self.session = session
 
     def next(self):
-        value = self.cursor.next()
+        return self._next_internal()
+    __next__ = next
+
+    def _next_internal(self):
+        value = next(self.cursor)
         if not self.raw_output:
             db = self.cursor.collection.database
             conn = db.connection

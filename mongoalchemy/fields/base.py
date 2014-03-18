@@ -53,8 +53,8 @@ output types for :func:`~Field.wrap` and :func:`~Field.unwrap`.
 
 '''
 
-
-
+from __future__ import print_function
+from mongoalchemy.py3compat import *
 import itertools
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -121,6 +121,7 @@ class FieldMeta(type):
         # Create Class
         return type.__new__(mcs, classname, bases, class_dict)
 
+@add_metaclass(FieldMeta)
 class Field(object):
     auto = False
 

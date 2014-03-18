@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from mongoalchemy.exceptions import BadValueException
 
 class BadQueryException(Exception):
@@ -353,7 +356,7 @@ class QueryExpression(object):
                 to get past precedence issues: ``~ (User.name == 'Jeff')``
             '''
         ret_obj = {}
-        for k, v in self.obj.iteritems():
+        for k, v in self.obj.items():
             if not isinstance(v, dict):
                 ret_obj[k] = {'$ne' : v }
                 continue
@@ -365,7 +368,7 @@ class QueryExpression(object):
                 ret_obj[k] = {'$ne' : v }
                 continue
 
-            for op, value in v.iteritems():
+            for op, value in v.items():
                 k_dict = ret_obj.setdefault(k, {})
                 not_dict = k_dict.setdefault('$not', {})
                 not_dict[op] = value
@@ -417,7 +420,7 @@ def flatten(obj):
     if not isinstance(obj, dict):
         return obj
     ret = {}
-    for k, v in obj.iteritems():
+    for k, v in obj.items():
         if not isinstance(k, basestring):
             k = str(k)
         if isinstance(v, dict):

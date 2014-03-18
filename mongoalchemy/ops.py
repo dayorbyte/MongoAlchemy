@@ -1,7 +1,11 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from itertools import chain
 from bson.objectid import ObjectId
 from abc import ABCMeta, abstractmethod
 
+@add_metaclass(ABCMeta)
 class Operation(object):
     __metaclass__ = ABCMeta
 
@@ -41,7 +45,7 @@ class UpdateDocumentOp(Operation):
         self.dirty_ops = document.get_dirty_ops(with_required=upsert)
         for key, op in chain(update_ops.items(), kwargs.items()):
             key = str(key)
-            for current_op, keys in self.dirty_ops.items():
+            for current_op, keys in list(self.dirty_ops.items()):
                 if key not in keys:
                     continue
                 self.dirty_ops.setdefault(op,{})[key] = keys[key]

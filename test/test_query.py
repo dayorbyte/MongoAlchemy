@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, FieldNotRetrieved
@@ -242,7 +245,6 @@ def test_save_partial_subdocument_fail():
     bar = Bar(b=1432, c=1112)
     s.insert(bar)
     bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
-    # print bar.c, bar.b
     s.insert(Foo(a=bar))
     s.query(Foo).filter(Foo.a.c==1112).one()
 
@@ -259,7 +261,6 @@ def test_save_partial_subdocument():
     bar = Bar(b=1432, c=1112)
     s.insert(bar)
     bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
-    # print bar.c, bar.b
     s.insert(Foo(a=bar))
     s.query(Foo).filter(Foo.a.c==1112).one()
 

@@ -1,6 +1,7 @@
 # The MIT License
 #
 # Copyright (c) 2010 Jeffrey Jenkins
+# Copyright (c) 2010-2013 Benjamin Peterson (functions from the "six" module)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,35 +21,36 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from __future__ import print_function
-from mongoalchemy.py3compat import *
+import itertools
+import sys
 
-def classproperty(fun):
-    class Descriptor(property):
-        def __get__(self, instance, owner):
-            return fun(owner)
-    return Descriptor()
+PYTHON_3 = sys.version_info[0] == 3
 
-class UNSET(object):
-    def __repr__(self):
-        return 'UNSET'
-    def __eq__(self, other):
-        return other.__class__ == self.__class__
-UNSET = UNSET()
+if PYTHON_3: # pragma: no cover
+    unicode = str
+    basestring = str
+    long = int
 
-class FieldNotFoundException(Exception):
-    pass
+def izip(*its): # pragma: no cover
+    if 'izip' in dir(itertools):
+        return itertools.izip(*its)
+    return zip(*its)
 
-def resolve_name(type, name):
-    if not isinstance(name, basestring) or name[0] == '$':
-        return name
-    ret = type
-    for part in name.split('.'):
-        try:
-            ret = getattr(ret, part)
-        except AttributeError:
-            raise FieldNotFoundException("Field not found %s (in %s)" %
-                                         (part, name))
+def next(it): # pragma: no cover
+    if hasattr(it, '__next__'):
+        return it.__next__()
+    return it.next()
 
-    return ret
+def add_metaclass(metaclass): # pragma: no cover
+    """ Class decorator for creating a class with a metaclass.
 
+        Copied from six
+    """
+    def wrapper(cls):
+        orig_vars = cls.__dict__.copy()
+        orig_vars.pop('__dict__', None)
+        orig_vars.pop('__weakref__', None)
+        for slots_var in orig_vars.get('__slots__', ()):
+            orig_vars.pop(slots_var)
+        return metaclass(cls.__name__, cls.__bases__, orig_vars)
+    return wrapper

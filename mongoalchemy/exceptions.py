@@ -1,3 +1,5 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
 
 class BadValueException(Exception):
     ''' An exception which is raised when there is something wrong with a

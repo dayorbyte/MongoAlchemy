@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.fields import *
 
@@ -32,7 +35,6 @@ class C(Document):
 # Field Tests
 
 def test_simple_dereference():
-    print 1111
     class ASD(Document):
         x = IntField()
     class BSD(Document):
@@ -85,7 +87,7 @@ def test_proxy():
     s.insert(a)
     aa = s.query(TPA).one()
     assert aa.x.b == 2, aa.x.b
-    assert [z.b for z in aa.xs] == range(0, 3)
+    assert [z.b for z in aa.xs] == list(range(0, 3))
 
     a_none = TPA(x_id=None, x_ids=[None])
     a_none._set_session(s)

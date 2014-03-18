@@ -38,6 +38,10 @@ programmatically.  A document can have multiple indexes by adding extra
 
 
 '''
+
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 import pymongo
 from bson import DBRef
 from pymongo import GEO2D
@@ -66,7 +70,7 @@ class DocumentMeta(type):
 
         # 1. Set up links between fields and the document class
         new_id = False
-        for name, value in class_dict.iteritems():
+        for name, value in class_dict.items():
             if not isinstance(value, Field):
                 continue
             if value.is_id and name != 'mongo_id':
@@ -83,10 +87,10 @@ class DocumentMeta(type):
             # print b
             if not hasattr(b, 'get_fields'):
                 continue
-            for name, field in b.get_fields().iteritems():
+            for name, field in b.get_fields().items():
                 new_class._fields[name] = field
 
-        for name, maybefield in class_dict.iteritems():
+        for name, maybefield in class_dict.items():
             if not isinstance(maybefield, Field):
                 continue
             new_class._fields[name] = maybefield
@@ -122,8 +126,9 @@ class DocumentMeta(type):
 
         return new_class
 
+@add_metaclass(DocumentMeta)
 class Document(object):
-    __metaclass__ = DocumentMeta
+    # __metaclass__ = DocumentMeta
 
     mongo_id = ObjectIdField(required=False, db_field='_id', on_update='ignore')
     ''' Default field for the mongo object ID (``_id`` in the database). This field
@@ -201,7 +206,7 @@ class Document(object):
 
         # Process the fields on the object
         fields = self.get_fields()
-        for name, field in fields.iteritems():
+        for name, field in fields.items():
             # print name
             if self.partial and field.db_field not in self.retrieved_fields:
                 self._values[name] = Value(field, self, retrieved=False)
@@ -312,7 +317,7 @@ class Document(object):
                 an upsert where all required fields must always be sent.
         '''
         update_expression = {}
-        for name, field in self.get_fields().iteritems():
+        for name, field in self.get_fields().items():
             if field.db_field == '_id':
                 continue
             dirty_ops = field.dirty_ops(self)
@@ -321,9 +326,9 @@ class Document(object):
                 if not dirty_ops:
                     raise MissingValueException(name)
 
-            for op, values in dirty_ops.iteritems():
+            for op, values in dirty_ops.items():
                 update_expression.setdefault(op, {})
-                for key, value in values.iteritems():
+                for key, value in values.items():
                     update_expression[op][key] = value
 
         if self.config_extra_fields == 'ignore':
@@ -427,7 +432,7 @@ class Document(object):
             be saved into a mongo database.  This is done by using the ``wrap()``
             methods of the underlying fields to set values.'''
         res = {}
-        for k, v in self.__extra_fields.iteritems():
+        for k, v in self.__extra_fields.items():
             res[k] = v
         cls = self.__class__
         for name in self.get_fields():
@@ -462,11 +467,11 @@ class Document(object):
             return unwrapped
         # Get reverse name mapping
         name_reverse = {}
-        for name, field in cls.get_fields().iteritems():
+        for name, field in cls.get_fields().items():
             name_reverse[field.db_field] = name
         # Unwrap
         params = {}
-        for k, v in obj.iteritems():
+        for k, v in obj.items():
             k = name_reverse.get(k, k)
             if not hasattr(cls, k) and cls.config_extra_fields:
                 params[str(k)] = v
@@ -500,8 +505,7 @@ class Document(object):
         self._session = session
 
     def _mark_clean(self):
-        # print 'CLEAR DIRTY'
-        for k, v in self._values.iteritems():
+        for k, v in self._values.items():
             v.clear_dirty()
 
 

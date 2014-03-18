@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index, FieldNotRetrieved
@@ -291,6 +294,5 @@ def test_ffq():
 
 # Array Index Operator
 def test_array_index_operator():
-
     assert str(NestedParent.l.matched_index().i) == 'l.$.i', NestedParent.l.matched_index().i
 

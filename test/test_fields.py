@@ -1,3 +1,6 @@
+from __future__ import print_function
+from mongoalchemy.py3compat import *
+
 from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
@@ -58,7 +61,10 @@ def test_validate_unwrap_fail():
     StringField().unwrap(4)
 
 def test_custom_validator():
-    field = IntField(validator=lambda x : x == 0)
+    def validator(x):
+        print ('>>>>', x)
+        return x == 0
+    field = IntField(validator=validator)
     assert field.is_valid_wrap(0) == True
     assert field.is_valid_wrap(2) == False
     assert field.is_valid_unwrap(0) == True
@@ -216,7 +222,6 @@ def test_object_id_auto():
     from mongoalchemy.document import Document
     class A(Document):
         idf = ObjectIdField(auto=True, required=False)
-    print A().idf
     assert 'idf' in A().wrap()
 
 #ObjectID Field
