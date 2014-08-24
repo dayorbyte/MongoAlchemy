@@ -215,7 +215,7 @@ class Document(object):
                 value = kwargs[name]
                 self._values[name] = Value(field, self,
                                            from_db=loading_from_db)
-                getattr(cls, name).set_value(self, kwargs[name])
+                field.set_value(self, value)
             elif field.auto:
                 self._values[name] = Value(field, self, from_db=False)
             else:
