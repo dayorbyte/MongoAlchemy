@@ -125,6 +125,23 @@ class QueryField(object):
             current = current._get_parent()
         return '.'.join(reversed(res))
 
+    def startswith(self, prefix, ignore_case=False, options=None):
+        return self.regex('^' + prefix, ignore_case=ignore_case, options=options)
+
+    def endswith(self, suffix, ignore_case=False, options=None):
+        return self.regex(suffix + '$', ignore_case=ignore_case, options=options)
+
+    def regex(self, expression, ignore_case=False, options=None):
+        regex = {'$regex' : expression}
+        if options is not None:
+            regex['$options'] = options
+        if ignore_case:
+            regex['$options'] = regex.get('$options', '') + 'i'
+        expr = {
+            self : regex
+        }
+        return QueryExpression(expr)
+
     def near(self, x, y, max_distance=None):
         """ Return documents near the given point
         """
