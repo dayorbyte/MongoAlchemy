@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import re
 from __future__ import print_function
 from mongoalchemy.py3compat import *
 
@@ -126,12 +127,23 @@ class QueryField(object):
         return '.'.join(reversed(res))
 
     def startswith(self, prefix, ignore_case=False, options=None):
-        return self.regex('^' + prefix, ignore_case=ignore_case, options=options)
+        """ A query to check if a field starts with a given prefix string
+
+            N.B. This is a shortcut to .regex('^' + re.escape(prefix))
+            MongoDB optimises such prefix expressions to use indexes 
+            appropriately. As the prefix contains no further regex, this 
+            will be optimized by matching only against the prefix.
+        """ 
+        return self.regex('^' + re.escape(prefix), ignore_case=ignore_case, options=options)
 
     def endswith(self, suffix, ignore_case=False, options=None):
-        return self.regex(suffix + '$', ignore_case=ignore_case, options=options)
+        """ A query to check if a field ends with a given suffix string
+        """
+        return self.regex(re.escape(suffix) + '$', ignore_case=ignore_case, options=options)
 
     def regex(self, expression, ignore_case=False, options=None):
+        """ A query to check if a field matches a given regular expression
+        """
         regex = {'$regex' : expression}
         if options is not None:
             regex['$options'] = options
