@@ -4,6 +4,7 @@ from mongoalchemy.py3compat import *
 from itertools import chain
 from bson.objectid import ObjectId
 from abc import ABCMeta, abstractmethod
+from mongoalchemy.exceptions import InvalidUpdateException
 
 @add_metaclass(ABCMeta)
 class Operation(object):
@@ -39,8 +40,12 @@ class UpdateDocumentOp(Operation):
 
         if id_expression:
             self.db_key = Query(self.type, session).filter(id_expression).query
-        else:
+        elif document.has_id():
             self.db_key = {'_id' : document.mongo_id}
+        else:
+            raise InvalidUpdateException('To upsert the document must have a '
+                ' mongo_id OR id_expression must be specified')
+
 
         self.dirty_ops = document.get_dirty_ops(with_required=upsert)
         for key, op in chain(update_ops.items(), kwargs.items()):

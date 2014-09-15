@@ -52,3 +52,5 @@ class TransactionException(Exception):
 class SessionCacheException(Exception):
     """ Exception when an error has occured with the MA caching mechanism """
 
+class InvalidUpdateException(Exception):
+    ''' Exception when an Update op is malformed '''

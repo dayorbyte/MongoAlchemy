@@ -9,6 +9,7 @@ from mongoalchemy.update_expression import InvalidModifierException, UpdateExcep
 from mongoalchemy.query import BadQueryException, Query, BadResultException, RemoveQuery
 from test.util import known_failure
 from pymongo.errors import DuplicateKeyError
+from mongoalchemy.exceptions import InvalidUpdateException
 
 class T(Document):
     i = IntField()
@@ -490,3 +491,26 @@ def test_update_obeys_db_field():
 
     s.db.Foo.remove()
 
+@raises(InvalidUpdateException)
+def test_bad_upsert():
+    class UpsertTest(Document):
+        field = StringField()
+
+    test_doc = UpsertTest(field="Some Value")
+
+    s = get_session()
+    s.clear_collection(UpsertTest)
+
+    s.update(test_doc, upsert=True)
+
+@raises(InvalidUpdateException)
+def test_bad_update():
+    class UpsertTest(Document):
+        field = StringField()
+
+    test_doc = UpsertTest(field="Some Value")
+
+    s = get_session()
+    s.clear_collection(UpsertTest)
+
+    s.update(test_doc)
