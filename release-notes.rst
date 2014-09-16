@@ -3,6 +3,10 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.17 -- 2014-09-16 7:50
+-----------------------------
+* [FEATURE] #132 Add .regex to QueryField ($regex), also .startswith and .endswith shortcuts (thanks dcollien!)
+
 0.16 -- 2014-09-15 8:34
 -----------------------------
 * [BUG] #130 Bad error handling for invalid upserts
