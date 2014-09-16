@@ -201,7 +201,36 @@ def test_geo_haystack():
     s.insert(Place(loc=(5,5), val=4))
 
 
+#
+#  Regex Tests
+#
+def test_regex():
+    class Spell(Document):
+        name = StringField()
+    s = Session.connect('unit-testing')
+    s.clear_collection(Spell)
+    s.insert(Spell(name='Wingardium Leviosa'))
+    s.insert(Spell(name='abracadabra'))
+    s.insert(Spell(name='ab.*ra.ca.da.*bra'))
+    s.insert(Spell(name='Alacazam'))
 
+    # check ignore case True
+    q = s.query(Spell).filter(Spell.name.startswith('wingardium', ignore_case=True))
+    assert q.first().name == 'Wingardium Leviosa'
+
+    # check ignore case False (default)
+    xs = s.query(Spell).filter(Spell.name.startswith('wingardium')).all()
+    assert len(xs) == 0
+
+    # check regex-free startswith and endswith
+    assert len(s.query(Spell).filter(Spell.name.startswith('ab.*ra.ca')).all()) == 1
+    assert len(s.query(Spell).filter(Spell.name.endswith('da.*bra')).all()) == 1
+
+    # check regex
+    assert len(s.query(Spell).filter(Spell.name.regex(r'^[Aa]\w*[am]$')).all()) == 2
+
+    # check regex with options
+    assert len(s.query(Spell).filter(Spell.name.regex(r'^[a]\w*[am]$', options='i')).all()) == 2
 
 #
 #  Comparator Tests

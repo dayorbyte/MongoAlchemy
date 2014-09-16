@@ -25,6 +25,8 @@ from mongoalchemy.py3compat import *
 
 from mongoalchemy.exceptions import BadValueException
 
+import re
+
 class BadQueryException(Exception):
     ''' Raised when a method would result in a query which is not well-formed.
     '''
@@ -124,6 +126,45 @@ class QueryField(object):
             res.append(current.get_type().db_field)
             current = current._get_parent()
         return '.'.join(reversed(res))
+
+    def startswith(self, prefix, ignore_case=False, options=None):
+        """ A query to check if a field starts with a given prefix string
+
+            **Example**: ``session.query(Spell).filter(Spells.name.startswith("abra", ignore_case=True))``
+
+            .. note:: This is a shortcut to .regex('^' + re.escape(prefix))
+                MongoDB optimises such prefix expressions to use indexes 
+                appropriately. As the prefix contains no further regex, this 
+                will be optimized by matching only against the prefix.
+
+        """ 
+        return self.regex('^' + re.escape(prefix), ignore_case=ignore_case, options=options)
+
+    def endswith(self, suffix, ignore_case=False, options=None):
+        """ A query to check if a field ends with a given suffix string
+
+            **Example**: ``session.query(Spell).filter(Spells.name.endswith("cadabra", ignore_case=True))``
+
+        """
+        return self.regex(re.escape(suffix) + '$', ignore_case=ignore_case, options=options)
+
+    def regex(self, expression, ignore_case=False, options=None):
+        """ A query to check if a field matches a given regular expression
+            :param ignore_case: Whether or not to ignore the case (setting this to True is the same as setting the 'i' option)
+            :param options: A string of option characters, as per the MongoDB $regex operator (e.g. "imxs")
+
+            **Example**: ``session.query(Spell).filter(Spells.name.regex(r'^abra[a-z]*cadabra$', ignore_case=True))``
+
+        """
+        regex = {'$regex' : expression}
+        if options is not None:
+            regex['$options'] = options
+        if ignore_case:
+            regex['$options'] = regex.get('$options', '') + 'i'
+        expr = {
+            self : regex
+        }
+        return QueryExpression(expr)
 
     def near(self, x, y, max_distance=None):
         """ Return documents near the given point
