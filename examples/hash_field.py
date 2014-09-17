@@ -12,7 +12,7 @@ class HashField(StringField):
 
 class User(Document):
     password = HashField()
-    
+
 from mongoalchemy.session import Session
 session = Session.connect('mongoalchemy-tutorial')
 session.clear_collection(User)
@@ -22,7 +22,7 @@ print user.password
 user.password = 'newpw'
 print user.password
 
-session.insert(user)
+session.save(user)
 
 loaded_user = session.query(User).one()
 

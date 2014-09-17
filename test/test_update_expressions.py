@@ -115,7 +115,7 @@ def test_remove():
     s = get_session()
     s.clear_collection(T)
     for i in range(0, 15):
-        s.insert(T(i=i))
+        s.save(T(i=i))
     assert s.query(T).count() == 15
 
     def getall():
@@ -151,7 +151,7 @@ def test_remove_obj():
     s = get_session()
     s.clear_collection(T)
     t = T(i=4)
-    s.insert(t)
+    s.save(t)
     assert s.query(T).count() == 1
     s.remove(t)
     assert s.query(T).count() == 0
@@ -175,7 +175,7 @@ def test_remove_expression():
     for i in range(0,10):
         book.pages.append(Page(text='p%d' % i, page_num = i))
 
-    session.insert(book)
+    session.save(book)
 
     query = session.query(Book).filter(Book.isbn == ISBN, Book.pages.page_num > 5)
     query.remove(Book.pages, Page.page_num == 8).execute()

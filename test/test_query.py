@@ -54,7 +54,7 @@ def test_update():
 
     obj = T(i=3)
 
-    s.insert(obj)
+    s.save(obj)
 
     for o in s.query(T):
         assert o.i == 3
@@ -70,13 +70,13 @@ def test_field_filter():
 
     # Simple Object
     obj = T(i=3)
-    s.insert(obj)
+    s.save(obj)
     for t in s.query(T).fields(T.i):
         break
     assert t.i == 3
     # Nested Object
     obj2 = T2(t=obj)
-    s.insert(obj2)
+    s.save(obj2)
     for t2 in s.query(T2).fields(T2.t.i):
         break
     assert t2.t.i == 3
@@ -84,16 +84,16 @@ def test_field_filter():
 def test_raw_output():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
+    s.save(T(i=3))
     value = s.query(T).raw_output().one()
     assert isinstance(value, dict)
 
 def test_limit():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
-    s.insert(T(i=5))
+    s.save(T(i=3))
+    s.save(T(i=4))
+    s.save(T(i=5))
     for count, item in enumerate(s.query(T).limit(2)):
         pass
     assert count == 1
@@ -101,9 +101,9 @@ def test_limit():
 def test_skip():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
-    s.insert(T(i=5))
+    s.save(T(i=3))
+    s.save(T(i=4))
+    s.save(T(i=5))
     for count, item in enumerate(s.query(T).skip(2)):
         pass
     assert count == 0
@@ -111,8 +111,8 @@ def test_skip():
 def test_hint():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     for item in s.query(T).hint_asc(T.i):
         pass
 
@@ -125,8 +125,8 @@ def test_hint_validation():
 def test_one_fail():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     s.query(T).one()
 
 @raises(BadResultException) # too few values to unpack
@@ -139,29 +139,29 @@ def test_one_fail_too_few():
 def test_one():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
+    s.save(T(i=3))
     assert s.query(T).one().i == 3
 
 def test_first():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     assert s.query(T).descending(T.i).first().i == 4
     assert s.query(T).ascending(T.i).first().i == 3
 
 def test_first_empty():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     assert s.query(T).filter(T.i > 5).first() is None
 
 def test_all():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     for count, item in enumerate(s.query(T).all()):
         pass
     assert count == 1
@@ -169,9 +169,9 @@ def test_all():
 def test_distinct():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3, j=4))
-    s.insert(T(i=3, j=5))
-    s.insert(T(i=3, j=6))
+    s.save(T(i=3, j=4))
+    s.save(T(i=3, j=5))
+    s.save(T(i=3, j=6))
     for count, item in enumerate(s.query(T).distinct(T.i)):
         pass
     assert count == 0, count
@@ -180,24 +180,24 @@ def test_count():
     s = get_session()
     s.clear_collection(T)
     assert s.query(T).count() == 0
-    s.insert(T(i=3, j=4))
-    s.insert(T(i=3, j=5))
-    s.insert(T(i=3, j=6))
+    s.save(T(i=3, j=4))
+    s.save(T(i=3, j=5))
+    s.save(T(i=3, j=6))
     assert s.query(T).count() == 3
 
 def test_explain():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     assert 'allPlans' in s.query(T).filter(T.i > 5).explain()
 
 
 def test_clone():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     q = s.query(T)
     q2 = q.clone()
     q.skip(2)
@@ -208,7 +208,7 @@ def test_clone():
 def test_raw_query():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
+    s.save(T(i=3))
     assert s.query(T).filter({'i':3}).one().i == 3
 
 @raises(FieldNotRetrieved)
@@ -216,7 +216,7 @@ def test_field_filter_non_retrieved_field():
     s = get_session()
     s.clear_collection(T)
     obj = T(i=3, j=2)
-    s.insert(obj)
+    s.save(obj)
     for t in s.query(T).fields(T.i):
         break
     assert t.j == 2
@@ -227,7 +227,7 @@ def test_field_filter_non_retrieved_subdocument_field():
     s.clear_collection(T, T2)
     obj = T(i=3, j=2)
     obj2 = T2(t=obj)
-    s.insert(obj2)
+    s.save(obj2)
     for t2 in s.query(T2).fields(T2.t.i):
         break
     assert t2.t.j == 2
@@ -243,9 +243,9 @@ def test_save_partial_subdocument_fail():
     s.clear_collection(Foo)
     s.clear_collection(Bar)
     bar = Bar(b=1432, c=1112)
-    s.insert(bar)
+    s.save(bar)
     bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
-    s.insert(Foo(a=bar))
+    s.save(Foo(a=bar))
     s.query(Foo).filter(Foo.a.c==1112).one()
 
 
@@ -259,9 +259,9 @@ def test_save_partial_subdocument():
     s.clear_collection(Foo)
     s.clear_collection(Bar)
     bar = Bar(b=1432, c=1112)
-    s.insert(bar)
+    s.save(bar)
     bar = s.query(Bar).filter_by(b=1432, c=1112).fields('c').one()
-    s.insert(Foo(a=bar))
+    s.save(Foo(a=bar))
     s.query(Foo).filter(Foo.a.c==1112).one()
 
 
@@ -348,15 +348,15 @@ def qr_test_misc():
 def qr_test_getitem():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     assert s.query(T).descending(T.i)[0].i == 4
 
 def qr_test_rewind():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     it = iter(s.query(T))
     next(it)
     next(it)
@@ -371,8 +371,8 @@ def qr_test_rewind():
 def qr_test_clone():
     s = get_session()
     s.clear_collection(T)
-    s.insert(T(i=3))
-    s.insert(T(i=4))
+    s.save(T(i=3))
+    s.save(T(i=4))
     it = iter(s.query(T))
     next(it)
     next(it)

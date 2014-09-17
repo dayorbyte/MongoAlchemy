@@ -26,7 +26,7 @@ def computed_field_db_test():
     obj = TestDoc2(a=1, b=2)
     assert obj.a_plus_b == 3, 'Got: %s' % obj.a_plus_b
 
-    s.insert(obj)
+    s.save(obj)
     for td in s.query(TestDoc2):
         break
     assert td.a_plus_b == obj.a_plus_b

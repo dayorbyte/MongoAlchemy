@@ -52,7 +52,7 @@ def test_default_config():
     s = get_session()
     s.clear_collection(T)
     t = T(i=4)
-    s.insert(t)
+    s.save(t)
     for x in s.query(T).filter(T.i == 4):
         pass
 
@@ -85,7 +85,7 @@ def test_basic():
         count = IntField()
     s = get_session()
     d = Doc(count=0)
-    s.insert(d)
+    s.save(d)
     assert d.mongo_id
 
 def test_basic2():
@@ -161,8 +161,8 @@ def test_inheritance():
 
     b = InC(a=5, b=1, c=0)
     bb = InC(a=4, b=3, c=12)
-    s.insert(b)
-    s.insert(bb)
+    s.save(b)
+    s.save(bb)
     for obj in s.query(InA).all():
         assert type(obj) == InC, type(obj)
 
@@ -216,7 +216,7 @@ def loading_test():
     s = get_session()
     s.clear_collection(TestDoc)
     t = TestDoc(int1=123431)
-    s.insert(t)
+    s.save(t)
     for td in s.query(TestDoc):
         break
     assert td.int1 == t.int1
@@ -229,7 +229,7 @@ def docfield_not_dirty_test():
     s.clear_collection(TestDoc, SuperDoc)
     doc = TestDoc(int1=3)
     sup = SuperDoc(int1=4, sub=doc)
-    s.insert(sup)
+    s.save(sup)
     s.update(sup)
 
 
@@ -245,7 +245,7 @@ def docfield_test():
     doc = TestDoc(int1=3)
     sup = SuperDoc(int1=4, sub=doc)
 
-    s.insert(sup)
+    s.save(sup)
 
     for sd in s.query(SuperDoc):
         break
@@ -357,7 +357,7 @@ def test_unwrapped_is_not_dirty():
         a = IntField()
     s = get_session()
     s.clear_collection(D)
-    s.insert(D(a=1))
+    s.save(D(a=1))
     d = s.query(D).one()
     assert len(d.get_dirty_ops()) == 0, d.get_dirty_ops()
 
@@ -386,7 +386,7 @@ def test_self_reference():
     assert d.wrap() == { 'd' : { 'a' : 5 }, 'a' : 4 }
     s = get_session()
     s.clear_collection(D)
-    s.insert(d)
+    s.save(d)
     d_from_db = s.query(D).one()
     assert d_from_db.d.a == d.d.a
 
@@ -467,12 +467,12 @@ def test_set_dict_field():
     td = TestDict()
 
     td.data = {"foo": "bar", "baz": "qux"}
-    s.insert(td)
+    s.save(td)
 
     td = s.query(TestDict).one()
 
     td.data = {"foo": "bar"}
-    s.insert(td)
+    s.save(td)
 
     td = s.query(TestDict).one()
 

@@ -45,7 +45,7 @@ def test_simple_dereference():
     s.clear_collection(ASD)
     s.clear_collection(BSD)
     a = ASD(x=4)
-    s.insert(a)
+    s.save(a)
 
     b = BSD()
     b.y = a
@@ -80,11 +80,11 @@ def test_proxy():
     a = TPA()
     for i in range(0, 3):
         b = TPB(b=i)
-        s.insert(b)
+        s.save(b)
         a.x_id = b.to_ref()
         a.x_ids.append(b.to_ref())
 
-    s.insert(a)
+    s.save(a)
     aa = s.query(TPA).one()
     assert aa.x.b == 2, aa.x.b
     assert [z.b for z in aa.xs] == list(range(0, 3))
@@ -115,12 +115,12 @@ def test_proxy_ignore_missing():
         b = TPIMB(b=i)
         b.mongo_id = ObjectId()
         if i > 0:
-            s.insert(b)
+            s.save(b)
 
         a.x_id = b.to_ref()
         a.x_ids.append(b.to_ref())
 
-    s.insert(a)
+    s.save(a)
     aa = s.query(TPIMA).one()
 
     assert len(list(aa.xs)) == 2, len(list(aa.xs))
@@ -133,7 +133,7 @@ def test_dereference():
 
     a = A(x=5)
     s = get_session(cache_size=10)
-    s.insert(a)
+    s.save(a)
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbref = DBRef(collection='A', id=a.mongo_id)
 
@@ -147,9 +147,9 @@ def test_ref_with_cache():
 
     s = get_session(cache_size=10)
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
     b = B(y=a.to_ref())
-    s.insert(b)
+    s.save(b)
 
     s2 = get_session(cache_size=10)
     b2 = s2.query(B).filter_by(mongo_id=b.mongo_id).one()
@@ -162,7 +162,7 @@ def test_unwrap():
     s = get_session()
 
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
 
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
@@ -180,7 +180,7 @@ def test_unwrap_bad_type():
     s = get_session()
 
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
 
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(db='unit-testing', collection='A', id=a.mongo_id)
@@ -194,7 +194,7 @@ def test_unwrap_missing_db():
     s = get_session()
 
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
 
     aref = {'$id':a.mongo_id, '$ref':'A'}
     dbaref = DBRef(collection='A', id=a.mongo_id)
@@ -209,7 +209,7 @@ def test_dereference_doc():
     s.clear_collection(A)
 
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
     dbaref = DBRef(collection='A', id=a.mongo_id, database='unit-testing')
     s2 = Session.connect('unit-testing2', cache_size=0)
     assert s2.dereference(a).x == 5
@@ -222,7 +222,7 @@ def test_dereference():
     s.clear_collection(A)
 
     a = A(x=5)
-    s.insert(a)
+    s.save(a)
     dbaref = DBRef(collection='A', id=a.mongo_id, database='unit-testing')
     s2 = Session.connect('unit-testing2', cache_size=0)
     assert s2.dereference(dbaref).x == 5
@@ -243,7 +243,7 @@ def test_simple():
         x = IntField()
     a = A(x=5)
     s = get_session()
-    s.insert(a)
+    s.save(a)
 
     id = ObjectId()
     assert SRefField(A).wrap(id) == id

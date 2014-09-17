@@ -21,7 +21,7 @@
 # THE SOFTWARE.
 
 ''' Session objects handles the actual queueing of database operations.
-    The primary methods on a session are query, insert, and flush.
+    The primary methods on a session are query, save, and flush.
 
     The session also responsible for ordering operations and knowing when
     operations need to be flushed, although it does not currently do
@@ -31,6 +31,7 @@
 from __future__ import print_function
 from mongoalchemy.py3compat import *
 
+import warnings
 from uuid import uuid4
 import pymongo
 if hasattr(pymongo, 'mongo_client'):
@@ -145,8 +146,17 @@ class Session(object):
                                        'transaction')
         self.db.connection.end_request()
 
-    def insert(self, item, safe=None):
-        ''' Insert an item into the work queue and flushes.'''
+    def insert(self, item, safe=None): # pragma: nocover
+        ''' [DEPRECATED] Please use save() instead. This actually calls
+            the underlying save function, so the name is confusing.
+
+            Insert an item into the work queue and flushes.'''
+        warnings.warn('Insert will be deprecated soon and removed in 1.0. Please use insert',
+                      PendingDeprecationWarning)
+        self.add(item, safe=safe)
+
+    def save(self, item, safe=None):
+        ''' Saves an item into the work queue and flushes.'''
         self.add(item, safe=safe)
 
     def add(self, item, safe=None):

@@ -162,9 +162,9 @@ def test_geo():
         index = Index().geo2d('loc', min=-100, max=100)
     s = Session.connect('unit-testing')
     s.clear_collection(Place)
-    s.insert(Place(loc=(1,1), val=2))
-    s.insert(Place(loc=(5,5), val=4))
-    s.insert(Place(loc=(30,30 ), val=5))
+    s.save(Place(loc=(1,1), val=2))
+    s.save(Place(loc=(5,5), val=4))
+    s.save(Place(loc=(30,30 ), val=5))
     x = s.query(Place).filter(Place.loc.near(0, 1))
     assert x.first().val == 2, x.query
 
@@ -197,8 +197,8 @@ def test_geo_haystack():
         index = Index().geo_haystack('loc', bucket_size=100).descending('val')
     s = Session.connect('unit-testing')
     s.clear_collection(Place)
-    s.insert(Place(loc=(1,1), val=2))
-    s.insert(Place(loc=(5,5), val=4))
+    s.save(Place(loc=(1,1), val=2))
+    s.save(Place(loc=(5,5), val=4))
 
 
 #
@@ -209,10 +209,10 @@ def test_regex():
         name = StringField()
     s = Session.connect('unit-testing')
     s.clear_collection(Spell)
-    s.insert(Spell(name='Wingardium Leviosa'))
-    s.insert(Spell(name='abracadabra'))
-    s.insert(Spell(name='ab.*ra.ca.da.*bra'))
-    s.insert(Spell(name='Alacazam'))
+    s.save(Spell(name='Wingardium Leviosa'))
+    s.save(Spell(name='abracadabra'))
+    s.save(Spell(name='ab.*ra.ca.da.*bra'))
+    s.save(Spell(name='Alacazam'))
 
     # check ignore case True
     q = s.query(Spell).filter(Spell.name.startswith('wingardium', ignore_case=True))
@@ -278,7 +278,7 @@ def test_not_assign_dict_malformed_field():
 
 def test_not_db_test():
     s = get_session()
-    s.insert(T(i=5))
+    s.save(T(i=5))
     assert s.query(T).not_(T.i == 5).first() is None
     assert s.query(T).not_(T.i > 6).one().i == 5
 
@@ -316,7 +316,7 @@ def test_ffq():
     q = s.query('T').filter(Q.name.first == 'jeff').query
     assert q == {'name.first' : 'jeff'}, q
 
-    s.insert(T(i=4))
+    s.save(T(i=4))
     assert s.query('T').count() == 1
 
     assert s.query('T').filter(Q.i == 4).one()['i'] == 4

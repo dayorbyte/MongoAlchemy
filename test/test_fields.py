@@ -187,13 +187,13 @@ def test_tz_aware():
     local = eastern.localize(datetime.now())
     local = local.replace(microsecond=0)
     doc = DocTZ(time=local)
-    s.insert(doc)
+    s.save(doc)
 
     doc = s.query(DocTZ).one()
     assert doc.time == local, (doc.time, local)
 
     # do the no timezone case for code coverage
-    s.insert(DocNoTZ(time=datetime(2012, 1, 1)))
+    s.save(DocNoTZ(time=datetime(2012, 1, 1)))
     obj = s.query(DocNoTZ).one()
 
 

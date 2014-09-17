@@ -28,7 +28,7 @@ def test_indexes():
     s = get_session()
     s.clear_collection(TestDoc)
     t = TestDoc(int1=1, str1='a', str2='b', str3='c')
-    s.insert(t)
+    s.save(t)
 
     try:
         import json
@@ -47,7 +47,7 @@ def expire_index_test():
         index_exire = Index().ascending('date').expire(30)
     t = TestDoc3(int1=123456, str1='abcd', str2='b', str3='c', date=datetime.utcnow())
     s = get_session()
-    s.insert(t)
+    s.save(t)
 
     # Check that the document is indeed inserted
     assert len(s.query('TestDoc3').filter({'int1': 123456}).all()) > 0
@@ -67,4 +67,4 @@ def no_field_index_test():
         index_1 = Index().ascending('noexists')
     s.get_session()
     s.clear_collection(TestDoc)
-    s.insert(t)
+    s.save(t)

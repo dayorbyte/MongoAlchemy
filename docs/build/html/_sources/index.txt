@@ -11,7 +11,7 @@ Contents:
 
 .. toctree::
     :titlesonly:
-   
+
     intro
     tutorials/index
     api/index
@@ -20,16 +20,16 @@ Contents:
 Introduction
 -----------------------------
 
-MongoAlchemy is a layer on top of the `Python` `MongoDB` driver which adds 
-client-side schema definitions, an easier to work with and programmatic query 
-language, and a Document-Object mapper which allows python objects to be saved 
+MongoAlchemy is a layer on top of the `Python` `MongoDB` driver which adds
+client-side schema definitions, an easier to work with and programmatic query
+language, and a Document-Object mapper which allows python objects to be saved
 and loaded into the database in a type-safe way.
 
-An explicit goal of this project is to be able to perform as many operations 
+An explicit goal of this project is to be able to perform as many operations
 as possible without having to perform a load/save cycle since doing so is both
 significantly slower and more likely to cause data loss.
 
-There's more detail in the :doc:`tutorial`, but a small example is on 
+There's more detail in the :doc:`tutorial`, but a small example is on
 this page below the contents of the documentation.
 
 A Tour of MongoAlchemy's Features
@@ -37,53 +37,53 @@ A Tour of MongoAlchemy's Features
 Object-Document Mapping
 -----------------------------
 
-Turn MongoDB documents into Python objects and vice-versa, add schemas and 
+Turn MongoDB documents into Python objects and vice-versa, add schemas and
 validatation to your models, and allow the separation of the python and
 mongo representations of your data.
 
-* Support for all of the basic mongo types.  
-* Separate Python and Mongo names. Field and collection names can be 
+* Support for all of the basic mongo types.
+* Separate Python and Mongo names. Field and collection names can be
   overridden.
-* Indexing on dict keys.  MA provides a dict-like field which can have 
-  arbitrary key and value types as well as allowing indexing on the keys — 
+* Indexing on dict keys.  MA provides a dict-like field which can have
+  arbitrary key and value types as well as allowing indexing on the keys —
   not normally possible in Mongo. See: :class:`~mongoalchemy.fields.KVField`
-* Computed values, generate from other fields.  
+* Computed values, generate from other fields.
   See: :class:`~mongoalchemy.fields.ComputedField`
-* Created and Modified fields based on the computed fields which record the 
+* Created and Modified fields based on the computed fields which record the
   date something was first created or last updated.
 * Timezone support.  A timezone can be passed using pytz and all dates will
   have timezone data attached and be converted to the given timezone.
-* User-defined validation — Provide your own validation functions for 
-  simple validations of fields.  See :class:`~mongoalchemy.fields.Field` 
-* User-defined fields — For more customization, entirely new fields can be 
+* User-defined validation — Provide your own validation functions for
+  simple validations of fields.  See :class:`~mongoalchemy.fields.Field`
+* User-defined fields — For more customization, entirely new fields can be
   created
 * A field that can hold arbitrary values: :class:`~mongoalchemy.fields.AnythingField`
-* Validation happens at assignment time, so you'll know exactly where 
+* Validation happens at assignment time, so you'll know exactly where
 * Indexes are defined on the class
 
 Sessions and Query Language
 -----------------------------
 
-* Type-safe queries. Queries are validated to make sure the values passed are 
+* Type-safe queries. Queries are validated to make sure the values passed are
   allowed in the query fields.
 * Faux-Transactions. When using the session with the ``with`` statement updates
-  are accumulated until the block is done, making it much less likely that a 
+  are accumulated until the block is done, making it much less likely that a
   python error will leave your database in a bad state.
-* Automatically Calculated Updates — The session object has an :func:`mongoalchemy.session.Session.update` 
-  function which determines which fields are dirty and will execute the 
-  appropriate update operations to update the object in the database. 
-* Drop into raw Mongo. Most functions will accept raw pymongo instead of 
+* Automatically Calculated Updates — The session object has an :func:`mongoalchemy.session.Session.update`
+  function which determines which fields are dirty and will execute the
+  appropriate update operations to update the object in the database.
+* Drop into raw Mongo. Most functions will accept raw pymongo instead of
   the mongoalchemy objects. Type safety will be maintained either way
 
-  For example:: 
-    
-        session.query('SomeClass').filter(SomeClass.name == foo).limit(5) 
-        
-  is perfectly valid, as is:: 
-    
+  For example::
+
+        session.query('SomeClass').filter(SomeClass.name == foo).limit(5)
+
+  is perfectly valid, as is::
+
         session.query(SomeClass).filter({'name':'foo'})
-  
-  
+
+
 
 
 Installation
@@ -104,65 +104,65 @@ Examples
     >>> from mongoalchemy.session import Session
     >>> from mongoalchemy.document import Document, Index
     >>> from mongoalchemy.fields import *
-    >>> # Subclasses of Document both provide the mapping needed for 
+    >>> # Subclasses of Document both provide the mapping needed for
     ... # queries as well as the classes for loading/saving objects.
     ... class User(Document):
     ...     config_collection_name = 'users'
-    ...     
+    ...
     ...     # Setting the possible values by using fields
     ...     first_name = StringField()
     ...     last_name = StringField()
     ...     age = IntField(min_value=0, required=False)
-    ...     
-    ...     # db_field allows a different DB field name than the one on the 
+    ...
+    ...     # db_field allows a different DB field name than the one on the
     ...     # python object
-    ...     email = StringField(db_field='email_address') 
+    ...     email = StringField(db_field='email_address')
     ...     bio = StringField(max_length=1000, required=False)
-    ...     
+    ...
     ...     # A computed field decorator allows values
     ...     @computed_field(SetField(StringField()), deps=[bio])
     ...     def keywords(obj):
     ...         return set(obj.get('bio','').split(' '))
-    ...     
+    ...
     ...     kw_index = Index().ascending('keywords')
     ...     name_index = Index().descending('first_name').ascending('last_name')
     ...     email_index = Index().descending('email').unique()
-    ...     
+    ...
     ...     def __eq__(self, other):
     ...         return self.email == other.email
-    ...     
+    ...
     ...     def __repr__(self):
     ...         return 'User(email="%s")' % self.email
-    ... 
-    >>> me = User(first_name='Jeff', last_name='Jenkins', email='jeff@qcircles.net', 
+    ...
+    >>> me = User(first_name='Jeff', last_name='Jenkins', email='jeff@qcircles.net',
     ...     bio='Jeff is the author of MongoAlchemy')
-    >>> 
+    >>>
     >>> me.keywords
     set(['author', 'of', 'is', 'Jeff', 'MongoAlchemy', 'the'])
-    >>> 
+    >>>
     >>> # This connections to the DB and starts the session
     ... session = Session.connect('mongoalchemy-intro')
     >>> session.clear_collection(User) # clear previous runs of this code!
-    >>> 
+    >>>
     >>> # Insert on a session will infer the correct collection and push the object
     ... # into the database
-    ... session.insert(me)
+    ... session.save(me)
     >>> set(['author', 'of', 'is', 'Jeff', 'MongoAlchemy', 'the'])
-    >>> 
+    >>>
     >>> # Get a user with me's email address and MongoAlchemy in their bio (via keywords)
     ... db_user = session.query(User).filter(User.email == 'jeff@qcircles.net').in_(User.keywords, 'MongoAlchemy').one()
-    >>> 
+    >>>
     >>> db_user == me
     True
-    >>> 
+    >>>
     >>> # Using filter_by for simple equality checking is easier
     ... session.query(User).filter_by(email='jeff@qcircles.net').in_(User.keywords, 'MongoAlchemy').one()
     User(email="jeff@qcircles.net")
-    >>> 
+    >>>
     >>> # It's also possible to do raw mongo filtering
     ... session.query(User).filter({'email':'jeff@qcircles.net', 'keywords':{'$in':['MongoAlchemy']}}).one()
     User(email="jeff@qcircles.net")
-    >>> 
+    >>>
 
 Indices and tables
 ==================

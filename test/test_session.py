@@ -47,7 +47,7 @@ def test_tz():
     assert d.created1.tzinfo is None
     assert d.modified1.tzinfo is None
 
-    session.insert(d)
+    session.save(d)
     for x in session.query(DT):
         assert x.dt.tzinfo is not None
         assert x.created.tzinfo is not None
@@ -69,7 +69,7 @@ def test_end_in_transaction():
 def test_session():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
-    s.insert(T(i=1))
+    s.save(T(i=1))
     s.clear_queue()
     s.end()
 
@@ -87,8 +87,8 @@ def test_safe():
 def test_cache():
     s = Session.connect('unit-testing', cache_size=10)
     t = TExtra(i=4)
-    s.insert(t)
-    s.insert(t)
+    s.save(t)
+    s.save(t)
     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
     assert id(t) == id(t2)
     assert id(s.refresh(t)) != t2
@@ -96,8 +96,8 @@ def test_cache():
 def test_cache2():
     s = Session.connect('unit-testing', cache_size=10)
     t = TExtra(i=4)
-    s.insert(t)
-    s.insert(t)
+    s.save(t)
+    s.save(t)
     for t2 in s.query(TExtra).filter_by(mongo_id=t.mongo_id):
         assert id(t) == id(t2)
         assert id(s.refresh(t)) != t2
@@ -105,8 +105,8 @@ def test_cache2():
 def test_cache3():
     s = Session.connect('unit-testing', cache_size=10)
     t = TExtra(i=4)
-    s.insert(t)
-    s.insert(t)
+    s.save(t)
+    s.save(t)
     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id)[0]
     assert id(t) == id(t2)
     assert id(s.refresh(t)) != t2
@@ -129,10 +129,10 @@ def test_cache3():
 def test_clone():
     s = Session.connect('unit-testing', cache_size=10)
     t = TExtra(i=4)
-    s.insert(t)
+    s.save(t)
 
     t2 = s.clone(t)
-    s.insert(t2)
+    s.save(t2)
 
     assert t2.mongo_id != t.mongo_id
 
@@ -140,7 +140,7 @@ def test_clone():
 def test_cache_miss():
     s_nocache = Session.connect('unit-testing', cache_size=10)
     t = TExtra(i=4)
-    s_nocache.insert(t)
+    s_nocache.save(t)
 
     s = Session.connect('unit-testing', cache_size=10)
     s.add_to_session(t)
@@ -207,22 +207,22 @@ def test_cache_max():
     s = Session.connect('unit-testing', cache_size=3)
     for i in range(0, 10):
         t = TExtra(i=4)
-        s.insert(t)
+        s.save(t)
     assert len(s.cache) == 3
 
 def test_cache2():
     s = Session.connect('unit-testing')
     t = TExtra(i=4)
-    s.insert(t)
+    s.save(t)
     t2 = s.query(TExtra).filter_by(mongo_id=t.mongo_id).one()
     assert id(t) != id(t2)
 
 def test_safe_with_error():
     s = Session.connect('unit-testing')
     s.clear_collection(TUnique)
-    s.insert(TUnique(i=1))
+    s.save(TUnique(i=1))
     try:
-        s.insert(TUnique(i=1), safe=True)
+        s.save(TUnique(i=1), safe=True)
         assert False, 'No error raised on safe insert for second unique item'
     except DuplicateKeyError:
         assert len(s.queue) == 0
@@ -232,7 +232,7 @@ def test_update():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
     t = T(i=6)
-    s.insert(t)
+    s.save(t)
     assert s.query(T).one().i == 6
 
     t.i = 7
@@ -244,7 +244,7 @@ def test_update_change_ops():
     s = Session.connect('unit-testing')
     s.clear_collection(T)
     t = T(i=6, l=[8])
-    s.insert(t)
+    s.save(t)
     assert s.query(T).one().i == 6
 
     t.i = 7
@@ -259,7 +259,7 @@ def test_update_push():
     s.clear_collection(T)
     # Create object
     t = T(i=6, l=[3])
-    s.insert(t)
+    s.save(t)
     t = s.query(T).one()
     assert t.i == 6 and t.l == [3]
 
@@ -276,7 +276,7 @@ def test_update_ignore_extras():
     s.clear_collection(TExtra)
     # Create Object
     t = TExtra(i=1, j='test', k='test2')
-    s.insert(t)
+    s.save(t)
     # Retrieve Object
     t = s.query(TExtra).one()
     assert t.i == 1
@@ -304,7 +304,7 @@ def test_update_docfield_extras():
     # Create Object
     t = TExtra(i=1, j='test')
     t2 = TExtraDocField(doc=t)
-    s.insert(t2)
+    s.save(t2)
     # Retrieve Object
     t2 = s.query(TExtraDocField).one()
     assert t2.doc.i == 1
@@ -329,7 +329,7 @@ def test_update_docfield_list_extras():
     t2 = TExtra(i=2, j='test2')
     tListDoc = TExtraDocFieldList(doclist=[t, t2])
 
-    s.insert(tListDoc)
+    s.save(tListDoc)
     # Retrieve Object
     tListDoc = s.query(TExtraDocFieldList).one()
     assert len(tListDoc.doclist) == 2
@@ -362,7 +362,7 @@ def test_update_list():
     s.clear_collection(TIntListDoc)
 
     tIntList = TIntListDoc(intlist=[1,2])
-    s.insert(tIntList)
+    s.save(tIntList)
 
     # pull out of db
     tFetched = s.query(TIntListDoc).one()
@@ -390,7 +390,7 @@ def test_ensure_indexes():
     s = Session.connect('unit-testing', auto_ensure=False)
     s.db.drop_collection(TUnique.get_collection_name())
 
-    s.insert(TUnique(i=1))
+    s.save(TUnique(i=1))
 
     indexes = s.get_indexes(TUnique)
     assert len(indexes) == 1
@@ -407,7 +407,7 @@ def test_auto_ensure_indexes():
     s = Session.connect('unit-testing', auto_ensure=True)
     s.db.drop_collection(TUnique.get_collection_name())
 
-    s.insert(TUnique(i=1))
+    s.save(TUnique(i=1))
 
     indexes = s.get_indexes(TUnique)
 
