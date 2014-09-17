@@ -79,10 +79,16 @@
 </tr>
 </tbody>
 </table>
-<p>The general validator is called after the field&#8217;s validator, but before 
+<p>The general validator is called after the field&#8217;s validator, but before
 either of the wrap/unwrap versions.  The validator should raise a BadValueException
 if it fails, but if it returns False the field will raise an exception with
 a generic message.</p>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.Field.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.Field.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is this a sequence?  used by elemMatch</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -91,7 +97,7 @@ a generic message.</p>
 <dl class="class">
 <dt id="mongoalchemy.fields.StringField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">StringField</tt><big>(</big><em>max_length=None</em>, <em>min_length=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.StringField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unicode Strings.  <tt class="docutils literal"><span class="pre">unicode</span></tt> is used to wrap and unwrap values, 
+<dd><p>Unicode Strings.  <tt class="docutils literal"><span class="pre">unicode</span></tt> is used to wrap and unwrap values,
 and any subclass of basestring is an acceptable input</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -106,12 +112,22 @@ and any subclass of basestring is an acceptable input</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.StringField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.StringField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.BoolField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">BoolField</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.BoolField" title="Permalink to this definition">¶</a></dt>
 <dd><p><tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>.</p>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.BoolField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.BoolField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -131,6 +147,11 @@ and any subclass of basestring is an acceptable input</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.NumberField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.NumberField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -150,6 +171,11 @@ and any subclass of basestring is an acceptable input</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.IntField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.IntField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -169,12 +195,17 @@ and any subclass of basestring is an acceptable input</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.FloatField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.FloatField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.TupleField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">TupleField</tt><big>(</big><em>*item_types</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.TupleField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents a field which is a tuple of a fixed size with specific 
+<dd><p>Represents a field which is a tuple of a fixed size with specific
 types for each element in the field.</p>
 <p><strong>Examples</strong> <tt class="docutils literal"><span class="pre">TupleField(IntField(),</span> <span class="pre">BoolField())</span></tt> would accept
 <tt class="docutils literal"><span class="pre">[19,</span> <span class="pre">False]</span></tt> as a value for both wrapping and unwrapping.</p>
@@ -190,14 +221,19 @@ types for each element in the field.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.TupleField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.TupleField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.EnumField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">EnumField</tt><big>(</big><em>item_type</em>, <em>*values</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.EnumField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Represents a single value out of a list of possible values, all 
+<dd><p>Represents a single value out of a list of possible values, all
 of the same type. == is used for comparison</p>
-<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">EnumField(IntField(),</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">7)</span></tt> would accept anything 
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">EnumField(IntField(),</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">7)</span></tt> would accept anything
 in <tt class="docutils literal"><span class="pre">(4,</span> <span class="pre">6,</span> <span class="pre">7)</span></tt> as a value.  It would not accept <tt class="docutils literal"><span class="pre">5</span></tt>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -211,18 +247,28 @@ in <tt class="docutils literal"><span class="pre">(4,</span> <span class="pre">6
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.EnumField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.EnumField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.ObjectIdField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ObjectIdField</tt><big>(</big><em>session=None</em>, <em>auto=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField" title="Permalink to this definition">¶</a></dt>
-<dd><p>pymongo Object ID object.  Currently this is probably too strict.  A 
+<dd><p>pymongo Object ID object.  Currently this is probably too strict.  A
 string version of an ObjectId should also be acceptable</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.ObjectIdField.gen">
 <tt class="descname">gen</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.gen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper method to create a new ObjectId</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.fields.ObjectIdField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.ObjectIdField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -249,10 +295,15 @@ for free-form objects</p>
 </tr>
 </tbody>
 </table>
-<p>The general validator is called after the field&#8217;s validator, but before 
+<p>The general validator is called after the field&#8217;s validator, but before
 either of the wrap/unwrap versions.  The validator should raise a BadValueException
 if it fails, but if it returns False the field will raise an exception with
 a generic message.</p>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.AnythingField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.AnythingField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -269,9 +320,9 @@ a generic message.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>max_date</strong> &#8211; maximum date</li>
 <li><strong>min_date</strong> &#8211; minimum date</li>
-<li><strong>use_tz</strong> &#8211; Require a timezone-aware datetime (via pytz).  
+<li><strong>use_tz</strong> &#8211; Require a timezone-aware datetime (via pytz).
 Values are converted to UTC before saving.  min and max dates
-are currently ignored when use_tz is on.  You MUST pass a 
+are currently ignored when use_tz is on.  You MUST pass a
 timezone into the session</li>
 <li><strong>kwargs</strong> &#8211; arguments for <a class="reference internal" href="#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></li>
 </ul>
@@ -279,6 +330,11 @@ timezone into the session</li>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.DateTimeField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.DateTimeField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -291,7 +347,7 @@ when it enters the database and then doesn&#8217;t update on further saves.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tz_aware</strong> &#8211; If this is True, the value will be returned in the 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tz_aware</strong> &#8211; If this is True, the value will be returned in the
 local time of the session.  It is always saved in UTC</td>
 </tr>
 </tbody>
@@ -302,14 +358,14 @@ local time of the session.  It is always saved in UTC</td>
 <dt id="mongoalchemy.fields.ModifiedField">
 <tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">ModifiedField</tt><big>(</big><em>name='modified'</em>, <em>tz_aware=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ModifiedField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A shortcut field for modified time.  It sets the current date and time
-when it enters the database and then updates when the document is 
+when it enters the database and then updates when the document is
 saved or updated</p>
 <p>If you&#8217;ve used the Django ORM, this is the equivalent of auto_now</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tz_aware</strong> &#8211; If this is True, the value will be returned in the 
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tz_aware</strong> &#8211; If this is True, the value will be returned in the
 local time of the session.  It is always saved in UTC</td>
 </tr>
 </tbody>
@@ -342,6 +398,11 @@ local time of the session.  It is always saved in UTC</td>
 <tt class="descname">rel</tt><big>(</big><em>ignore_missing=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.ListField.rel" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="mongoalchemy.fields.ListField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = True</em><a class="headerlink" href="#mongoalchemy.fields.ListField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -367,6 +428,11 @@ local time of the session.  It is always saved in UTC</td>
 <tt class="descname">rel</tt><big>(</big><em>ignore_missing=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SetField.rel" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="mongoalchemy.fields.SetField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = True</em><a class="headerlink" href="#mongoalchemy.fields.SetField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -375,8 +441,8 @@ local time of the session.  It is always saved in UTC</td>
 <dl class="class">
 <dt id="mongoalchemy.fields.DictField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">DictField</tt><big>(</big><em>value_type</em>, <em>default_empty=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DictField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stores String to <tt class="docutils literal"><span class="pre">value_type</span></tt> Dictionaries.  For non-string keys use 
-<a class="reference internal" href="#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a>.  Strings also must obey the mongo key rules 
+<dd><p>Stores String to <tt class="docutils literal"><span class="pre">value_type</span></tt> Dictionaries.  For non-string keys use
+<a class="reference internal" href="#mongoalchemy.fields.KVField" title="mongoalchemy.fields.KVField"><tt class="xref py py-class docutils literal"><span class="pre">KVField</span></tt></a>.  Strings also must obey the mongo key rules
 (no <tt class="docutils literal"><span class="pre">.</span></tt> or <tt class="docutils literal"><span class="pre">$</span></tt>)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -386,13 +452,18 @@ local time of the session.  It is always saved in UTC</td>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.DictField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.DictField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
 <dt id="mongoalchemy.fields.KVField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">KVField</tt><big>(</big><em>key_type</em>, <em>value_type</em>, <em>default_empty=False</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.KVField" title="Permalink to this definition">¶</a></dt>
-<dd><p>Like a DictField, except it allows arbitrary keys.  The DB Format for 
-a <tt class="docutils literal"><span class="pre">KVField</span></tt> is <tt class="docutils literal"><span class="pre">[</span> <span class="pre">{</span> <span class="pre">'k'</span> <span class="pre">:</span> <span class="pre">key,</span> <span class="pre">'v'</span> <span class="pre">:</span> <span class="pre">value</span> <span class="pre">},</span> <span class="pre">...]</span></tt>.  Queries on 
+<dd><p>Like a DictField, except it allows arbitrary keys.  The DB Format for
+a <tt class="docutils literal"><span class="pre">KVField</span></tt> is <tt class="docutils literal"><span class="pre">[</span> <span class="pre">{</span> <span class="pre">'k'</span> <span class="pre">:</span> <span class="pre">key,</span> <span class="pre">'v'</span> <span class="pre">:</span> <span class="pre">value</span> <span class="pre">},</span> <span class="pre">...]</span></tt>.  Queries on
 keys and values. can be done with <tt class="docutils literal"><span class="pre">.k</span></tt> and <tt class="docutils literal"><span class="pre">.v</span></tt></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -406,6 +477,11 @@ keys and values. can be done with <tt class="docutils literal"><span class="pre"
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.KVField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.KVField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -415,6 +491,11 @@ keys and values. can be done with <tt class="docutils literal"><span class="pre"
 <dt id="mongoalchemy.fields.DocumentField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">DocumentField</tt><big>(</big><em>document_class</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.DocumentField" title="Permalink to this definition">¶</a></dt>
 <dd><p>A field which wraps a <tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></p>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.DocumentField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.DocumentField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </div>
@@ -423,22 +504,22 @@ keys and values. can be done with <tt class="docutils literal"><span class="pre"
 <dl class="class">
 <dt id="mongoalchemy.fields.RefField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">RefField</tt><big>(</big><em>type=None</em>, <em>db=None</em>, <em>db_required=False</em>, <em>namespace='global'</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.RefField" title="Permalink to this definition">¶</a></dt>
-<dd><p>A ref field wraps a mongo DBReference.  It DOES NOT currently handle 
-saving the referenced object or updates to it, but it can handle 
+<dd><p>A ref field wraps a mongo DBReference.  It DOES NOT currently handle
+saving the referenced object or updates to it, but it can handle
 auto-loading.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>type</strong> &#8211; (optional) the Field type to use for the values.  It 
-must be a DocumentField.  If you want to save refs to raw mongo 
+<li><strong>type</strong> &#8211; (optional) the Field type to use for the values.  It
+must be a DocumentField.  If you want to save refs to raw mongo
 objects, you can leave this field out</li>
-<li><strong>db</strong> &#8211; (optional) The database to load the object from.  
-Defaults to the same database as the object this field is 
+<li><strong>db</strong> &#8211; (optional) The database to load the object from.
+Defaults to the same database as the object this field is
 bound to.</li>
-<li><strong>namespace</strong> &#8211; If using the namespace system and using a 
-collection name instead of a type, selects which namespace to 
+<li><strong>namespace</strong> &#8211; If using the namespace system and using a
+collection name instead of a type, selects which namespace to
 use</li>
 </ul>
 </td>
@@ -450,6 +531,11 @@ use</li>
 <tt class="descname">dereference</tt><big>(</big><em>session</em>, <em>ref</em>, <em>allow_none=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.RefField.dereference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dereference a pymongo &#8220;DBRef&#8221; to this field&#8217;s underlying type</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.fields.RefField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.RefField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.RefField.rel">
@@ -468,15 +554,20 @@ a RefField or SRefField.</p>
 <dl class="class">
 <dt id="mongoalchemy.fields.SRefField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.fields.</tt><tt class="descname">SRefField</tt><big>(</big><em>type</em>, <em>db=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SRefField" title="Permalink to this definition">¶</a></dt>
-<dd><p>A Simple RefField (SRefField) looks like an ObjectIdField in the 
-database, but acts like a mongo DBRef.  It uses the passed in type to 
-determine where to look for the object (and assumes the current 
+<dd><p>A Simple RefField (SRefField) looks like an ObjectIdField in the
+database, but acts like a mongo DBRef.  It uses the passed in type to
+determine where to look for the object (and assumes the current
 database).</p>
 <dl class="method">
 <dt id="mongoalchemy.fields.SRefField.dereference">
 <tt class="descname">dereference</tt><big>(</big><em>session</em>, <em>ref</em>, <em>allow_none=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.fields.SRefField.dereference" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dereference an ObjectID to this field&#8217;s underlying type</p>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="mongoalchemy.fields.SRefField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.SRefField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.fields.SRefField.rel">
@@ -503,7 +594,7 @@ will generally be created with the &#64;computed_field decorator, but
 can be passed an arbitrary function.</p>
 <p>The function should take a dict which will contains keys with the names
 of the dependencies mapped to their values.</p>
-<p>The computed value is recalculated every the field is accessed unless 
+<p>The computed value is recalculated every the field is accessed unless
 the one_time field is set to True.</p>
 <p>Example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">SomeDoc</span><span class="p">(</span><span class="n">Document</span><span class="p">):</span>
@@ -514,7 +605,7 @@ the one_time field is set to True.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">The computed field interacts in an undefined way with partially loaded 
+<p class="last">The computed field interacts in an undefined way with partially loaded
 documents right now.  If using this class watch out for strange behaviour.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -530,6 +621,11 @@ documents right now.  If using this class watch out for strange behaviour.</p>
 </tr>
 </tbody>
 </table>
+<dl class="attribute">
+<dt id="mongoalchemy.fields.ComputedField.is_sequence_field">
+<tt class="descname">is_sequence_field</tt><em class="property"> = False</em><a class="headerlink" href="#mongoalchemy.fields.ComputedField.is_sequence_field" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -610,7 +706,7 @@ documents right now.  If using this class watch out for strange behaviour.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

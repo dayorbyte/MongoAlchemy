@@ -57,7 +57,7 @@
   <div class="section" id="module-mongoalchemy.session">
 <span id="session"></span><h1>Session<a class="headerlink" href="#module-mongoalchemy.session" title="Permalink to this headline">¶</a></h1>
 <p>Session objects handles the actual queueing of database operations.
-The primary methods on a session are query, insert, and flush.</p>
+The primary methods on a session are query, save, and flush.</p>
 <p>The session also responsible for ordering operations and knowing when
 operations need to be flushed, although it does not currently do
 anything intelligent for ordering.</p>
@@ -90,7 +90,7 @@ anything intelligent for ordering.</p>
 <dl class="classmethod">
 <dt id="mongoalchemy.session.Session.connect">
 <em class="property">classmethod </em><tt class="descname">connect</tt><big>(</big><em>database</em>, <em>timezone=None</em>, <em>cache_size=0</em>, <em>auto_ensure=True</em>, <em>*args</em>, <em>**kwds</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.connect" title="Permalink to this definition">¶</a></dt>
-<dd><p><cite>connect</cite> is a thin wrapper around __init__ which creates the 
+<dd><p><cite>connect</cite> is a thin wrapper around __init__ which creates the
 database connection that the session will use.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -98,11 +98,10 @@ database connection that the session will use.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>database</strong> &#8211; the database name to use.  Should be an instance of                     <tt class="xref py py-class docutils literal"><span class="pre">basestring</span></tt></li>
-<li><strong>safe</strong> &#8211; The value for the &#8220;safe&#8221; parameter of the Session 
-init function</li>
+<li><strong>safe</strong> &#8211; The value for the &#8220;safe&#8221; parameter of the Session                 init function</li>
 <li><strong>auto_ensure</strong> &#8211; Whether to implicitly call ensure_indexes on all write                 operations.</li>
-<li><strong>args</strong> &#8211; arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
-<li><strong>kwds</strong> &#8211; keyword arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.connection.Connection</span></tt></li>
+<li><strong>args</strong> &#8211; arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.mongo_client.MongoClient</span></tt></li>
+<li><strong>kwds</strong> &#8211; keyword arguments for <tt class="xref py py-class docutils literal"><span class="pre">pymongo.mongo_client.MongoClient</span></tt></li>
 </ul>
 </td>
 </tr>
@@ -113,14 +112,22 @@ init function</li>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.end">
 <tt class="descname">end</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.end" title="Permalink to this definition">¶</a></dt>
-<dd><p>End the session.  Flush all pending operations and ending the 
+<dd><p>End the session.  Flush all pending operations and ending the
 <em>pymongo</em> request</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.insert">
 <tt class="descname">insert</tt><big>(</big><em>item</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.insert" title="Permalink to this definition">¶</a></dt>
-<dd><p>Insert an item into the work queue and flushes.</p>
+<dd><p>[DEPRECATED] Please use save() instead. This actually calls
+the underlying save function, so the name is confusing.</p>
+<p>Insert an item into the work queue and flushes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.session.Session.save">
+<tt class="descname">save</tt><big>(</big><em>item</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves an item into the work queue and flushes.</p>
 </dd></dl>
 
 <dl class="method">
@@ -179,9 +186,9 @@ into python objects.</dd>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.execute_query">
 <tt class="descname">execute_query</tt><big>(</big><em>query</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.execute_query" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the results of <tt class="docutils literal"><span class="pre">query</span></tt>.  This method does flush in a 
+<dd><p>Get the results of <tt class="docutils literal"><span class="pre">query</span></tt>.  This method does flush in a
 transaction, so any objects retrieved which are not in the cache
-which would be updated when the transaction finishes will be 
+which would be updated when the transaction finishes will be
 stale</p>
 </dd></dl>
 
@@ -198,8 +205,8 @@ stale</p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.remove">
 <tt class="descname">remove</tt><big>(</big><em>obj</em>, <em>safe=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.remove" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove a particular object from the database.  If the object has 
-no mongo ID set, the method just returns.  If this is a partial 
+<dd><p>Remove a particular object from the database.  If the object has
+no mongo ID set, the method just returns.  If this is a partial
 document without the mongo ID field retrieved a <tt class="docutils literal"><span class="pre">FieldNotRetrieved</span></tt>
 will be raised</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -219,7 +226,7 @@ will be raised</p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.get_indexes">
 <tt class="descname">get_indexes</tt><big>(</big><em>cls</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.get_indexes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the index information for the collection associated with 
+<dd><p>Get the index information for the collection associated with
 <cite>cls</cite>.  Index information is returned in the same format as <em>pymongo</em>.</p>
 </dd></dl>
 
@@ -236,7 +243,7 @@ will be raised</p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.clear_queue">
 <tt class="descname">clear_queue</tt><big>(</big><em>trans_id=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_queue" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear the queue of database operations without executing any of 
+<dd><p>Clear the queue of database operations without executing any of
 the pending operations</p>
 </dd></dl>
 
@@ -248,7 +255,7 @@ the pending operations</p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.clear_collection">
 <tt class="descname">clear_collection</tt><big>(</big><em>*classes</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clear_collection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Clear all objects from the collections associated with the 
+<dd><p>Clear all objects from the collections associated with the
 objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
 </dd></dl>
 
@@ -266,14 +273,14 @@ objects in <cite>*cls</cite>. <strong>use with caution!</strong></p>
 <dl class="method">
 <dt id="mongoalchemy.session.Session.refresh">
 <tt class="descname">refresh</tt><big>(</big><em>document</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.refresh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load a new copy of a document from the database.  does not 
+<dd><p>Load a new copy of a document from the database.  does not
 replace the old one</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.session.Session.clone">
 <tt class="descname">clone</tt><big>(</big><em>document</em><big>)</big><a class="headerlink" href="#mongoalchemy.session.Session.clone" title="Permalink to this definition">¶</a></dt>
-<dd><p>Serialize a document, remove its _id, and deserialize as a new 
+<dd><p>Serialize a document, remove its _id, and deserialize as a new
 object</p>
 </dd></dl>
 
@@ -346,7 +353,7 @@ object</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

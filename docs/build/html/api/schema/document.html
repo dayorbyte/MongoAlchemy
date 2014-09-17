@@ -56,17 +56,17 @@
             
   <div class="section" id="module-mongoalchemy.document">
 <span id="documents-and-indexes"></span><h1>Documents and Indexes<a class="headerlink" href="#module-mongoalchemy.document" title="Permalink to this headline">¶</a></h1>
-<p>A <cite>mongoalchemy</cite> document is used to define a mapping between a python object 
-and a document in a Mongo Database.  Mappings are defined by creating a 
-subclass of <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> with attributes to define 
-what maps to what.  The two main types of attributes are <a class="reference internal" href="fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> 
+<p>A <cite>mongoalchemy</cite> document is used to define a mapping between a python object
+and a document in a Mongo Database.  Mappings are defined by creating a
+subclass of <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> with attributes to define
+what maps to what.  The two main types of attributes are <a class="reference internal" href="fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a>
 and <a class="reference internal" href="#mongoalchemy.document.Index" title="mongoalchemy.document.Index"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a></p>
 <p>A <a class="reference internal" href="fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a> is used to define the type of a field in
-mongo document, any constraints on the values, and to provide methods for 
-transforming a value from a python object into something Mongo understands and 
+mongo document, any constraints on the values, and to provide methods for
+transforming a value from a python object into something Mongo understands and
 vice-versa.</p>
-<p>A <a class="reference internal" href="#mongoalchemy.document.Index" title="mongoalchemy.document.Index"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a> is used to define an index on the underlying collection 
-programmatically.  A document can have multiple indexes by adding extra 
+<p>A <a class="reference internal" href="#mongoalchemy.document.Index" title="mongoalchemy.document.Index"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a> is used to define an index on the underlying collection
+programmatically.  A document can have multiple indexes by adding extra
 <a class="reference internal" href="#mongoalchemy.document.Index" title="mongoalchemy.document.Index"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a> attributes</p>
 <dl class="class">
 <dt id="mongoalchemy.document.DocumentMeta">
@@ -88,8 +88,7 @@ programmatically.  A document can have multiple indexes by adding extra
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>retrieved_fields</strong> &#8211; The names of the fields returned when loading                 a partial object.  This argument should not be explicitly set                 by subclasses</li>
-<li><strong>**kwargs</strong> &#8211; The values for all of the fields in the document.                 Any additional fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt> and 
-any missing (but required) fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt>.                 Both types of exceptions are subclasses of <tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt>.</li>
+<li><strong>**kwargs</strong> &#8211; The values for all of the fields in the document.                 Any additional fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt> and                 any missing (but required) fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt>.                 Both types of exceptions are subclasses of <tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt>.</li>
 </ul>
 </td>
 </tr>
@@ -172,7 +171,7 @@ fields which couldn&#8217;t be mapped can be retrieved (and edited) using
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.add_subclass">
 <em class="property">classmethod </em><tt class="descname">add_subclass</tt><big>(</big><em>subclass</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.add_subclass" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a subclass of this class.  Maps the subclass to the 
+<dd><p>Register a subclass of this class.  Maps the subclass to the
 value of subclass.config_polymorphic_identity if available.</p>
 </dd></dl>
 
@@ -181,12 +180,12 @@ value of subclass.config_polymorphic_identity if available.</p>
 <em class="property">classmethod </em><tt class="descname">get_subclass</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_subclass" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the subclass to use when instantiating a polymorphic object.
 The default implementation looks at <tt class="docutils literal"><span class="pre">cls.config_polymorphic</span></tt>
-to get the name of an attribute.  Subclasses automatically 
+to get the name of an attribute.  Subclasses automatically
 register their value for that attribute on creation via their
-<tt class="docutils literal"><span class="pre">config_polymorphic_identity</span></tt> field.  This process is then 
+<tt class="docutils literal"><span class="pre">config_polymorphic_identity</span></tt> field.  This process is then
 repeated recursively until None is returned (indicating that the
 current class is the correct one)</p>
-<p>This method can be overridden to allow any method you would like 
+<p>This method can be overridden to allow any method you would like
 to use to select subclasses. It should return either the subclass
 to use or None, if the original class should be used.</p>
 </dd></dl>
@@ -194,7 +193,7 @@ to use or None, if the original class should be used.</p>
 <dl class="method">
 <dt id="mongoalchemy.document.Document.get_dirty_ops">
 <tt class="descname">get_dirty_ops</tt><big>(</big><em>with_required=False</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_dirty_ops" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dict with the update operations necessary to make the 
+<dd><p>Returns a dict with the update operations necessary to make the
 changes to this object to the database version.  It is mainly used
 internally for <a class="reference internal" href="../session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> but
 may be useful for diagnostic purposes as well.</p>
@@ -218,14 +217,14 @@ a dictionary of the fields which couldn&#8217;t be mapped to the document.</p>
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.get_fields">
 <em class="property">classmethod </em><tt class="descname">get_fields</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.get_fields" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a dict mapping the names of the fields in a document 
+<dd><p>Returns a dict mapping the names of the fields in a document
 or subclass to the associated <a class="reference internal" href="fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.class_name">
 <em class="property">classmethod </em><tt class="descname">class_name</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.class_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the name of the class. The name of the class is also the 
+<dd><p>Returns the name of the class. The name of the class is also the
 default collection name.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -250,7 +249,7 @@ for the current class.</p>
 <dl class="classmethod">
 <dt id="mongoalchemy.document.Document.transform_incoming">
 <em class="property">classmethod </em><tt class="descname">transform_incoming</tt><big>(</big><em>obj</em>, <em>session</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Document.transform_incoming" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tranform the SON object into one which will be able to be 
+<dd><p>Tranform the SON object into one which will be able to be
 unwrapped by this document class.</p>
 <p>This method is designed for schema migration systems.</p>
 </dd></dl>
@@ -270,7 +269,7 @@ unwrapped by this document class.</p>
 <dl class="class">
 <dt id="mongoalchemy.document.DictDoc">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">DictDoc</tt><a class="headerlink" href="#mongoalchemy.document.DictDoc" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a mapping interface to a document.  Supports <tt class="docutils literal"><span class="pre">__getitem__</span></tt> and 
+<dd><p>Adds a mapping interface to a document.  Supports <tt class="docutils literal"><span class="pre">__getitem__</span></tt> and
 <tt class="docutils literal"><span class="pre">__contains__</span></tt>.  Both methods will only retrieve values assigned to
 a field, not methods or other attributes.</p>
 <dl class="method">
@@ -290,16 +289,16 @@ a field, not methods or other attributes.</p>
 <dl class="class">
 <dt id="mongoalchemy.document.Index">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">Index</tt><a class="headerlink" href="#mongoalchemy.document.Index" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class is  used in the class definition of a <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> to 
+<dd><p>This class is  used in the class definition of a <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> to
 specify a single, possibly compound, index.  <tt class="docutils literal"><span class="pre">pymongo</span></tt>&#8216;s <tt class="docutils literal"><span class="pre">ensure_index</span></tt>
-will be called on each index before a database operation is executed 
+will be called on each index before a database operation is executed
 on the owner document class.</p>
 <p><strong>Example</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Donor</span><span class="p">(</span><span class="n">Document</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
 <span class="gp">... </span>    <span class="n">age</span> <span class="o">=</span> <span class="n">IntField</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">blood_type</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
-<span class="gp">... </span>    
+<span class="gp">...</span>
 <span class="gp">... </span>    <span class="n">i_name</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">type_age</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;blood_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">descending</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span>
 </pre></div>
@@ -313,6 +312,20 @@ on the owner document class.</p>
 <dt id="mongoalchemy.document.Index.DESCENDING">
 <tt class="descname">DESCENDING</tt><em class="property"> = -1</em><a class="headerlink" href="#mongoalchemy.document.Index.DESCENDING" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.document.Index.expire">
+<tt class="descname">expire</tt><big>(</big><em>after</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.expire" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an expire after option to the index</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">after: Number of second before expiration</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.document.Index.ascending">
@@ -345,7 +358,7 @@ on the owner document class.</p>
 <dl class="method">
 <dt id="mongoalchemy.document.Index.geo2d">
 <tt class="descname">geo2d</tt><big>(</big><em>name</em>, <em>min=None</em>, <em>max=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.document.Index.geo2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a 2d index.  See: 
+<dd><p>Create a 2d index.  See:
 <a class="reference external" href="http://www.mongodb.org/display/DOCS/Geospatial+Indexing">http://www.mongodb.org/display/DOCS/Geospatial+Indexing</a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -437,8 +450,7 @@ on the owner document class.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>retrieved_fields</strong> &#8211; The names of the fields returned when loading                 a partial object.  This argument should not be explicitly set                 by subclasses</li>
-<li><strong>**kwargs</strong> &#8211; The values for all of the fields in the document.                 Any additional fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt> and 
-any missing (but required) fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt>.                 Both types of exceptions are subclasses of <tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt>.</li>
+<li><strong>**kwargs</strong> &#8211; The values for all of the fields in the document.                 Any additional fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">ExtraValueException</span></tt> and                 any missing (but required) fields will raise a <tt class="xref py py-class docutils literal"><span class="pre">MissingValueException</span></tt>.                 Both types of exceptions are subclasses of <tt class="xref py py-class docutils literal"><span class="pre">DocumentException</span></tt>.</li>
 </ul>
 </td>
 </tr>
@@ -521,7 +533,7 @@ fields which couldn&#8217;t be mapped can be retrieved (and edited) using
 <dl class="classmethod">
 <dt>
 <em class="property">classmethod </em><tt class="descname">add_subclass</tt><big>(</big><em>subclass</em><big>)</big></dt>
-<dd><p>Register a subclass of this class.  Maps the subclass to the 
+<dd><p>Register a subclass of this class.  Maps the subclass to the
 value of subclass.config_polymorphic_identity if available.</p>
 </dd></dl>
 
@@ -530,12 +542,12 @@ value of subclass.config_polymorphic_identity if available.</p>
 <em class="property">classmethod </em><tt class="descname">get_subclass</tt><big>(</big><em>obj</em><big>)</big></dt>
 <dd><p>Get the subclass to use when instantiating a polymorphic object.
 The default implementation looks at <tt class="docutils literal"><span class="pre">cls.config_polymorphic</span></tt>
-to get the name of an attribute.  Subclasses automatically 
+to get the name of an attribute.  Subclasses automatically
 register their value for that attribute on creation via their
-<tt class="docutils literal"><span class="pre">config_polymorphic_identity</span></tt> field.  This process is then 
+<tt class="docutils literal"><span class="pre">config_polymorphic_identity</span></tt> field.  This process is then
 repeated recursively until None is returned (indicating that the
 current class is the correct one)</p>
-<p>This method can be overridden to allow any method you would like 
+<p>This method can be overridden to allow any method you would like
 to use to select subclasses. It should return either the subclass
 to use or None, if the original class should be used.</p>
 </dd></dl>
@@ -543,7 +555,7 @@ to use or None, if the original class should be used.</p>
 <dl class="method">
 <dt>
 <tt class="descname">get_dirty_ops</tt><big>(</big><em>with_required=False</em><big>)</big></dt>
-<dd><p>Returns a dict with the update operations necessary to make the 
+<dd><p>Returns a dict with the update operations necessary to make the
 changes to this object to the database version.  It is mainly used
 internally for <a class="reference internal" href="../session.html#mongoalchemy.session.Session.update" title="mongoalchemy.session.Session.update"><tt class="xref py py-func docutils literal"><span class="pre">update()</span></tt></a> but
 may be useful for diagnostic purposes as well.</p>
@@ -567,14 +579,14 @@ a dictionary of the fields which couldn&#8217;t be mapped to the document.</p>
 <dl class="classmethod">
 <dt>
 <em class="property">classmethod </em><tt class="descname">get_fields</tt><big>(</big><big>)</big></dt>
-<dd><p>Returns a dict mapping the names of the fields in a document 
+<dd><p>Returns a dict mapping the names of the fields in a document
 or subclass to the associated <a class="reference internal" href="fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">Field</span></tt></a></p>
 </dd></dl>
 
 <dl class="classmethod">
 <dt>
 <em class="property">classmethod </em><tt class="descname">class_name</tt><big>(</big><big>)</big></dt>
-<dd><p>Returns the name of the class. The name of the class is also the 
+<dd><p>Returns the name of the class. The name of the class is also the
 default collection name.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
@@ -599,7 +611,7 @@ for the current class.</p>
 <dl class="classmethod">
 <dt>
 <em class="property">classmethod </em><tt class="descname">transform_incoming</tt><big>(</big><em>obj</em>, <em>session</em><big>)</big></dt>
-<dd><p>Tranform the SON object into one which will be able to be 
+<dd><p>Tranform the SON object into one which will be able to be
 unwrapped by this document class.</p>
 <p>This method is designed for schema migration systems.</p>
 </dd></dl>
@@ -622,16 +634,16 @@ unwrapped by this document class.</p>
 <dl class="class">
 <dt>
 <em class="property">class </em><tt class="descclassname">mongoalchemy.document.</tt><tt class="descname">Index</tt></dt>
-<dd><p>This class is  used in the class definition of a <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> to 
+<dd><p>This class is  used in the class definition of a <a class="reference internal" href="#mongoalchemy.document.Document" title="mongoalchemy.document.Document"><tt class="xref py py-class docutils literal"><span class="pre">Document</span></tt></a> to
 specify a single, possibly compound, index.  <tt class="docutils literal"><span class="pre">pymongo</span></tt>&#8216;s <tt class="docutils literal"><span class="pre">ensure_index</span></tt>
-will be called on each index before a database operation is executed 
+will be called on each index before a database operation is executed
 on the owner document class.</p>
 <p><strong>Example</strong></p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Donor</span><span class="p">(</span><span class="n">Document</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">name</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
 <span class="gp">... </span>    <span class="n">age</span> <span class="o">=</span> <span class="n">IntField</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">blood_type</span> <span class="o">=</span> <span class="n">StringField</span><span class="p">()</span>
-<span class="gp">... </span>    
+<span class="gp">...</span>
 <span class="gp">... </span>    <span class="n">i_name</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">type_age</span> <span class="o">=</span> <span class="n">Index</span><span class="p">()</span><span class="o">.</span><span class="n">ascending</span><span class="p">(</span><span class="s">&#39;blood_type&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">descending</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span>
 </pre></div>
@@ -645,6 +657,20 @@ on the owner document class.</p>
 <dt>
 <tt class="descname">DESCENDING</tt><em class="property"> = -1</em></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt>
+<tt class="descname">expire</tt><big>(</big><em>after</em><big>)</big></dt>
+<dd><p>Add an expire after option to the index</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">after: Number of second before expiration</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt>
@@ -677,7 +703,7 @@ on the owner document class.</p>
 <dl class="method">
 <dt>
 <tt class="descname">geo2d</tt><big>(</big><em>name</em>, <em>min=None</em>, <em>max=None</em><big>)</big></dt>
-<dd><p>Create a 2d index.  See: 
+<dd><p>Create a 2d index.  See:
 <a class="reference external" href="http://www.mongodb.org/display/DOCS/Geospatial+Indexing">http://www.mongodb.org/display/DOCS/Geospatial+Indexing</a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -810,7 +836,7 @@ on the owner document class.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

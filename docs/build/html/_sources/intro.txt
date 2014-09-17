@@ -73,7 +73,7 @@ case this tutorial code had run before.
     >>> session.save(donor)
 
 When ``save`` is called on the ``donor`` object the session serializes it
-into a form that the Mongo database understands, and then saves it.  Once
+into a form that the Mongo database understands, and then inserts it.  Once
 the save command is complete the ``_id`` field of ``donor`` object is set.
 
 To make the next section more interesting more objects are needed, so we'll
@@ -128,7 +128,7 @@ Updating
 -------------------------------
 
 There are a number of methods available for updating results of a query (
-rather than updating results by loading an object and re-saving it).
+rather than updating results by loading an object and re-inserting it).
 Here's an example where my age changed and it turned out I had the wrong
 blood type:
 

@@ -62,7 +62,12 @@
 <dl class="class">
 <dt id="mongoalchemy.query_expression.QueryField">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryField</tt><big>(</big><em>type</em>, <em>parent=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><dl class="attribute">
+<dt id="mongoalchemy.query_expression.QueryField.fields_expression">
+<tt class="descname">fields_expression</tt><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.fields_expression" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.get_type">
 <tt class="descname">get_type</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.get_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the underlying <a class="reference internal" href="../schema/fields.html#mongoalchemy.fields.Field" title="mongoalchemy.fields.Field"><tt class="xref py py-class docutils literal"><span class="pre">mongoalchemy.fields.Field</span></tt></a></p>
@@ -82,6 +87,36 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 </dd></dl>
 
 <dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.startswith">
+<tt class="descname">startswith</tt><big>(</big><em>prefix</em>, <em>ignore_case=False</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.startswith" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if a field starts with a given prefix string</p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">session.query(Spell).filter(Spells.name.startswith(&quot;abra&quot;,</span> <span class="pre">ignore_case=True))</span></tt></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a shortcut to .regex(&#8216;^&#8217; + re.escape(prefix))
+MongoDB optimises such prefix expressions to use indexes 
+appropriately. As the prefix contains no further regex, this 
+will be optimized by matching only against the prefix.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.endswith">
+<tt class="descname">endswith</tt><big>(</big><em>suffix</em>, <em>ignore_case=False</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.endswith" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if a field ends with a given suffix string</p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">session.query(Spell).filter(Spells.name.endswith(&quot;cadabra&quot;,</span> <span class="pre">ignore_case=True))</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.regex">
+<tt class="descname">regex</tt><big>(</big><em>expression</em>, <em>ignore_case=False</em>, <em>options=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.regex" title="Permalink to this definition">¶</a></dt>
+<dd><p>A query to check if a field matches a given regular expression
+:param ignore_case: Whether or not to ignore the case (setting this to True is the same as setting the &#8216;i&#8217; option)
+:param options: A string of option characters, as per the MongoDB $regex operator (e.g. &#8220;imxs&#8221;)</p>
+<p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">session.query(Spell).filter(Spells.name.regex(r'^abra[a-z]*cadabra$',</span> <span class="pre">ignore_case=True))</span></tt></p>
+</dd></dl>
+
+<dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.near">
 <tt class="descname">near</tt><big>(</big><em>x</em>, <em>y</em>, <em>max_distance=None</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.near" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return documents near the given point</p>
@@ -97,7 +132,8 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 <dt id="mongoalchemy.query_expression.QueryField.within_box">
 <tt class="descname">within_box</tt><big>(</big><em>corner1</em>, <em>corner2</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adapted from the Mongo docs:</p>
-<div class="highlight-python"><pre>session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)</pre>
+<div class="highlight-python"><div class="highlight"><pre>session.query(Places).filter(Places.loc.within_box(cornerA, cornerB)
+</pre></div>
 </div>
 </dd></dl>
 
@@ -105,7 +141,8 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 <dt id="mongoalchemy.query_expression.QueryField.within_radius">
 <tt class="descname">within_radius</tt><big>(</big><em>x</em>, <em>y</em>, <em>radius</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_radius" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adapted from the Mongo docs:</p>
-<div class="highlight-python"><pre>session.query(Places).filter(Places.loc.within_radius(1, 2, 50)</pre>
+<div class="highlight-python"><div class="highlight"><pre>session.query(Places).filter(Places.loc.within_radius(1, 2, 50)
+</pre></div>
 </div>
 </dd></dl>
 
@@ -113,7 +150,8 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 <dt id="mongoalchemy.query_expression.QueryField.within_radius_sphere">
 <tt class="descname">within_radius_sphere</tt><big>(</big><em>x</em>, <em>y</em>, <em>radius</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_radius_sphere" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adapted from the Mongo docs:</p>
-<div class="highlight-python"><pre>session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)</pre>
+<div class="highlight-python"><div class="highlight"><pre>session.query(Places).filter(Places.loc.within_radius_sphere(1, 2, 50)
+</pre></div>
 </div>
 </dd></dl>
 
@@ -121,24 +159,25 @@ of a list.  In the MongoDB docs, this is the <tt class="docutils literal"><span 
 <dt id="mongoalchemy.query_expression.QueryField.within_polygon">
 <tt class="descname">within_polygon</tt><big>(</big><em>polygon</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.within_polygon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adapted from the Mongo docs:</p>
-<div class="highlight-python"><pre>polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
+<div class="highlight-python"><div class="highlight"><pre>polygonA = [ [ 10, 20 ], [ 10, 40 ], [ 30, 40 ], [ 30, 20 ] ]
 polygonB = { a : { x : 10, y : 20 }, b : { x : 15, y : 25 }, c : { x : 20, y : 20 } }
 session.query(Places).filter(Places.loc.within_polygon(polygonA)
-session.query(Places).filter(Places.loc.within_polygon(polygonB)</pre>
+session.query(Places).filter(Places.loc.within_polygon(polygonB)
+</pre></div>
 </div>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.in_">
 <tt class="descname">in_</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.in_" title="Permalink to this definition">¶</a></dt>
-<dd><p>A query to check if this query field is one of the values 
+<dd><p>A query to check if this query field is one of the values
 in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$in</span></tt> expression.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query_expression.QueryField.nin">
 <tt class="descname">nin</tt><big>(</big><em>*values</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.nin" title="Permalink to this definition">¶</a></dt>
-<dd><p>A query to check if this query field is not one of the values 
+<dd><p>A query to check if this query field is not one of the values
 in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces a MongoDB <tt class="docutils literal"><span class="pre">$nin</span></tt> expression.</p>
 </dd></dl>
 
@@ -208,6 +247,37 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.elem_match">
+<tt class="descname">elem_match</tt><big>(</big><em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.elem_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does two things depending on the context:</p>
+<ol class="arabic simple">
+<li>In the context of a query expression it:</li>
+</ol>
+<p>Creates a query expression to do an $elemMatch on the selected
+field.  If the type of this field is a DocumentField the value
+can be either a QueryExpression using that Document&#8217;s fields OR
+you can use a dict for raw mongo.</p>
+<p>See the mongo documentation for thorough treatment of
+elemMatch:
+<a class="reference external" href="http://docs.mongodb.org/manual/reference/operator/elemMatch/">http://docs.mongodb.org/manual/reference/operator/elemMatch/</a></p>
+<ol class="arabic simple" start="2">
+<li>In the context of choosing fields in a query.fields() expr:</li>
+</ol>
+<p>Sets the field to use elemMatch, so only the matching elements
+of a list are used. See the mongo docs for more details:
+<a class="reference external" href="http://docs.mongodb.org/manual/reference/projection/elemMatch/">http://docs.mongodb.org/manual/reference/projection/elemMatch/</a></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mongoalchemy.query_expression.QueryField.exclude">
+<tt class="descname">exclude</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryField.exclude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use in a query.fields() expression to say this field should be
+excluded.  The default of fields() is to include only
+fields which are specified. This allows retrieving of &#8220;every field
+except &#8216;foo&#8217;&#8221;.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -216,7 +286,7 @@ in <tt class="docutils literal"><span class="pre">values</span></tt>.  Produces 
 <dl class="class">
 <dt id="mongoalchemy.query_expression.QueryExpression">
 <em class="property">class </em><tt class="descclassname">mongoalchemy.query_expression.</tt><tt class="descname">QueryExpression</tt><big>(</big><em>obj</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression" title="Permalink to this definition">¶</a></dt>
-<dd><p>A QueryExpression wraps a dictionary representing a query to perform 
+<dd><p>A QueryExpression wraps a dictionary representing a query to perform
 on a mongo collection.  The</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -226,12 +296,12 @@ can be specified to a single call of <tt class="xref py py-func docutils literal
 <dl class="method">
 <dt id="mongoalchemy.query_expression.QueryExpression.not_">
 <tt class="descname">not_</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.not_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt> 
+<dd><p>Negates this instance&#8217;s query expression using MongoDB&#8217;s <tt class="docutils literal"><span class="pre">$not</span></tt>
 operator</p>
 <p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff').not_()</span></tt></p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Another usage is via an operator, but parens are needed 
+<p class="last">Another usage is via an operator, but parens are needed
 to get past precedence issues: <tt class="docutils literal"><span class="pre">~</span> <span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff')</span></tt></p>
 </div>
 </dd></dl>
@@ -239,7 +309,7 @@ to get past precedence issues: <tt class="docutils literal"><span class="pre">~<
 <dl class="method">
 <dt id="mongoalchemy.query_expression.QueryExpression.or_">
 <tt class="descname">or_</tt><big>(</big><em>expression</em><big>)</big><a class="headerlink" href="#mongoalchemy.query_expression.QueryExpression.or_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt> 
+<dd><p>Adds the given expression to this instance&#8217;s MongoDB <tt class="docutils literal"><span class="pre">$or</span></tt>
 expression, starting a new one if one does not exst</p>
 <p><strong>Example</strong>: <tt class="docutils literal"><span class="pre">(User.name</span> <span class="pre">==</span> <span class="pre">'Jeff').or_(User.name</span> <span class="pre">==</span> <span class="pre">'Jack')</span></tt></p>
 <div class="admonition note">
@@ -318,7 +388,7 @@ expression, starting a new one if one does not exst</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

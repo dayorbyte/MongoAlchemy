@@ -89,7 +89,7 @@ Sessions and Query Language
 Installation
 -----------------------------
 
-``pip MongoAlchemy``
+``pip install MongoAlchemy``
 
 You can also download the source code from the Python Package index or GitHub:
 

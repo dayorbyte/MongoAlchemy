@@ -161,7 +161,7 @@ the mongoalchemy objects. Type safety will be maintained either way</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">MongoAlchemy</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">MongoAlchemy</span></tt></p>
 <p>You can also download the source code from the Python Package index or GitHub:</p>
 <p>The source code is available at: <a class="reference external" href="http://github.com/jeffjenkins/MongoAlchemy">http://github.com/jeffjenkins/MongoAlchemy</a></p>
 <p>The PyPi page is located here: <a class="reference external" href="http://pypi.python.org/pypi/MongoAlchemy/">http://pypi.python.org/pypi/MongoAlchemy/</a></p>
@@ -213,7 +213,7 @@ the mongoalchemy objects. Type safety will be maintained either way</p>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Insert on a session will infer the correct collection and push the object</span>
 <span class="gp">... </span><span class="c"># into the database</span>
-<span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">me</span><span class="p">)</span>
+<span class="gp">... </span><span class="n">session</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">me</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="p">([</span><span class="s">&#39;author&#39;</span><span class="p">,</span> <span class="s">&#39;of&#39;</span><span class="p">,</span> <span class="s">&#39;is&#39;</span><span class="p">,</span> <span class="s">&#39;Jeff&#39;</span><span class="p">,</span> <span class="s">&#39;MongoAlchemy&#39;</span><span class="p">,</span> <span class="s">&#39;the&#39;</span><span class="p">])</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c"># Get a user with me&#39;s email address and MongoAlchemy in their bio (via keywords)</span>
@@ -252,9 +252,7 @@ the mongoalchemy objects. Type safety will be maintained either way</p>
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Welcome to MongoAlchemy&#8217;s documentation!</a><ul>
-<li><a class="reference internal" href="#contents">Contents:</a><ul>
-</ul>
-</li>
+<li><a class="reference internal" href="#contents">Contents:</a></li>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#object-document-mapping">Object-Document Mapping</a></li>
 <li><a class="reference internal" href="#sessions-and-query-language">Sessions and Query Language</a></li>
@@ -307,7 +305,7 @@ the mongoalchemy objects. Type safety will be maintained either way</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

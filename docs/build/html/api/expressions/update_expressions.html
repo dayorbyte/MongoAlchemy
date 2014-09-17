@@ -70,7 +70,7 @@
 <dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.multi">
 <tt class="descname">multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.multi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update multiple documents.  The Mongo default is to only update 
+<dd><p>Update multiple documents.  The Mongo default is to only update
 the first matching document</p>
 </dd></dl>
 
@@ -94,8 +94,8 @@ the first matching document</p>
 <dd><p>Usage is either:</p>
 <p>set(self, qfield, value): Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
 <p>OR</p>
-<p>set(key1=value1, key2=value2): Atomically set the named arguments 
-on the current object to the values given.  This form cannot 
+<p>set(key1=value1, key2=value2): Atomically set the named arguments
+on the current object to the values given.  This form cannot
 update a sub-document</p>
 </dd></dl>
 
@@ -115,7 +115,7 @@ update a sub-document</p>
 <dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.append">
 <tt class="descname">append</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will 
+<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will
 if the field is not a list field</p>
 </dd></dl>
 
@@ -140,7 +140,7 @@ if the field is not a list field</p>
 <dl class="method">
 <dt id="mongoalchemy.update_expression.UpdateExpression.add_to_set">
 <tt class="descname">add_to_set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.UpdateExpression.add_to_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by 
+<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by
 <tt class="docutils literal"><span class="pre">qfield</span></tt> must be a set</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -199,15 +199,15 @@ They have the same filtering methods as querying.</p>
 <dl class="method">
 <dt id="mongoalchemy.query.RemoveQuery.set_safe">
 <tt class="descname">set_safe</tt><big>(</big><em>is_safe</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.set_safe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set this remove to be safe.  It will call getLastError after the 
-remove to make sure it was successful.  <tt class="docutils literal"><span class="pre">**kwargs</span></tt> are parameters to 
+<dd><p>Set this remove to be safe.  It will call getLastError after the
+remove to make sure it was successful.  <tt class="docutils literal"><span class="pre">**kwargs</span></tt> are parameters to
 MongoDB&#8217;s getLastError command (as in pymongo&#8217;s remove).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="mongoalchemy.query.RemoveQuery.execute">
 <tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.execute" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run the remove command on the session.  Return the result of 
+<dd><p>Run the remove command on the session.  Return the result of
 <tt class="docutils literal"><span class="pre">getLastError</span></tt> if <tt class="docutils literal"><span class="pre">safe</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt></p>
 </dd></dl>
 
@@ -221,7 +221,7 @@ the <tt class="docutils literal"><span class="pre">Query</span></tt> filter meth
 <dl class="method">
 <dt id="mongoalchemy.query.RemoveQuery.filter_by">
 <tt class="descname">filter_by</tt><big>(</big><em>**filters</em><big>)</big><a class="headerlink" href="#mongoalchemy.query.RemoveQuery.filter_by" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter for the names in <tt class="docutils literal"><span class="pre">filters</span></tt> being equal to the associated 
+<dd><p>Filter for the names in <tt class="docutils literal"><span class="pre">filters</span></tt> being equal to the associated
 values.  Cannot be used for sub-objects since keys must be strings</p>
 </dd></dl>
 
@@ -261,7 +261,7 @@ values.  Cannot be used for sub-objects since keys must be strings</p>
 <dl class="method">
 <dt id="mongoalchemy.update_expression.FindAndModifyExpression.add_to_set">
 <tt class="descname">add_to_set</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.FindAndModifyExpression.add_to_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by 
+<dd><p>Atomically add <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The field represented by
 <tt class="docutils literal"><span class="pre">qfield</span></tt> must be a set</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -272,7 +272,7 @@ values.  Cannot be used for sub-objects since keys must be strings</p>
 <dl class="method">
 <dt id="mongoalchemy.update_expression.FindAndModifyExpression.append">
 <tt class="descname">append</tt><big>(</big><em>qfield</em>, <em>value</em><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.FindAndModifyExpression.append" title="Permalink to this definition">¶</a></dt>
-<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will 
+<dd><p>Atomically append <tt class="docutils literal"><span class="pre">value</span></tt> to <tt class="docutils literal"><span class="pre">qfield</span></tt>.  The operation will
 if the field is not a list field</p>
 </dd></dl>
 
@@ -291,7 +291,7 @@ if the field is not a list field</p>
 <dl class="method">
 <dt id="mongoalchemy.update_expression.FindAndModifyExpression.multi">
 <tt class="descname">multi</tt><big>(</big><big>)</big><a class="headerlink" href="#mongoalchemy.update_expression.FindAndModifyExpression.multi" title="Permalink to this definition">¶</a></dt>
-<dd><p>Update multiple documents.  The Mongo default is to only update 
+<dd><p>Update multiple documents.  The Mongo default is to only update
 the first matching document</p>
 </dd></dl>
 
@@ -341,8 +341,8 @@ the first matching document</p>
 <dd><p>Usage is either:</p>
 <p>set(self, qfield, value): Atomically set <tt class="docutils literal"><span class="pre">qfield</span></tt> to <tt class="docutils literal"><span class="pre">value</span></tt></p>
 <p>OR</p>
-<p>set(key1=value1, key2=value2): Atomically set the named arguments 
-on the current object to the values given.  This form cannot 
+<p>set(key1=value1, key2=value2): Atomically set the named arguments
+on the current object to the values given.  This form cannot
 update a sub-document</p>
 </dd></dl>
 
@@ -426,7 +426,7 @@ update a sub-document</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010-2012, Jeffrey Jenkins.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
