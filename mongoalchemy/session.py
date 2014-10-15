@@ -34,10 +34,15 @@ from mongoalchemy.py3compat import *
 import warnings
 from uuid import uuid4
 import pymongo
+
 if hasattr(pymongo, 'mongo_client'):
     from pymongo.mongo_client import MongoClient
 else: # pragma: no cover
     from pymongo.connection import Connection as MongoClient
+
+if hasattr(pymongo, 'mongo_replica_set_client'):
+    from pymongo.mongo_replica_set_client import MongoReplicaSetClient
+
 from bson import DBRef, ObjectId
 from mongoalchemy.query import Query, QueryResult, RemoveQuery
 from mongoalchemy.document import (FieldNotRetrieved, Document,
@@ -90,7 +95,7 @@ class Session(object):
         return len(self.transactions) > 0
 
     @classmethod
-    def connect(self, database, timezone=None, cache_size=0, auto_ensure=True, *args, **kwds):
+    def connect(self, database, timezone=None, cache_size=0, auto_ensure=True, replica_set=None, *args, **kwds):
         ''' `connect` is a thin wrapper around __init__ which creates the
             database connection that the session will use.
 
@@ -100,6 +105,9 @@ class Session(object):
                 init function
             :param auto_ensure: Whether to implicitly call ensure_indexes on all write \
                 operations.
+            :param replica_set: The replica-set to use (as a string). If specified, \
+                :class:`pymongo.mongo_replica_set_client.MongoReplicaSetClient` is used \
+                instead of :class:`pymongo.mongo_client.MongoClient`
             :param args: arguments for :class:`pymongo.mongo_client.MongoClient`
             :param kwds: keyword arguments for :class:`pymongo.mongo_client.MongoClient`
         '''
@@ -108,7 +116,15 @@ class Session(object):
             del kwds['safe']
         if timezone is not None:
             kwds['tz_aware'] = True
-        conn = MongoClient(*args, **kwds)
+
+        if replica_set is not None:
+            if 'MongoReplicaSetClient' in globals():
+                conn = MongoReplicaSetClient(*args, replicaSet=replica_set, **kwds)
+            else: # pragma: no cover
+                conn = MongoClient(*args, replicaSet=replica_set, **kwds)
+        else:
+            conn = MongoClient(*args, **kwds)
+
         db = conn[database]
         return Session(db, timezone=timezone, safe=safe, cache_size=cache_size, auto_ensure=auto_ensure)
 

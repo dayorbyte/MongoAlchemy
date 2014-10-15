@@ -7,7 +7,7 @@ from mongoalchemy.document import Document, Index
 from mongoalchemy.fields import *
 from mongoalchemy.exceptions import *
 from test.util import known_failure
-from pymongo.errors import DuplicateKeyError
+from pymongo.errors import DuplicateKeyError, ConfigurationError
 
 class T(Document):
     i = IntField()
@@ -52,6 +52,11 @@ def test_tz():
         assert x.dt.tzinfo is not None
         assert x.created.tzinfo is not None
         assert x.modified.tzinfo is not None
+
+@raises(ConfigurationError)
+def test_replica_set():
+    # just for code coverage
+    session = Session.connect('unit-testing', replica_set='rs1')
 
 @raises(TransactionException)
 def test_find_and_modify_in_session():
