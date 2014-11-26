@@ -134,7 +134,6 @@ def test_delete_field():
     except AttributeError:
         pass
 
-
 def test_inheritance():
     # classes
     class InA(Document):
@@ -165,6 +164,54 @@ def test_inheritance():
     s.save(bb)
     for obj in s.query(InA).all():
         assert type(obj) == InC, type(obj)
+
+def test_inheritance_queries():
+    # classes
+    class InA(Document):
+        config_extra_fields = 'ignore'
+        config_polymorphic = 'type'
+        config_polymorphic_collection = True
+        config_polymorphic_identity = 'ina'
+        type = StringField()
+    class InB(InA):
+        config_polymorphic_identity = 'inb'
+        type = StringField(default=config_polymorphic_identity)
+    class InC(InB):
+        config_polymorphic_identity = 'inc'
+        type = StringField(default=config_polymorphic_identity)
+    class InD(InC):
+        config_polymorphic_identity = 'ind'
+        type = StringField(default=config_polymorphic_identity)
+    class InB2(InB):
+        config_polymorphic_identity = 'b2'
+        type = StringField(default=config_polymorphic_identity)
+
+    s = get_session()
+    s.clear_collection(InA)
+
+    # clear old data
+    def check(expr, value):
+        assert set(expr.query['type']['$in']) == set(value), expr.query
+    check(s.query(InA), ['ind', 'b2', 'inb', 'inc', 'ina'])
+    check(s.query(InB), ['ind', 'b2', 'inb', 'inc'])
+    check(s.query(InC), ['ind', 'inc'])
+    check(s.query(InD), ['ind'])
+    check(s.query(InB2), ['b2'])
+
+    # exclude subclasses
+    assert s.query(InA, exclude_subclasses=True).query['type'] == 'ina'
+    assert s.query(InB, exclude_subclasses=True).query['type'] == 'inb'
+    assert s.query(InC, exclude_subclasses=True).query['type'] == 'inc'
+    assert s.query(InD, exclude_subclasses=True).query['type'] == 'ind'
+    assert s.query(InB2, exclude_subclasses=True).query['type'] == 'b2'
+
+def test_exclude_with_normal_class():
+    class PolyDoc(Document):
+        config_polymorphic = True
+    s = get_session()
+    s.clear_collection(PolyDoc)
+
+    assert s.query(PolyDoc, exclude_subclasses=True).query == {}
 
 
 @raises(DocumentException)

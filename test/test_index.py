@@ -41,6 +41,9 @@ def test_indexes():
     assert got == desired, '\nG: %s\nD: %s' % (got, desired)
 
 def expire_index_test():
+    import os
+    if os.environ.get('FAST_TESTS') == 'true':
+        return
     class TestDoc3(TestDoc):
         date = DateTimeField()
 

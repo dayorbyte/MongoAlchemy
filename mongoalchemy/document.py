@@ -266,11 +266,41 @@ class Document(object):
         ''' Register a subclass of this class.  Maps the subclass to the
             value of subclass.config_polymorphic_identity if available.
         '''
+        #
+        import inspect
+        for superclass in inspect.getmro(cls)[1:]:
+            if issubclass(superclass, Document):
+                superclass.add_subclass(subclass)
+
         # if not polymorphic, stop
         if hasattr(subclass, 'config_polymorphic_identity'):
             attr = subclass.config_polymorphic_identity
             cls._subclasses[attr] = subclass
 
+    @classmethod
+    def base_query(cls, exclude_subclasses=False):
+        ''' Return the base query for this kind of document. If this class is
+            not polymorphic, the query is empty. If it is polymorphic then
+            a filter is added to match only this class and its subclasses.
+
+            :param exclude_subclasses: If this is true, only match the current \
+                class. If it is false, the default, also return subclasses of \
+                this class.
+        '''
+        if not cls.config_polymorphic:
+            return {}
+        if exclude_subclasses:
+            if cls.config_polymorphic_identity:
+                return { cls.config_polymorphic : cls.config_polymorphic_identity }
+            return {}
+        keys = [key for key in cls._subclasses]
+        if cls.config_polymorphic_identity:
+            keys.append(cls.config_polymorphic_identity)
+        return {
+            cls.config_polymorphic : {
+                '$in' : keys
+            }
+        }
 
     @classmethod
     def get_subclass(cls, obj):
@@ -298,6 +328,7 @@ class Document(object):
         if sub_value is None:
             return value
         return sub_value
+
     def __eq__(self, other):
         try:
             return self.mongo_id == other.mongo_id

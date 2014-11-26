@@ -220,7 +220,7 @@ class Session(object):
         if self.autoflush:
             return self.flush()
 
-    def query(self, type):
+    def query(self, type, exclude_subclasses=False):
         ''' Begin a query on the database's collection for `type`.  If `type`
             is an instance of basesting, the query will be in raw query mode
             which will not check field values or transform returned results
@@ -232,7 +232,7 @@ class Session(object):
         # read
         if isinstance(type, basestring):
             type = FreeFormDoc(type)
-        return Query(type, self)
+        return Query(type, self, exclude_subclasses=exclude_subclasses)
 
     def add_to_session(self, obj):
         obj._set_session(self)

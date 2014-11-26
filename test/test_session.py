@@ -323,7 +323,7 @@ def test_update_docfield_extras():
     t2_new = s.query(TExtraDocField).one()
     assert t2_new.doc.i == 1
     assert t2_new.doc.get_extra_fields()['j'] == 'test'
-    assert t2_new.doc.get_extra_fields()['t'] == 'added'
+    assert t2_new.doc.get_extra_fields().get('t') == 'added', t2_new.doc.get_extra_fields()
 
 def test_update_docfield_list_extras():
     s = Session.connect('unit-testing')

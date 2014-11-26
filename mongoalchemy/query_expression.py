@@ -60,6 +60,9 @@ class FreeFormDoc(object):
     def __getattr__(self, name):
         return QueryField(FreeFormField(name))
     @classmethod
+    def base_query(*args, **kwargs):
+        return {}
+    @classmethod
     def unwrap(cls, value, *args, **kwargs):
         return value
     def get_collection_name(self):
@@ -133,11 +136,11 @@ class QueryField(object):
             **Example**: ``session.query(Spell).filter(Spells.name.startswith("abra", ignore_case=True))``
 
             .. note:: This is a shortcut to .regex('^' + re.escape(prefix))
-                MongoDB optimises such prefix expressions to use indexes 
-                appropriately. As the prefix contains no further regex, this 
+                MongoDB optimises such prefix expressions to use indexes
+                appropriately. As the prefix contains no further regex, this
                 will be optimized by matching only against the prefix.
 
-        """ 
+        """
         return self.regex('^' + re.escape(prefix), ignore_case=ignore_case, options=options)
 
     def endswith(self, suffix, ignore_case=False, options=None):

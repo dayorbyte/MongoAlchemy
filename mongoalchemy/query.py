@@ -28,7 +28,7 @@ from pymongo import ASCENDING, DESCENDING
 from copy import copy, deepcopy
 
 from mongoalchemy.exceptions import BadValueException
-from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten
+from mongoalchemy.query_expression import QueryExpression, BadQueryException, flatten, FreeFormDoc
 from mongoalchemy.update_expression import UpdateExpression, FindAndModifyExpression
 from mongoalchemy.util import resolve_name
 
@@ -44,13 +44,16 @@ class Query(object):
         In general a query object should be created via ``Session.query``,
         not directly.
     '''
-    def __init__(self, type, session):
+    def __init__(self, type, session, exclude_subclasses=False):
         ''' :param type: A subclass of class:`mongoalchemy.document.Document`
             :param db: The :class:`~mongoalchemy.session.Session` which this query is associated with.
+            :param exclude_subclasses: If this is set to false (the default) and `type` \
+                is polymorphic then subclasses are also retrieved.
         '''
         self.session = session
         self.type = type
-        self.__query = {}
+
+        self.__query = type.base_query(exclude_subclasses)
         self._sort = []
         self._fields = None
         self.hints = []

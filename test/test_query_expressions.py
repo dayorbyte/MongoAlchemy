@@ -266,7 +266,7 @@ def test_not():
 
 @raises(BadQueryException)
 def test_not_with_malformed_field():
-    class Any(DocumentField):
+    class Any(Document):
         i = AnythingField()
     not_q = Query(Any, None).not_(Any.i == { '$gt' : 4, 'garbage' : 5})
 
