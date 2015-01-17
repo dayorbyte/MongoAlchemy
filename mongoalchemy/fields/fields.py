@@ -592,7 +592,7 @@ class computed_field(object):
     def __call__(self, fun):
         return ComputedField(self.computed_type, fun, deps=self.deps, **self.kwargs)
 
-def CreatedField(name='created', tz_aware=False):
+def CreatedField(name='created', tz_aware=False, **kwargs):
     ''' A shortcut field for creation time.  It sets the current date and time
         when it enters the database and then doesn't update on further saves.
 
@@ -601,7 +601,7 @@ def CreatedField(name='created', tz_aware=False):
         :param tz_aware: If this is True, the value will be returned in the
                          local time of the session.  It is always saved in UTC
     '''
-    @computed_field(DateTimeField(), one_time=True)
+    @computed_field(DateTimeField(), one_time=True, **kwargs)
     def created(obj):
         if tz_aware:
             import pytz
@@ -610,7 +610,7 @@ def CreatedField(name='created', tz_aware=False):
     created.__name__ = name
     return created
 
-def ModifiedField(name='modified', tz_aware=False):
+def ModifiedField(name='modified', tz_aware=False, **kwargs):
     ''' A shortcut field for modified time.  It sets the current date and time
         when it enters the database and then updates when the document is
         saved or updated
@@ -620,7 +620,7 @@ def ModifiedField(name='modified', tz_aware=False):
         :param tz_aware: If this is True, the value will be returned in the
                          local time of the session.  It is always saved in UTC
     '''
-    @computed_field(DateTimeField())
+    @computed_field(DateTimeField(), **kwargs)
     def modified(obj):
         if tz_aware:
             import pytz
