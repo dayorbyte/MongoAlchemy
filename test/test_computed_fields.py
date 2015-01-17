@@ -1,6 +1,7 @@
 from __future__ import print_function
 from mongoalchemy.py3compat import *
 
+import time
 from nose.tools import *
 from mongoalchemy.fields import *
 from test.util import known_failure
@@ -50,12 +51,26 @@ def test_created_modified():
         created = CreatedField()
         modified = ModifiedField()
     d = TestDoc2()
+    w1_orig = d.modified
+    time.sleep(0.01)
     w1 = d.wrap()
-    import time
     time.sleep(0.01)
     w2 = d.unwrap(w1).wrap()
     assert w1['created'] == w2['created']
     assert w1['modified'] != w2['modified']
+    assert w1_orig == d.modified
+
+def test_created_modified_in_db():
+    class TestDoc2(Document):
+        created = CreatedField()
+        modified = ModifiedField()
+
+    s = get_session()
+    s.clear_collection(TestDoc2)
+
+    d = TestDoc2()
+    s.save(d)
+
 
 def test_no_deps_computed_field():
     class TestDoc2(Document):

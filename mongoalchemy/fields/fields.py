@@ -481,7 +481,12 @@ class ComputedField(Field):
     valid_modifiers = SCALAR_MODIFIERS
 
     auto = True
-    def __init__(self, computed_type, fun, one_time=False, deps=None, **kwargs):
+    def __init__(self,
+            computed_type,
+            fun,
+            one_time=False,
+            deps=None,
+            **kwargs):
         ''' :param fun: the function to compute the value of the computed field
             :param computed_type: the type to use when wrapping the computed field
             :param deps: the names of fields on the current object which should be \
@@ -535,10 +540,12 @@ class ComputedField(Field):
         else:
             if len(self.deps) > 0:
                 return {}
+        # make sure we recompute if this is a recompute-on-save
+        value = getattr(instance, self._name)
 
         return {
             self.on_update : {
-                self._name : self.wrap(getattr(instance, self._name))
+                self._name : self.wrap(value)
             }
         }
 
@@ -610,22 +617,44 @@ def CreatedField(name='created', tz_aware=False, **kwargs):
     created.__name__ = name
     return created
 
-def ModifiedField(name='modified', tz_aware=False, **kwargs):
+class ModifiedField(DateTimeField):
     ''' A shortcut field for modified time.  It sets the current date and time
         when it enters the database and then updates when the document is
         saved or updated
 
         If you've used the Django ORM, this is the equivalent of auto_now
 
+        **WARNINGS**: When this field's parent object is sent to the database
+        its modified time is set. The local copy is not updated for technical
+        reasons. Hopefully this will not be the case in the future.
+
         :param tz_aware: If this is True, the value will be returned in the
                          local time of the session.  It is always saved in UTC
     '''
-    @computed_field(DateTimeField(), **kwargs)
-    def modified(obj):
-        if tz_aware:
+    def __init__(self, tz_aware=False, **kwargs):
+        if 'use_tz' not in kwargs:
+            kwargs['use_tz'] = tz_aware
+        kwargs['default_f'] = lambda: self.__value()
+        super(ModifiedField, self).__init__(**kwargs)
+
+    def __value(self):
+        if self.use_tz:
             import pytz
             return pytz.utc.localize(datetime.utcnow())
         return datetime.utcnow()
-    modified.__name__ = name
-    return modified
 
+    def wrap(self, obj):
+        value = self.__value()
+        return value
+
+    def __get__(self, instance, owner):
+        # class method
+        if instance is None:
+            return QueryField(self)
+
+        obj_value = instance._values[self._name]
+        if obj_value.set:
+            return obj_value.value
+        value = self.__value()
+        self.set_value(instance, value)
+        return value

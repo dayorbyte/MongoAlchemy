@@ -7,6 +7,7 @@ All #xxx numbers are the github issues.  All releases 0.14 and before were added
 * [BUG] BadResultException has been moved into exceptions.py
 * [BUG] Created and modified fields support all ComputedField kwargs
 * [BUG] Indexes can now be created using the field instead of a string
+* [BUG] Modified field always returned the current time
 
 0.18 -- 2014-09-17 7:52
 -----------------------------

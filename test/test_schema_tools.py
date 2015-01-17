@@ -23,6 +23,7 @@ class SchemaTestDoc(BaseDoc):
     default_field = IntField(default=2)
     defaultf_field = IntField(default_f=lambda : 3)
     modified = ModifiedField()
+    created = CreatedField()
     dict_field = DictField(AnythingField())
     list_field = ListField(AnythingField())
     set_field = SetField(AnythingField())
@@ -72,10 +73,15 @@ def test_schema():
     contains(fields['default_field'], {'default' : 2})
     'function' in fields['defaultf_field'].get('default_f', '')
 
-    # Computed Field
+    # Modified Field
     mod = fields['modified']
-    contains(mod, {'type': 'ComputedField', 'one_time': False, 'deps':[]})
+    contains(mod, {'type': 'ModifiedField'})
+
+    # Computed Field
+    mod = fields['created']
+    contains(mod, {'type': 'ComputedField', 'one_time': True, 'deps':[]})
     contains(mod['computed_type'], {'type': 'DateTimeField'})
+
 
     # Mapping Fields
     assert fields['dict_field']['value_type']['type'] == 'AnythingField'
