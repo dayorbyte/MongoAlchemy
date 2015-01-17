@@ -606,11 +606,9 @@ class Index(object):
         self.components = []
         self.__unique = False
         self.__drop_dups = False
-
         self.__min = None
         self.__max = None
         self.__bucket_size = None
-
         self.__expire_after = None
 
     def expire(self, after):
@@ -679,6 +677,12 @@ class Index(object):
             :param collection: the ``pymongo`` collection to ensure this index \
                     is on
         '''
+        components = []
+        for c in self.components:
+            if isinstance(c[0], Field):
+                c = (c[0].db_field, c[1])
+            components.append(c)
+
         extras = {}
         if self.__min is not None:
             extras['min'] = self.__min
@@ -688,7 +692,8 @@ class Index(object):
             extras['bucket_size'] = self.__bucket_size
         if self.__expire_after is not None:
             extras['expireAfterSeconds'] = self.__expire_after
-        collection.ensure_index(self.components, unique=self.__unique,
+
+        collection.ensure_index(components, unique=self.__unique,
             drop_dups=self.__drop_dups, **extras)
         return self
 

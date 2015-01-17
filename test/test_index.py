@@ -17,16 +17,16 @@ class TestDoc(Document):
     int1 = IntField()
     str1 = StringField()
     str2 = StringField()
-    str3 = StringField()
+    str3 = StringField(db_field='str_3_db_name')
 
-    index_1 = Index().ascending('int1').descending('str3')
-    index_2 = Index().descending('str3')
+    index_1 = Index().ascending(int1).descending(str3)
+    index_2 = Index().descending(str3)
     index_3 = Index().descending('str2').unique()
     index_4 = Index().descending('str1').unique(drop_dups=True)
 
 def test_indexes():
     s = get_session()
-    s.clear_collection(TestDoc)
+    s.db.drop_collection(TestDoc.get_collection_name())
     t = TestDoc(int1=1, str1='a', str2='b', str3='c')
     s.save(t)
 
@@ -35,7 +35,8 @@ def test_indexes():
     except:
         import simplejson as json
 
-    desired = '''{"_id_": {"key": [["_id", 1]], "v": 1}, "int1_1_str3_-1": {"dropDups": false, "key": [["int1", 1], ["str3", -1]], "v": 1}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 1}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 1}, "str3_-1": {"dropDups": false, "key": [["str3", -1]], "v": 1}}'''
+    desired = '''{"_id_": {"key": [["_id", 1]], "v": 1}, "int1_1_str_3_db_name_-1": {"dropDups": false, "key": [["int1", 1], ["str_3_db_name", -1]], "v": 1}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 1}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 1}, "str_3_db_name_-1": {"dropDups": false, "key": [["str_3_db_name", -1]], "v": 1}}'''
+    desired = json.dumps(json.loads(desired), sort_keys=True)
     got = s.get_indexes(TestDoc)
     got = json.dumps(got, sort_keys=True)
     assert got == desired, '\nG: %s\nD: %s' % (got, desired)
