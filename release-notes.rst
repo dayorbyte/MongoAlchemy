@@ -3,7 +3,8 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
-0.19 -- ONGOING
+0.19 -- 2015-01-17 12:14
+-----------------------------
 * [BUG] BadResultException has been moved into exceptions.py
 * [BUG] Created and modified fields support all ComputedField kwargs
 * [BUG] Indexes can now be created using the field instead of a string
