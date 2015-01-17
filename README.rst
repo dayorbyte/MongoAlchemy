@@ -5,12 +5,9 @@ Documentation
 
 See: http://mongoalchemy.org/
 
-This project is almost entirely driven by what people need.  There are still 
-quite a few things which MA can't do that the standard mongo driver can, but 
-they are largely things which I don't need to do (in particular, I basically 
-never do server-side code execution for performance reasons) and so I don't
-have as good of a grasp of what the common use-cases are or how to best make 
-them easier to deal with.  If MongoAlchemy doesn't do something you need it to,
-**please file a bug/feature request**.  I try to be very responsive.
+This project is in maintenance mode. I'm accepting pull requests and fixing minor bugs, but you should not expect any significant new features or rearchitecting. I'm not writing any python that uses mongo these days, so I'm not keeping up with all of the most recent changes.
 
+With the exeption of a few issues the project is in pretty good shape and should be usable for many purposes. The most glaring issue right now is that updates and subdocuments really don't play nice together.
+
+I'm also happy to give the ability to commit to people who submit a lot of good pull requests.
 
