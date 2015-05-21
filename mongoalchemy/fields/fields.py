@@ -199,7 +199,7 @@ class DateTimeField(PrimitiveField):
         return value
 
     def localize(self, session, value):
-        if not self.use_tz:
+        if value is None or not self.use_tz:
             return value
         return value.astimezone(session.timezone)
 
