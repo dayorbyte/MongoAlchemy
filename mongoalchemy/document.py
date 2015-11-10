@@ -88,6 +88,8 @@ class DocumentMeta(type):
             if not hasattr(b, 'get_fields'):
                 continue
             for name, field in b.get_fields().items():
+                if name == 'mongo_id' and new_id:
+                    continue
                 new_class._fields[name] = field
 
         for name, maybefield in class_dict.items():
