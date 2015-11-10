@@ -3,6 +3,10 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.20 -- 2015-11-10 7:32
+-----------------------------
+* [BUG] #150 Fix a bug when using _id=True to override mongo_id
+
 0.19 -- 2015-01-17 12:14
 -----------------------------
 * [BUG] BadResultException has been moved into exceptions.py
