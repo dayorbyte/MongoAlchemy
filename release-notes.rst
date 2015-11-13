@@ -3,6 +3,11 @@ Release Notes
 
 All #xxx numbers are the github issues.  All releases 0.14 and before were added retroactively, so appologies for anything that isn't quite right.
 
+0.21 -- 2015-11-13 8:45
+-----------------------------
+* [BUG] #148 pymongo 3 compatability. pymongo 2.x should still work
+
+
 0.20 -- 2015-11-10 7:32
 -----------------------------
 * [BUG] #150 Fix a bug when using _id=True to override mongo_id
