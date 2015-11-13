@@ -7,6 +7,9 @@ from mongoalchemy.document import Document, Index, FieldNotRetrieved
 from mongoalchemy.fields import *
 from mongoalchemy.query import BadQueryException, Query, BadResultException
 from test.util import known_failure
+import pymongo
+
+PYMONGO_3 = pymongo.version_tuple >= (3, 0, 0)
 
 class T(Document):
     i = IntField()
@@ -190,7 +193,8 @@ def test_explain():
     s.clear_collection(T)
     s.save(T(i=3))
     s.save(T(i=4))
-    assert 'allPlans' in s.query(T).filter(T.i > 5).explain()
+    explain = s.query(T).filter(T.i > 5).explain()
+    assert 'executionStats' in explain or 'allPlans' in explain, explain
 
 
 def test_clone():

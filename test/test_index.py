@@ -1,6 +1,7 @@
 from __future__ import print_function
 from mongoalchemy.py3compat import *
 
+import pymongo
 from nose.tools import *
 from mongoalchemy.session import Session
 from mongoalchemy.document import Document, Index
@@ -8,6 +9,8 @@ from mongoalchemy.fields import *
 from datetime import datetime
 from test.util import known_failure
 from time import sleep
+
+PYMONGO_3 = pymongo.version_tuple >= (3, 0, 0)
 
 def get_session():
     return Session.connect('unit-testing')
@@ -22,7 +25,7 @@ class TestDoc(Document):
     index_1 = Index().ascending(int1).descending(str3)
     index_2 = Index().descending(str3)
     index_3 = Index().descending('str2').unique()
-    index_4 = Index().descending('str1').unique(drop_dups=True)
+    index_4 = Index().descending('str1').unique()
 
 def test_indexes():
     s = get_session()
@@ -35,7 +38,10 @@ def test_indexes():
     except:
         import simplejson as json
 
-    desired = '''{"_id_": {"key": [["_id", 1]], "v": 1}, "int1_1_str_3_db_name_-1": {"dropDups": false, "key": [["int1", 1], ["str_3_db_name", -1]], "v": 1}, "str1_-1": {"dropDups": true, "key": [["str1", -1]], "unique": true, "v": 1}, "str2_-1": {"dropDups": false, "key": [["str2", -1]], "unique": true, "v": 1}, "str_3_db_name_-1": {"dropDups": false, "key": [["str_3_db_name", -1]], "v": 1}}'''
+    if PYMONGO_3:
+        desired = '''{"_id_": {"key": [["_id", 1]], "ns": "unit-testing.TestDoc", "v": 1}, "int1_1_str_3_db_name_-1": {"key": [["int1", 1], ["str_3_db_name", -1]], "ns": "unit-testing.TestDoc", "v": 1}, "str1_-1": {"key": [["str1", -1]], "ns": "unit-testing.TestDoc", "unique": true, "v": 1}, "str2_-1": {"key": [["str2", -1]], "ns": "unit-testing.TestDoc", "unique": true, "v": 1}, "str_3_db_name_-1": {"key": [["str_3_db_name", -1]], "ns": "unit-testing.TestDoc", "v": 1}}'''
+    else:
+        desired = '''{"_id_": {"key": [["_id", 1]], "v": 1}, "int1_1_str_3_db_name_-1": {"key": [["int1", 1], ["str_3_db_name", -1]], "v": 1}, "str1_-1": {"key": [["str1", -1]], "unique": true, "v": 1}, "str2_-1": {"key": [["str2", -1]], "unique": true, "v": 1}, "str_3_db_name_-1": {"key": [["str_3_db_name", -1]], "v": 1}}'''
     desired = json.dumps(json.loads(desired), sort_keys=True)
     got = s.get_indexes(TestDoc)
     got = json.dumps(got, sort_keys=True)

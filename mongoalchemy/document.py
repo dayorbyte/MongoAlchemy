@@ -383,6 +383,8 @@ class Document(object):
             for key in same_extrakeys:
                 if self.__extra_fields[key] != self.__extra_fields_orig[key]:
                     update_expression['$set'][key] = self.__extra_fields[key]
+            if not update_expression['$unset']:
+                del update_expression['$unset']
 
         return update_expression
 
@@ -491,8 +493,7 @@ class Document(object):
             :param fields: A list of :class:`mongoalchemy.query.QueryField` objects \
                     for the fields to load.  If ``None`` is passed all fields  \
                     are loaded
-            '''
-
+        '''
         subclass = cls.get_subclass(obj)
         if subclass and subclass != cls:
             unwrapped = subclass.unwrap(obj, fields=fields, session=session)
@@ -670,6 +671,8 @@ class Index(object):
                 index?  Default to ``False``
         '''
         self.__unique = True
+        if drop_dups and pymongo.version_tuple >= (2, 7, 5): # pragma: nocover
+            raise BadIndexException("drop_dups is not supported on pymongo >= 2.7.5")
         self.__drop_dups = drop_dups
         return self
 

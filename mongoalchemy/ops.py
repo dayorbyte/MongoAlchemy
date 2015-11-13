@@ -5,6 +5,9 @@ from itertools import chain
 from bson.objectid import ObjectId
 from abc import ABCMeta, abstractmethod
 from mongoalchemy.exceptions import InvalidUpdateException
+import pymongo
+
+PYMONGO_3 = pymongo.version_tuple >= (3, 0, 0)
 
 @add_metaclass(ABCMeta)
 class Operation(object):
@@ -61,7 +64,8 @@ class UpdateDocumentOp(Operation):
 
     def execute(self):
         self.ensure_indexes()
-        return self.collection.update(self.db_key, self.dirty_ops, upsert=self.upsert, safe=self.safe)
+        kwargs = safe_args(self.safe)
+        return self.collection.update(self.db_key, self.dirty_ops, upsert=self.upsert, **kwargs)
 
 class UpdateOp(Operation):
     def __init__(self, trans_id, session, kind, safe, update_obj):
@@ -75,8 +79,9 @@ class UpdateOp(Operation):
         self.multi = update_obj._get_multi()
 
     def execute(self):
+        kwargs = safe_args(self.safe)
         return self.collection.update(self.query, self.update_data, multi=self.multi,
-                               upsert=self.upsert, safe=self.safe)
+                               upsert=self.upsert, **kwargs)
 
 
 class SaveOp(Operation):
@@ -94,7 +99,8 @@ class SaveOp(Operation):
 
     def execute(self):
         self.ensure_indexes()
-        return self.collection.save(self.data, safe=self.safe)
+        kwargs = safe_args(self.safe)
+        return self.collection.save(self.data, **kwargs)
 
 class RemoveOp(Operation):
     def __init__(self, trans_id, session, kind, safe, query):
@@ -106,7 +112,8 @@ class RemoveOp(Operation):
 
     def execute(self):
         self.ensure_indexes()
-        return self.collection.remove(self.query, safe=self.safe)
+        kwargs = safe_args(self.safe)
+        return self.collection.remove(self.query, **kwargs)
 
 
 class RemoveDocumentOp(Operation):
@@ -126,4 +133,17 @@ class RemoveDocumentOp(Operation):
         self.ensure_indexes()
 
         collection = db[self.type.get_collection_name()]
-        return collection.remove(self.id, safe=self.safe)
+        kwargs = safe_args(self.safe)
+        return collection.remove(self.id, **kwargs)
+
+def safe_args(safe):
+    kwargs = {}
+    if PYMONGO_3: # pragma: nocover
+        if not safe:
+            kwargs['w'] = 0
+    else: # pragma: nocover
+        kwargs['safe'] = safe
+    return kwargs
+
+
+

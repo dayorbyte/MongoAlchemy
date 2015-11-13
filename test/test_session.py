@@ -8,6 +8,9 @@ from mongoalchemy.fields import *
 from mongoalchemy.exceptions import *
 from test.util import known_failure
 from pymongo.errors import DuplicateKeyError, ConfigurationError
+import pymongo
+
+PYMONGO_3 = pymongo.version_tuple > (3, 0, 0)
 
 class T(Document):
     i = IntField()
@@ -53,10 +56,17 @@ def test_tz():
         assert x.created.tzinfo is not None
         assert x.modified.tzinfo is not None
 
-@raises(ConfigurationError)
-def test_replica_set():
-    # just for code coverage
-    session = Session.connect('unit-testing', replica_set='rs1')
+if PYMONGO_3:
+    def test_replica_set():
+        # just for code coverage
+        session = Session.connect('unit-testing', replica_set='rs1')
+else:
+    @raises(ConfigurationError)
+    def test_replica_set():
+        # just for code coverage
+        session = Session.connect('unit-testing', replica_set='rs1')
+
+
 
 @raises(TransactionException)
 def test_find_and_modify_in_session():

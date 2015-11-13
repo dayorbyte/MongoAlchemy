@@ -53,6 +53,8 @@ from mongoalchemy.exceptions import (TransactionException,
                                      SessionCacheException)
 from mongoalchemy.ops import *
 
+PYMONGO_3 = pymongo.version_tuple >= (3, 0, 0)
+
 class Session(object):
 
     def __init__(self, database, tz_aware=False, timezone=None, safe=False,
@@ -160,7 +162,8 @@ class Session(object):
         if self.transactions:
             raise TransactionException('Tried to end session with an open '
                                        'transaction')
-        self.db.connection.end_request()
+        if not PYMONGO_3:
+            self.db.connection.end_request()
 
     def insert(self, item, safe=None): # pragma: nocover
         ''' [DEPRECATED] Please use save() instead. This actually calls
@@ -246,7 +249,10 @@ class Session(object):
 
         kwargs = dict()
         if query._get_fields():
-            kwargs['fields'] = query._fields_expression()
+            if PYMONGO_3: # pragma: nocover
+                kwargs['projection'] = query._fields_expression()
+            else: # pragma: nocover
+                kwargs['fields'] = query._fields_expression()
 
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
@@ -431,7 +437,10 @@ class Session(object):
         if obj is not None:
             return obj
         if ref.database and self.db.name != ref.database:
-            db = self.db.connection[ref.database]
+            if PYMONGO_3: # pragma: nocover
+                db = self.db.client[ref.database]
+            else: # pragma: nocover
+                db = self.db.connection[ref.database]
         else:
             db = self.db
         value = db.dereference(ref)
