@@ -699,7 +699,7 @@ class Index(object):
             extras['expireAfterSeconds'] = self.__expire_after
 
         collection.ensure_index(components, unique=self.__unique,
-            drop_dups=self.__drop_dups, **extras)
+            drop_dups=self.__drop_dups, background=True, **extras)
         return self
 
 class Value(object):
