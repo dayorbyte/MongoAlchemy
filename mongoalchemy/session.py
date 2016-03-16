@@ -384,8 +384,9 @@ class Session(object):
             index.ensure(collection)
 
     def auto_ensure_indexes(self, cls):
-        if self.auto_ensure:
+        if self.auto_ensure and not hasattr(cls, '_has_ensured_indexes'):
             self.ensure_indexes(cls)
+            cls._has_ensured_indexes = True
 
     def clear_queue(self, trans_id=None):
         ''' Clear the queue of database operations without executing any of
