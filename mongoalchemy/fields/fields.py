@@ -133,8 +133,8 @@ class NumberField(PrimitiveField):
 class IntField(NumberField):
     ''' Subclass of :class:`~NumberField` for ``int``'''
     def __init__(self, **kwargs):
-        ''' :param max_length: maximum value
-            :param min_length: minimum value
+        ''' :param max_value: maximum value
+            :param min_value: minimum value
             :param kwargs: arguments for :class:`Field`
         '''
         super(IntField, self).__init__(constructor=int, **kwargs)
