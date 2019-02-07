@@ -6,3 +6,5 @@ dist
 *.swp
 doctrees
 *.inv
+.vscode/tags
+
