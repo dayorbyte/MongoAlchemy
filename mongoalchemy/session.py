@@ -57,8 +57,16 @@ PYMONGO_3 = pymongo.version_tuple >= (3, 0, 0)
 
 class Session(object):
 
-    def __init__(self, database, tz_aware=False, timezone=None, safe=False,
-                 cache_size=0, auto_ensure=True):
+    def __init__(
+        self,
+        database,
+        tz_aware=False,
+        timezone=None,
+        safe=False,
+        cache_size=0,
+        auto_ensure=True,
+        format_stack_trace=None,
+    ):
         '''
         Create a session connecting to `database`.
 
@@ -85,6 +93,7 @@ class Session(object):
         self.timezone = timezone
         self.tz_aware = bool(tz_aware or timezone)
         self.auto_ensure = auto_ensure
+        self.format_stack_trace = format_stack_trace
 
         self.cache_size = cache_size
         self.cache = {}
@@ -97,7 +106,17 @@ class Session(object):
         return len(self.transactions) > 0
 
     @classmethod
-    def connect(self, database, timezone=None, cache_size=0, auto_ensure=True, replica_set=None, *args, **kwds):
+    def connect(
+        self,
+        database,
+        timezone=None,
+        cache_size=0,
+        auto_ensure=True,
+        replica_set=None,
+        format_stack_trace=None,
+        *args,
+        **kwds
+    ):
         ''' `connect` is a thin wrapper around __init__ which creates the
             database connection that the session will use.
 
@@ -128,7 +147,14 @@ class Session(object):
             conn = MongoClient(*args, **kwds)
 
         db = conn[database]
-        return Session(db, timezone=timezone, safe=safe, cache_size=cache_size, auto_ensure=auto_ensure)
+        return Session(
+            db,
+            timezone=timezone,
+            safe=safe,
+            cache_size=cache_size,
+            auto_ensure=auto_ensure,
+            format_stack_trace=format_stack_trace,
+        )
 
     def cache_write(self, obj, mongo_id=None):
         if mongo_id is None:
@@ -257,10 +283,14 @@ class Session(object):
         collection = self.db[query.type.get_collection_name()]
         cursor = collection.find(query.query, **kwargs)
 
+        if self.format_stack_trace:
+            cursor.comment(self.format_stack_trace())
+
         if query._sort:
             cursor.sort(query._sort)
         elif query.type.config_default_sort:
             cursor.sort(query.type.config_default_sort)
+
         if query.hints:
             cursor.hint(query.hints)
         if query._get_limit() is not None:
@@ -505,4 +535,3 @@ class Session(object):
             self.clear_queue()
             self.clear_cache()
         return False
-
