@@ -65,7 +65,7 @@ class Session(object):
         safe=False,
         cache_size=0,
         auto_ensure=True,
-        format_stack_trace=None,
+        wrap_collection=None,
     ):
         '''
         Create a session connecting to `database`.
@@ -93,7 +93,7 @@ class Session(object):
         self.timezone = timezone
         self.tz_aware = bool(tz_aware or timezone)
         self.auto_ensure = auto_ensure
-        self.format_stack_trace = format_stack_trace
+        self.wrap_collection = wrap_collection
 
         self.cache_size = cache_size
         self.cache = {}
@@ -113,7 +113,7 @@ class Session(object):
         cache_size=0,
         auto_ensure=True,
         replica_set=None,
-        format_stack_trace=None,
+        wrap_collection=None,
         *args,
         **kwds
     ):
@@ -153,7 +153,7 @@ class Session(object):
             safe=safe,
             cache_size=cache_size,
             auto_ensure=auto_ensure,
-            format_stack_trace=format_stack_trace,
+            wrap_collection=wrap_collection,
         )
 
     def cache_write(self, obj, mongo_id=None):
@@ -280,11 +280,10 @@ class Session(object):
             else: # pragma: nocover
                 kwargs['fields'] = query._fields_expression()
 
-        collection = self.db[query.type.get_collection_name()]
+        collection = self.wrap_collection(
+            self.db[query.type.get_collection_name()]
+        )
         cursor = collection.find(query.query, **kwargs)
-
-        if self.format_stack_trace:
-            cursor.comment(self.format_stack_trace())
 
         if query._sort:
             cursor.sort(query._sort)
@@ -355,7 +354,9 @@ class Session(object):
         self.flush()
         self.auto_ensure_indexes(fm_exp.query.type)
         # assert len(fm_exp.update_data) > 0
-        collection = self.db[fm_exp.query.type.get_collection_name()]
+        collection = self.wrap_collection(
+            self.db[fm_exp.query.type.get_collection_name()]
+        )
         kwargs = {
             'query' : fm_exp.query.query,
             'update' : fm_exp.update_data,
@@ -406,10 +407,12 @@ class Session(object):
         ''' Get the index information for the collection associated with
         `cls`.  Index information is returned in the same format as *pymongo*.
         '''
-        return self.db[cls.get_collection_name()].index_information()
+        return self.wrap_collection(
+            self.db[cls.get_collection_name()].index_information()
+        )
 
     def ensure_indexes(self, cls):
-        collection = self.db[cls.get_collection_name()]
+        collection = self.wrap_collection(self.db[cls.get_collection_name()])
         for index in cls.get_indexes():
             index.ensure(collection)
 
