@@ -27,3 +27,4 @@ from .sequence import *
 from .mapping import *
 from .ref import *
 from .document_field import *
+from .polymorphic_field import *
