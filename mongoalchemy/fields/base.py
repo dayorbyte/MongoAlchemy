@@ -255,8 +255,12 @@ class Field(object):
     def __set__(self, instance, value):
         self.set_value(instance, value)
 
-    def set_value(self, instance, value):
-        self.validate_wrap(value)
+    def set_value(self, instance, value, type_value=None):
+        extra_args = {}
+        if type_value:
+            extra_args['type_value'] = type_value
+            
+        self.validate_wrap(value, **extra_args)
         obj_value = instance._values[self._name]
         obj_value.value = value
         obj_value.dirty = True

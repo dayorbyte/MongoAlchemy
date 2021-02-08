@@ -217,7 +217,14 @@ class Document(object):
                 value = kwargs[name]
                 self._values[name] = Value(field, self,
                                            from_db=loading_from_db)
-                field.set_value(self, value)
+
+                # Pass in type_value to support polymorphic on field level
+                extra_args={}
+                if hasattr(field, 'type_field'):
+                    type_value = getattr(self, field.type_field)
+                    extra_args['type_value'] = type_value
+
+                field.set_value(self, value, **extra_args)
             elif field.auto:
                 self._values[name] = Value(field, self, from_db=False)
             else:
@@ -474,7 +481,14 @@ class Document(object):
             field = getattr(cls, name)
             try:
                 value = getattr(self, name)
-                res[field.db_field] = field.wrap(value)
+                extra_wrap = {}
+
+                # Pass in type_value to support polymorphic on field level
+                if hasattr(field, 'type_field'):
+                    type_value = getattr(self, field.type_field)
+                    extra_wrap['type_value'] = type_value
+                    
+                res[field.db_field] = field.wrap(value, **extra_wrap)
             except AttributeError as e:
                 if field.required:
                     raise MissingValueException(name)
@@ -515,6 +529,12 @@ class Document(object):
             field_is_doc = fields is not None and isinstance(field.get_type(), DocumentField)
 
             extra_unwrap = {}
+
+            # Pass in type_value to support polymorphic on field level
+            if hasattr(field, 'type_field'):
+                type_value = obj.get(field.type_field)
+                extra_unwrap['type_value'] = type_value            
+
             if field.has_autoload:
                 extra_unwrap['session'] = session
             if field_is_doc:
