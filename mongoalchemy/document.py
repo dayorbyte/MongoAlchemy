@@ -221,7 +221,7 @@ class Document(object):
                 # Pass in type_value to support polymorphic on field level
                 extra_args={}
                 if hasattr(field, 'type_field'):
-                    type_value = getattr(self, field.type_field)
+                    type_value = kwargs[field.type_field]
                     extra_args['type_value'] = type_value
 
                 field.set_value(self, value, **extra_args)
