@@ -445,8 +445,10 @@ class ObjectIdField(Field):
         ''' Validates that ``value`` is an ObjectId (or hex representation
             of one), then returns it '''
         self.validate_wrap(value)
-        if isinstance(value, bytes) or isinstance(value, basestring):
+        if isinstance(value, bytes):
             return ObjectId(value)
+        if isinstance(value, unicode):
+            return ObjectId(str(value))
         return value
 
     def unwrap(self, value, session=None):
